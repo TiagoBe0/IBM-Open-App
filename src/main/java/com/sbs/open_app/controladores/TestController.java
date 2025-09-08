@@ -1,7 +1,9 @@
 package com.sbs.open_app.controladores;
 
+import com.sbs.open_app.dto.RegistroUsuarioDTO;
 import com.sbs.open_app.entidades.Usuario;
 import com.sbs.open_app.repositorios.UsuarioRepositorio;
+import com.sbs.open_app.servicios.UsuarioServicio;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +21,8 @@ public class TestController {
     @Autowired
     private UsuarioRepositorio usuarioRepositorio;
     
+    @Autowired
+    private UsuarioServicio usuarioServicio;
     @Autowired
     private PasswordEncoder passwordEncoder;
     
@@ -81,36 +85,40 @@ public class TestController {
     }
     
     /**
-     * Endpoint para crear un usuario de prueba manualmente
-     * Accede a: http://localhost:8080/test/crear-usuario?email=test@demo.com&password=test123
+     * Test directo del servicio de registro
+     * http://localhost:8080/test/registro-directo?nombre=Test&apellido=User&email=test@test.com&password=test123
      */
-    @GetMapping("/test/crear-usuario")
-    public Map<String, Object> crearUsuarioPrueba(
+    @GetMapping("/test/registro-directo")
+    public Map<String, Object> testRegistroDirecto(
+            @RequestParam String nombre,
+            @RequestParam String apellido,
             @RequestParam String email,
             @RequestParam String password) {
         
         Map<String, Object> response = new HashMap<>();
         
-        if (usuarioRepositorio.existsByEmail(email)) {
-            response.put("error", "Ya existe un usuario con ese email");
-            return response;
+        try {
+            // Crear DTO
+            RegistroUsuarioDTO dto = new RegistroUsuarioDTO();
+            dto.setNombre(nombre);
+            dto.setApellido(apellido);
+            dto.setEmail(email);
+            dto.setPassword(password);
+            dto.setConfirmPassword(password);
+            
+            // Llamar al servicio directamente
+            Usuario usuario = usuarioServicio.registrarUsuario(dto);
+            
+            response.put("exito", true);
+            response.put("usuario_id", usuario.getId());
+            response.put("usuario_email", usuario.getEmail());
+            response.put("mensaje", "Usuario registrado exitosamente. Ahora puedes hacer login.");
+            
+        } catch (Exception e) {
+            response.put("exito", false);
+            response.put("error", e.getMessage());
+            e.printStackTrace();
         }
-        
-        Usuario usuario = new Usuario();
-        usuario.setNombre("Test");
-        usuario.setApellido("Usuario");
-        usuario.setEmail(email);
-        usuario.setPassword(passwordEncoder.encode(password));
-        usuario.setRol(Usuario.Rol.USUARIO);
-        usuario.setActivo(true);
-        
-        Usuario saved = usuarioRepositorio.save(usuario);
-        
-        response.put("mensaje", "Usuario creado exitosamente");
-        response.put("id", saved.getId());
-        response.put("email", saved.getEmail());
-        response.put("password_plain", password);
-        response.put("nota", "Ahora puedes hacer login con estas credenciales");
         
         return response;
     }

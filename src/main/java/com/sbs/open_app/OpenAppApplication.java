@@ -33,8 +33,8 @@ public class OpenAppApplication {
                     Usuario admin = new Usuario();
                     admin.setNombre("Admin");
                     admin.setApellido("Sistema");
-                    admin.setEmail("sbs-admin@gmail.com");
-                    admin.setPassword(passwordEncoder.encode("risq194201"));
+                    admin.setEmail("admin@demo.com");
+                    admin.setPassword(passwordEncoder.encode("admin123"));
                     admin.setRol(Usuario.Rol.ADMIN);
                     admin.setActivo(true);
                     admin.setFechaRegistro(LocalDateTime.now());

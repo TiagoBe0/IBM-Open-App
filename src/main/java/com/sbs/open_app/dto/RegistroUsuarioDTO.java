@@ -1,6 +1,5 @@
 package com.sbs.open_app.dto;
 
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -27,14 +26,17 @@ public class RegistroUsuarioDTO {
     private String confirmPassword;
     
     // Constructor vacío
-    public RegistroUsuarioDTO() {}
+    public RegistroUsuarioDTO() {
+        System.out.println("📦 DTO creado");
+    }
     
-    // Getters y Setters
+    // Getters y Setters con logs
     public String getNombre() {
         return nombre;
     }
     
     public void setNombre(String nombre) {
+        System.out.println("📝 DTO - Seteando nombre: " + nombre);
         this.nombre = nombre;
     }
     
@@ -43,6 +45,7 @@ public class RegistroUsuarioDTO {
     }
     
     public void setApellido(String apellido) {
+        System.out.println("📝 DTO - Seteando apellido: " + apellido);
         this.apellido = apellido;
     }
     
@@ -51,6 +54,7 @@ public class RegistroUsuarioDTO {
     }
     
     public void setEmail(String email) {
+        System.out.println("📝 DTO - Seteando email: " + email);
         this.email = email;
     }
     
@@ -59,6 +63,7 @@ public class RegistroUsuarioDTO {
     }
     
     public void setPassword(String password) {
+        System.out.println("📝 DTO - Seteando password (length): " + (password != null ? password.length() : 0));
         this.password = password;
     }
     
@@ -67,23 +72,25 @@ public class RegistroUsuarioDTO {
     }
     
     public void setConfirmPassword(String confirmPassword) {
+        System.out.println("📝 DTO - Seteando confirmPassword (length): " + (confirmPassword != null ? confirmPassword.length() : 0));
         this.confirmPassword = confirmPassword;
     }
     
-    // Validación personalizada para coincidencia de contraseñas
+    // Validación personalizada
     public boolean passwordsMatch() {
-        return password != null && password.equals(confirmPassword);
+        boolean match = password != null && password.equals(confirmPassword);
+        System.out.println("🔐 DTO - Passwords match: " + match);
+        return match;
     }
     
-    // Método toString para debugging
     @Override
     public String toString() {
         return "RegistroUsuarioDTO{" +
                 "nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", email='" + email + '\'' +
-                ", password='[PROTEGIDO]'" +
-                ", confirmPassword='[PROTEGIDO]'" +
+                ", passwordLength=" + (password != null ? password.length() : 0) +
+                ", confirmPasswordLength=" + (confirmPassword != null ? confirmPassword.length() : 0) +
                 '}';
     }
 }

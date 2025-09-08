@@ -178,8 +178,9 @@ public Collection<? extends GrantedAuthority> getAuthorities() {
     public String getNombreCompleto() {
         return nombre + " " + apellido;
     }
-    
-        public boolean isActivo() {
-        return activo;
-    }
+ 
+
+public Boolean isActivo() {
+    return activo != null ? activo : false;
+}
 }
