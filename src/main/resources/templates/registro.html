@@ -281,12 +281,7 @@
                 <button type="submit" class="btn-submit">Crear Cuenta</button>
             </form>
         </div>
-        <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
-    <div th:each="err : ${#fields.errors('*')}" th:text="${err}"></div>
-</div>
-
-<div th:if="${errorPassword != null}" class="alert alert-danger" th:text="${errorPassword}"></div>
-    </div>
+       </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

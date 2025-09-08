@@ -71,10 +71,11 @@ public class Usuario implements UserDetails {
     }
     
     // Implementación de UserDetails
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
-    }
+@Override
+public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
+}
+
     
     @Override
     public String getUsername() {

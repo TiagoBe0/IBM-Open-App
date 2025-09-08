@@ -222,24 +222,18 @@ public class UsuarioServicio implements UserDetailsService {
     /**
      * Implementación CORREGIDA de UserDetailsService para Spring Security
      * Este es el método crucial para el login
-     */@Override
-    @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepositorio.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + email));
-        
-        if (!usuario.isActivo()) {
-            throw new UsernameNotFoundException("Usuario desactivado: " + email);
-        }
-        
-        return User.builder()
-                .username(usuario.getEmail())
-                .password(usuario.getPassword())
-                .roles(usuario.getRol().name())
-                .accountExpired(false)
-                .accountLocked(false)
-                .credentialsExpired(false)
-                .disabled(!usuario.isActivo())
-                .build();
+     */
+    @Override
+@Transactional(readOnly = true)
+public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    Usuario usuario = usuarioRepositorio.findByEmail(email)
+        .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado: " + email));
+
+    if (!usuario.isActivo()) {
+        throw new UsernameNotFoundException("Usuario desactivado: " + email);
     }
+
+    return usuario; // ✅ ya es un UserDetails válido
+}
+
 }

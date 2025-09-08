@@ -36,23 +36,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // Deshabilitar CSRF temporalmente para pruebas
+            .csrf(csrf -> csrf.disable())
+            
+            // Configurar el proveedor de autenticación
             .authenticationProvider(authenticationProvider())
+            
+            // Configurar autorización
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers(
                     "/",
+                    "/index",
                     "/login",
                     "/registro",
                     "/registrar",
+                    "/error",
                     "/css/**",
                     "/js/**",
                     "/img/**",
-                    "/webjars/**"
+                    "/webjars/**",
+                    "/test/**"  // Endpoints de prueba
                 ).permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/usuario/**").hasAnyRole("USUARIO", "ADMIN", "MODERADOR")
                 .requestMatchers("/perfil/**").authenticated()
+                .requestMatchers("/dashboard/**").authenticated()
                 .anyRequest().authenticated()
             )
+            
+            // Configurar login
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
@@ -62,6 +74,8 @@ public class SecurityConfig {
                 .passwordParameter("password")
                 .permitAll()
             )
+            
+            // Configurar logout
             .logout(logout -> logout
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login?logout=true")
@@ -69,15 +83,27 @@ public class SecurityConfig {
                 .deleteCookies("JSESSIONID")
                 .permitAll()
             )
+            
+            // Configurar remember me
             .rememberMe(remember -> remember
                 .key("uniqueAndSecret")
                 .tokenValiditySeconds(86400)
                 .userDetailsService(usuarioServicio)
             )
+            
+            // Configurar manejo de excepciones
+            .exceptionHandling(exceptions -> exceptions
+                .accessDeniedPage("/error")
+            )
+            
+            // Configurar sesiones
             .sessionManagement(session -> session
                 .maximumSessions(1)
                 .expiredUrl("/login?expired=true")
             );
+        
+        // Permitir frames para H2 Console
+        http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
         
         return http.build();
     }
