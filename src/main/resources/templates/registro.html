@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Usuario</title>
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #6f42c1;
+            --success-color: #1cc88a;
+            --danger-color: #e74a3b;
+            --warning-color: #f6c23e;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+            --gray-color: #b7b9cc;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+        }
+        
+        .left-panel {
+            flex: 1;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        
+        .left-panel h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .left-panel p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .left-panel .icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .right-panel {
+            flex: 1.5;
+            padding: 40px;
+        }
+        
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-header h1 {
+            color: var(--primary-color);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .form-header p {
+            color: var(--gray-color);
+            font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.15);
+        }
+        
+        .error-message {
+            color: var(--danger-color);
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .file-upload-container {
+            border: 2px dashed var(--primary-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: rgba(78, 115, 223, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .file-upload-container:hover {
+            background-color: rgba(78, 115, 223, 0.1);
+        }
+        
+        .file-upload-container i {
+            font-size: 40px;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .preview-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .preview-image {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 50%;
+            border: 3px solid var(--primary-color);
+            display: none;
+        }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert-success {
+            background-color: rgba(28, 200, 138, 0.15);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+        
+        .alert-danger {
+            background-color: rgba(231, 74, 59, 0.15);
+            color: var(--danger-color);
+            border: 1px solid var(--danger-color);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .left-panel {
+                padding: 30px 20px;
+            }
+            
+            .right-panel {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left-panel">
+            <div class="icon">👤</div>
+            <h2>Únete a nuestra comunidad</h2>
+            <p>Regístrate para acceder a contenido exclusivo, conectar con otros usuarios y personalizar tu experiencia.</p>
+            <p>¡Sube una foto para que otros te conozcan mejor!</p>
+        </div>
+        
+        <div class="right-panel">
+            <div class="form-header">
+                <h1>Crear Cuenta</h1>
+                <p>Completa tus datos para registrarte</p>
+            </div>
+            
+            <div id="alertSuccess" class="alert alert-success">
+                ¡Registro exitoso! Serás redirigido al login.
+            </div>
+            
+            <div id="alertError" class="alert alert-danger">
+                Error en el registro. Por favor, verifica tus datos.
+            </div>
+            
+            <form id="registroForm" method="POST" action="/registrar" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="nombre">Nombre completo</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" required>
+                    <div class="error-message" id="nombreError">Por favor ingresa tu nombre completo</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                    <div class="error-message" id="emailError">Por favor ingresa un email válido</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" class="form-control" required minlength="6">
+                    <div class="error-message" id="passwordError">La contraseña debe tener al menos 6 caracteres</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar contraseña</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
+                    <div class="error-message" id="confirmPasswordError">Las contraseñas no coinciden</div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Foto de perfil (opcional)</label>
+                    <div class="file-upload-container" id="fileUploadContainer">
+                        <i>📷</i>
+                        <p>Haz clic o arrastra una imagen aquí</p>
+                        <small>Formatos: JPG, PNG, GIF - Máx. 5MB</small>
+                        <input type="file" id="foto" name="foto" class="file-input" accept="image/*">
+                    </div>
+                    <div class="preview-container">
+                        <img id="previewImage" class="preview-image" alt="Vista previa">
+                    </div>
+                    <div class="error-message" id="fotoError">Por favor selecciona una imagen válida (máx. 5MB)</div>
+                </div>
+                
+                <button type="submit" class="btn-submit">Crear Cuenta</button>
+            </form>
+        </div>
+        <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger">
+    <div th:each="err : ${#fields.errors('*')}" th:text="${err}"></div>
+</div>
+
+<div th:if="${errorPassword != null}" class="alert alert-danger" th:text="${errorPassword}"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('registroForm');
+            const fileUploadContainer = document.getElementById('fileUploadContainer');
+            const fileInput = document.getElementById('foto');
+            const previewImage = document.getElementById('previewImage');
+            const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+            
+            // Configurar el contenedor de carga de archivos
+            fileUploadContainer.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileUploadContainer.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#4e73df';
+                this.style.backgroundColor = 'rgba(78, 115, 223, 0.2)';
+            });
+            
+            fileUploadContainer.addEventListener('dragleave', function() {
+                this.style.borderColor = '#4e73df';
+                this.style.backgroundColor = 'rgba(78, 115, 223, 0.05)';
+            });
+            
+            fileUploadContainer.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#4e73df';
+                this.style.backgroundColor = 'rgba(78, 115, 223, 0.05)';
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileSelection(e.dataTransfer.files[0]);
+                }
+            });
+            
+            // Manejar la selección de archivos
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length) {
+                    handleFileSelection(e.target.files[0]);
+                }
+            });
+            
+            function handleFileSelection(file) {
+                if (file) {
+                    // Validar tipo y tamaño de archivo
+                    if (!file.type.match('image.*')) {
+                        showError('fotoError', 'Por favor selecciona una imagen válida (JPG, PNG, GIF)');
+                        return;
+                    }
+                    
+                    if (file.size > MAX_FILE_SIZE) {
+                        showError('fotoError', 'La imagen es demasiado grande. Máximo 5MB permitido.');
+                        return;
+                    }
+                    
+                    hideError('fotoError');
+                    
+                    // Mostrar vista previa
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewImage.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+            
+            // Validación del formulario
+            form.addEventListener('submit', function(e) {
+                let isValid = true;
+                
+                // Reset errores
+                hideAllErrors();
+                
+                // Validar nombre
+                const nombre = document.getElementById('nombre').value.trim();
+                if (!nombre) {
+                    showError('nombreError', 'Por favor ingresa tu nombre completo');
+                    isValid = false;
+                }
+                
+                // Validar email
+                const email = document.getElementById('email').value.trim();
+                if (!email) {
+                    showError('emailError', 'Por favor ingresa tu correo electrónico');
+                    isValid = false;
+                } else if (!isValidEmail(email)) {
+                    showError('emailError', 'Por favor ingresa un email válido');
+                    isValid = false;
+                }
+                
+                // Validar contraseña
+                const password = document.getElementById('password').value;
+                if (password.length < 6) {
+                    showError('passwordError', 'La contraseña debe tener al menos 6 caracteres');
+                    isValid = false;
+                }
+                
+                // Validar confirmación de contraseña
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (password !== confirmPassword) {
+                    showError('confirmPasswordError', 'Las contraseñas no coinciden');
+                    isValid = false;
+                }
+                
+                if (!isValid) {
+                    e.preventDefault();
+                }
+            });
+            
+            function showError(elementId, message) {
+                const element = document.getElementById(elementId);
+                element.textContent = message;
+                element.style.display = 'block';
+            }
+            
+            function hideError(elementId) {
+                document.getElementById(elementId).style.display = 'none';
+            }
+            
+            function hideAllErrors() {
+                const errors = document.querySelectorAll('.error-message');
+                errors.forEach(error => error.style.display = 'none');
+            }
+            
+            function isValidEmail(email) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return emailRegex.test(email);
+            }
+            
+            // Mostrar mensajes flash si existen
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('exito')) {
+                document.getElementById('alertSuccess').style.display = 'block';
+                document.getElementById('alertSuccess').textContent = urlParams.get('exito');
+            }
+            
+            if (urlParams.get('error')) {
+                document.getElementById('alertError').style.display = 'block';
+                document.getElementById('alertError').textContent = urlParams.get('error');
+            }
+        });
+    </script>
+</body>
+</html>
