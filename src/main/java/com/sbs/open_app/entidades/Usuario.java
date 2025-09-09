@@ -1,6 +1,8 @@
 
 package com.sbs.open_app.entidades;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -8,8 +10,10 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
@@ -49,6 +53,21 @@ public class Usuario implements UserDetails {
     @Column(name = "foto_perfil")
     private String fotoPerfil;
     
+    // Nueva relación con Arbol
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Arbol> arboles = new ArrayList<>();
+    
+    // Métodos de utilidad
+    public void addArbol(Arbol arbol) {
+        arboles.add(arbol);
+        arbol.setUsuario(this);
+    }
+    
+    public void removeArbol(Arbol arbol) {
+        arboles.remove(arbol);
+        arbol.setUsuario(null);
+    }
     // Enum para roles
     public enum Rol {
         USUARIO, ADMIN, MODERADOR

@@ -174,7 +174,31 @@ public class AuthController {
         
         return "dashboard";
     }
-    
+        @GetMapping("/registro-arbol")
+    public String registroArbol(Model model) {
+        System.out.println("📍 Accediendo al dashboard");
+        
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            
+            if (auth != null && auth.getPrincipal() instanceof Usuario) {
+                Usuario usuario = (Usuario) auth.getPrincipal();
+                System.out.println("✅ Usuario autenticado: " + usuario.getEmail());
+                model.addAttribute("usuario", usuario);
+                model.addAttribute("nombreCompleto", usuario.getNombreCompleto());
+            } else {
+                System.err.println("❌ No se pudo obtener el usuario autenticado");
+                return "redirect:/dashboard";
+            }
+            
+        } catch (Exception e) {
+            System.err.println("❌ Error al cargar dashboard: " + e.getMessage());
+            e.printStackTrace();
+            return "redirect:/dashboard";
+        }
+        
+        return "registroArbol.html";
+    }
     /**
      * Perfil del usuario
      */
