@@ -529,7 +529,7 @@
                                 <span class="tooltiptext">ID del usuario propietario del árbol</span>
                             </span>
                         </label>
-                        <input type="number" id="usuarioId" name="usuarioId" required value="1" min="1">
+                        <input type="number" id="usuarioId" name="usuarioId" required th:value="${usuarioId}" min="1">
                         <span class="helper-text">Usuario al que pertenecerá este árbol</span>
                     </div>
                 </div>
@@ -579,7 +579,7 @@
 
     <script>
         // Configuración
-        const API_URL = 'http://localhost:8080/api';
+        const API_URL = 'http://localhost:8081/api';
         
         // Establecer fecha actual por defecto
         document.addEventListener('DOMContentLoaded', function() {
@@ -716,7 +716,7 @@
         function resetForm() {
             document.getElementById('arbolForm').reset();
             // Mantener valores por defecto
-            document.getElementById('usuarioId').value = '1';
+            document.getElementById('usuarioId').value = CURRENT_USER_ID;
             document.getElementById('valorAF').value = '0';
             document.getElementById('valorBF').value = '0';
             document.getElementById('valorCF').value = '0';

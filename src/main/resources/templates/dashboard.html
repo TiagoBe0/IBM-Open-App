@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,6 +39,17 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .stats {
@@ -144,6 +155,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none;
         }
 
         .btn-primary {
@@ -346,28 +358,10 @@
             color: #666;
         }
 
-        .loading::after {
-            content: '...';
-            animation: dots 1.5s infinite;
-        }
-
-        @keyframes dots {
-            0%, 20% { content: '.'; }
-            40% { content: '..'; }
-            60%, 100% { content: '...'; }
-        }
-
         .empty-state {
             text-align: center;
             padding: 60px 20px;
             color: #999;
-        }
-
-        .empty-state svg {
-            width: 100px;
-            height: 100px;
-            margin-bottom: 20px;
-            opacity: 0.3;
         }
 
         .tree-view {
@@ -443,10 +437,38 @@
     </style>
 </head>
 <body>
+    <!-- Variables de Thymeleaf convertidas a JavaScript de forma segura -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const USUARIO_ID = /*[[${usuario.id}]]*/ 1;
+        const USUARIO_NOMBRE = /*[[${usuario.nombre}]]*/ 'Usuario';
+        const USUARIO_APELLIDO = /*[[${usuario.apellido}]]*/ '';
+        const USUARIO_USERNAME = /*[[${usuario.username}]]*/ 'usuario';
+        const API_URL = 'http://localhost:8080/api';
+        
+        console.log('Usuario autenticado - ID:', USUARIO_ID, 'Nombre:', USUARIO_NOMBRE);
+        /*]]>*/
+    </script>
+
     <div class="container">
         <div class="header">
             <h1>🌳 Sistema de Gestión Árbol-Rama-Hoja</h1>
             <p style="color: #666; margin-top: 10px;">Dashboard interactivo para gestionar la estructura jerárquica de datos</p>
+            
+            <!-- Información del usuario actual -->
+            <div class="user-info">
+                <div>
+                    <strong>👤 Usuario activo:</strong>
+                    <span th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Usuario</span>
+                    <span th:text="'(@' + ${usuario.username} + ')'">@username</span>
+                    <span th:text="'[ID: ' + ${usuario.id} + ']'">[ID: 1]</span>
+                </div>
+                <div>
+                    <a href="/logout" class="btn btn-danger">
+                        🚪 Cerrar Sesión
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="stats" id="stats">
@@ -473,21 +495,21 @@
             <button class="tab" onclick="switchTab('ramas')">🌿 Ramas</button>
             <button class="tab" onclick="switchTab('hojas')">🍃 Hojas</button>
             <button class="tab" onclick="switchTab('tree')">📊 Vista Jerárquica</button>
-            <button class="tab" onclick="switchTab('config')">⚙️ Configuración</button>
+            <button class="tab" onclick="switchTab('config')">⚙️ Mi Perfil</button>
         </div>
 
         <!-- Sección Árboles -->
         <div class="content-section active" id="arboles-section">
-        <div class="toolbar">
-            <h2>Gestión de Árboles</h2>
-            <div class="search-box">
-                <input type="text" placeholder="Buscar árboles..." id="searchArboles">
-                <button class="btn btn-primary" onclick="searchArboles()">🔍</button>
+            <div class="toolbar">
+                <h2>Gestión de Árboles</h2>
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar árboles..." id="searchArboles">
+                    <button class="btn btn-primary" onclick="searchArboles()">🔍</button>
+                </div>
+                <button class="btn btn-success" onclick="openModal('arbol')">➕ Nuevo Árbol</button>
             </div>
-            <button class="btn btn-success" onclick="nuevoArbol()">➕ Nuevo Árbol</button>
-        </div>
             <div id="arbolesTable">
-                <div class="loading">Cargando árboles</div>
+                <div class="loading">Cargando árboles...</div>
             </div>
         </div>
 
@@ -502,7 +524,7 @@
                 <button class="btn btn-success" onclick="openModal('rama')">➕ Nueva Rama</button>
             </div>
             <div id="ramasTable">
-                <div class="loading">Cargando ramas</div>
+                <div class="loading">Cargando ramas...</div>
             </div>
         </div>
 
@@ -517,7 +539,7 @@
                 <button class="btn btn-success" onclick="openModal('hoja')">➕ Nueva Hoja</button>
             </div>
             <div id="hojasTable">
-                <div class="loading">Cargando hojas</div>
+                <div class="loading">Cargando hojas...</div>
             </div>
         </div>
 
@@ -525,30 +547,36 @@
         <div class="content-section" id="tree-section">
             <div class="toolbar">
                 <h2>Vista Jerárquica</h2>
-                <select id="userFilter" onchange="loadTreeView()">
-                    <option value="">Todos los usuarios</option>
-                </select>
                 <button class="btn btn-primary" onclick="loadTreeView()">🔄 Actualizar</button>
             </div>
             <div id="treeView" class="tree-view">
-                <div class="loading">Cargando vista jerárquica</div>
+                <div class="loading">Cargando vista jerárquica...</div>
             </div>
         </div>
 
-        <!-- Configuración -->
+        <!-- Mi Perfil -->
         <div class="content-section" id="config-section">
-            <h2>Configuración del Sistema</h2>
+            <h2>Mi Perfil</h2>
             <div class="form-group">
-                <label>URL del API Backend:</label>
-                <input type="text" id="apiUrl" value="http://localhost:8080/api" />
+                <label>ID de Usuario:</label>
+                <input type="text" th:value="${usuario.id}" readonly style="background: #f0f0f0;">
             </div>
             <div class="form-group">
-                <label>Usuario por defecto (ID):</label>
-                <input type="number" id="defaultUserId" value="1" />
+                <label>Nombre de Usuario:</label>
+                <input type="text" th:value="${usuario.username}" readonly style="background: #f0f0f0;">
             </div>
-            <button class="btn btn-primary" onclick="saveConfig()">💾 Guardar Configuración</button>
+            <div class="form-group">
+                <label>Nombre Completo:</label>
+                <input type="text" th:value="${usuario.nombre + ' ' + usuario.apellido}" readonly style="background: #f0f0f0;">
+            </div>
+            <div class="form-group">
+                <label>Email:</label>
+                <input type="text" th:value="${usuario.email}" readonly style="background: #f0f0f0;">
+            </div>
+            <hr style="margin: 30px 0;">
+            <h3>Acciones</h3>
             <button class="btn btn-warning" onclick="loadTestData()">📥 Cargar Datos de Prueba</button>
-            <button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpiar Todos los Datos</button>
+            <button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpiar Mis Datos</button>
         </div>
     </div>
 
@@ -560,9 +588,12 @@
                 <button class="close-btn" onclick="closeModal()">×</button>
             </div>
             <form id="modalForm">
+                <!-- CAMPO OCULTO CRÍTICO PARA EL USUARIO -->
+                <input type="hidden" name="usuarioId" id="modalUsuarioId" th:value="${usuario.id}">
+                
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Campo A:</label>
+                        <label>Campo A: *</label>
                         <input type="text" name="a" required>
                     </div>
                     <div class="form-group">
@@ -637,59 +668,30 @@
     </div>
 
     <script>
-        
-        function nuevoArbol() {
-            // Redirigir a la página de registro de árbol
-            window.location.href = '/registro-arbol';
-
-            // O si prefieres una redirección programática con más control:
-            // window.location.assign('/arbol/registro');
-        }
         // Configuración global
-        let API_URL = localStorage.getItem('apiUrl') || 'http://localhost:8080/api';
-        let DEFAULT_USER_ID = localStorage.getItem('defaultUserId') || 1;
         let currentType = '';
         let currentEditId = null;
         let allData = {
             arboles: [],
             ramas: [],
-            hojas: [],
-            usuarios: []
+            hojas: []
         };
 
         // Inicialización
         document.addEventListener('DOMContentLoaded', () => {
-            loadConfig();
+            console.log('Dashboard cargado para usuario:', USUARIO_NOMBRE, '(ID:', USUARIO_ID, ')');
             loadAllData();
             updateStats();
         });
 
-        // Funciones de configuración
-        function loadConfig() {
-            document.getElementById('apiUrl').value = API_URL;
-            document.getElementById('defaultUserId').value = DEFAULT_USER_ID;
-        }
-
-        function saveConfig() {
-            API_URL = document.getElementById('apiUrl').value;
-            DEFAULT_USER_ID = document.getElementById('defaultUserId').value;
-            localStorage.setItem('apiUrl', API_URL);
-            localStorage.setItem('defaultUserId', DEFAULT_USER_ID);
-            showNotification('Configuración guardada', 'success');
-            loadAllData();
-        }
-
         // Cambiar pestañas
         function switchTab(tabName) {
-            // Remover clase active de todas las pestañas
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
             
-            // Activar la pestaña seleccionada
             event.target.classList.add('active');
             document.getElementById(`${tabName}-section`).classList.add('active');
             
-            // Cargar datos específicos de la pestaña
             if (tabName === 'tree') {
                 loadTreeView();
             }
@@ -710,10 +712,10 @@
             }
         }
 
-        // Cargar Árboles
+        // Cargar Árboles - SOLO DEL USUARIO ACTUAL
         async function loadArboles() {
             try {
-                const response = await fetch(`${API_URL}/arboles/usuario/${DEFAULT_USER_ID}`);
+                const response = await fetch(`${API_URL}/arboles/usuario/${USUARIO_ID}`);
                 if (!response.ok) throw new Error('Error al cargar árboles');
                 
                 allData.arboles = await response.json();
@@ -727,7 +729,6 @@
         // Cargar Ramas
         async function loadRamas() {
             try {
-                // Cargar ramas de todos los árboles
                 const ramas = [];
                 for (const arbol of allData.arboles) {
                     const response = await fetch(`${API_URL}/ramas/arbol/${arbol.id}`);
@@ -747,7 +748,6 @@
         // Cargar Hojas
         async function loadHojas() {
             try {
-                // Cargar hojas de todas las ramas
                 const hojas = [];
                 for (const rama of allData.ramas) {
                     const response = await fetch(`${API_URL}/hojas/rama/${rama.id}`);
@@ -813,6 +813,7 @@
             html += '</tbody></table>';
             document.getElementById('arbolesTable').innerHTML = html;
         }
+
 
         // Renderizar tabla de Ramas
         function renderRamasTable(ramas) {
@@ -987,6 +988,7 @@
 
         // Modal functions
         function openModal(type) {
+            
             currentType = type;
             currentEditId = null;
             document.getElementById('modalTitle').textContent = `Nuevo ${type.charAt(0).toUpperCase() + type.slice(1)}`;
@@ -996,7 +998,7 @@
             const parentSelect = document.getElementById('parentSelect');
             const parentLabel = document.getElementById('parentLabel');
             const parentId = document.getElementById('parentId');
-            
+            const usuarioIdOld = document.getElementById('usuarioId').value;
             if (type === 'arbol') {
                 parentSelect.style.display = 'none';
             } else if (type === 'rama') {
@@ -1049,7 +1051,7 @@
             
             // Agregar el ID del padre según el tipo
             if (currentType === 'arbol') {
-                data.usuarioId = parseInt(DEFAULT_USER_ID);
+                data.usuarioId = parseInt(usuarioId);
             } else if (currentType === 'rama') {
                 data.arbolId = parseInt(formData.get('parentId'));
             } else if (currentType === 'hoja') {

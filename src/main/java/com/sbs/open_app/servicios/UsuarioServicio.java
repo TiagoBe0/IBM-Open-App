@@ -25,10 +25,8 @@ import java.util.UUID;
 @Service
 public class UsuarioServicio implements UserDetailsService {
     
-    @Autowired
     private UsuarioRepositorio usuarioRepositorio;
     
-    @Autowired
     private PasswordEncoder passwordEncoder;
     
     // Directorio para guardar imágenes
@@ -43,6 +41,43 @@ public class UsuarioServicio implements UserDetailsService {
     /**
      * Verificar usuarios al iniciar
      */
+    
+    
+    
+    
+    // Autenticar usuario
+    public Usuario autenticar(String username, String password) {
+        Optional<Usuario> usuarioOpt = usuarioRepositorio.findByEmail(username);
+        
+        if (usuarioOpt.isPresent()) {
+            Usuario usuario = usuarioOpt.get();
+            
+            // Si las contraseñas están hasheadas
+            if (passwordEncoder.matches(password, usuario.getPassword())) {
+                return usuario;
+            }
+            
+            // Si las contraseñas están en texto plano (solo para desarrollo)
+            // NOTA: En producción siempre usar hashing
+            if (password.equals(usuario.getPassword())) {
+                return usuario;
+            }
+        }
+        
+        return null;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     @PostConstruct
     public void verificarUsuarios() {
         System.out.println("\n=== VERIFICACIÓN DE USUARIOS EN BASE DE DATOS ===");

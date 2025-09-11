@@ -10,48 +10,105 @@ import com.sbs.open_app.entidades.Usuario;
 import com.sbs.open_app.repositorios.UsuarioRepositorio;
 import com.sbs.open_app.repositorios.ArbolRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class ArbolService {
     
+    private static final Logger logger = LoggerFactory.getLogger(ArbolService.class);
+    @Autowired
     private final ArbolRepository arbolRepository;
+    @Autowired
     private final UsuarioRepositorio usuarioRepository;
-    
+    @Transactional
     public ArbolDTO crear(ArbolDTO arbolDTO) {
-        Usuario usuario = usuarioRepository.findById(arbolDTO.getUsuarioId())
-            .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        // Log para debug
+        logger.info("=== INICIANDO CREACIÓN DE ÁRBOL ===");
+        logger.info("Datos recibidos: {}", arbolDTO);
+        logger.info("Usuario ID recibido: {}", arbolDTO.getUsuarioId());
         
+        // Validación de usuarioId
+        if (arbolDTO.getUsuarioId() == null) {
+            logger.error("Error: usuarioId es null");
+            throw new IllegalArgumentException("El campo usuarioId es obligatorio");
+        }
+        
+        // Buscar usuario
+        Usuario usuario = usuarioRepository.findById(arbolDTO.getUsuarioId())
+            .orElseThrow(() -> {
+                logger.error("Usuario no encontrado con ID: {}", arbolDTO.getUsuarioId());
+                // Listar usuarios disponibles para debug
+                List<Usuario> usuarios = usuarioRepository.findAll();
+                logger.info("Usuarios disponibles en la BD:");
+                usuarios.forEach(u -> logger.info("- ID: {}, Username: {}", u.getId(), u.getUsername()));
+                
+                return new RuntimeException("Usuario no encontrado con ID: " + arbolDTO.getUsuarioId());
+            });
+        
+        logger.info("Usuario encontrado: {} ({})", usuario.getUsername(), usuario.getId());
+        
+        // Crear entidad
         Arbol arbol = convertirDTOaEntidad(arbolDTO);
         arbol.setUsuario(usuario);
         
-        Arbol arbolGuardado = arbolRepository.save(arbol);
-        return convertirEntidadADTO(arbolGuardado);
+        logger.info("Árbol a guardar: Campo A={}, Usuario={}", arbol.getA(), usuario.getUsername());
+        
+        // Guardar
+        try {
+            Arbol arbolGuardado = arbolRepository.save(arbol);
+            logger.info("Árbol guardado exitosamente con ID: {}", arbolGuardado.getId());
+            
+            ArbolDTO resultado = convertirEntidadADTO(arbolGuardado);
+            logger.info("=== CREACIÓN COMPLETADA ===");
+            return resultado;
+            
+        } catch (Exception e) {
+            logger.error("Error al guardar el árbol: ", e);
+            throw new RuntimeException("Error al guardar el árbol: " + e.getMessage());
+        }
     }
     
     @Transactional(readOnly = true)
     public ArbolDTO obtenerPorId(Long id) {
+        logger.info("Buscando árbol con ID: {}", id);
+        
         Arbol arbol = arbolRepository.findByIdWithRamas(id)
-            .orElseThrow(() -> new RuntimeException("Arbol no encontrado"));
+            .orElseThrow(() -> {
+                logger.error("Árbol no encontrado con ID: {}", id);
+                return new RuntimeException("Árbol no encontrado con ID: " + id);
+            });
+        
         return convertirEntidadADTO(arbol);
     }
     
     @Transactional(readOnly = true)
     public List<ArbolDTO> obtenerPorUsuario(Long usuarioId) {
-        return arbolRepository.findByUsuarioId(usuarioId)
-            .stream()
+        logger.info("Buscando árboles del usuario ID: {}", usuarioId);
+        
+        List<Arbol> arboles = arbolRepository.findByUsuarioId(usuarioId);
+        logger.info("Encontrados {} árboles para el usuario {}", arboles.size(), usuarioId);
+        
+        return arboles.stream()
             .map(this::convertirEntidadADTO)
             .collect(Collectors.toList());
     }
     
     public ArbolDTO actualizar(Long id, ArbolDTO arbolDTO) {
+        logger.info("Actualizando árbol ID: {}", id);
+        
         Arbol arbol = arbolRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Arbol no encontrado"));
+            .orElseThrow(() -> {
+                logger.error("Árbol no encontrado para actualizar, ID: {}", id);
+                return new RuntimeException("Árbol no encontrado con ID: " + id);
+            });
         
         // Actualizar campos
         arbol.setA(arbolDTO.getA());
@@ -69,14 +126,21 @@ public class ArbolService {
         arbol.setCalendario(arbolDTO.getCalendario());
         
         Arbol arbolActualizado = arbolRepository.save(arbol);
+        logger.info("Árbol actualizado exitosamente");
+        
         return convertirEntidadADTO(arbolActualizado);
     }
     
     public void eliminar(Long id) {
+        logger.info("Eliminando árbol ID: {}", id);
+        
         if (!arbolRepository.existsById(id)) {
-            throw new RuntimeException("Arbol no encontrado");
+            logger.error("Intento de eliminar árbol inexistente, ID: {}", id);
+            throw new RuntimeException("Árbol no encontrado con ID: " + id);
         }
+        
         arbolRepository.deleteById(id);
+        logger.info("Árbol eliminado exitosamente");
     }
     
     private ArbolDTO convertirEntidadADTO(Arbol arbol) {
@@ -96,7 +160,6 @@ public class ArbolService {
         dto.setBc(arbol.isBc());
         dto.setCalendario(arbol.getCalendario());
         dto.setUsuarioId(arbol.getUsuario() != null ? arbol.getUsuario().getId() : null);
-        // Si necesitas las ramas, las puedes mapear aquí
         return dto;
     }
     
