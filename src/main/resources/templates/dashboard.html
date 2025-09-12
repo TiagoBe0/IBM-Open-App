@@ -444,7 +444,8 @@
         const USUARIO_NOMBRE = /*[[${usuario.nombre}]]*/ 'Usuario';
         const USUARIO_APELLIDO = /*[[${usuario.apellido}]]*/ '';
         const USUARIO_USERNAME = /*[[${usuario.username}]]*/ 'usuario';
-        const API_URL = 'http://localhost:8080/api';
+        
+        const API_URL = 'http://localhost:8081/api';
         
         console.log('Usuario autenticado - ID:', USUARIO_ID, 'Nombre:', USUARIO_NOMBRE);
         /*]]>*/
@@ -587,9 +588,9 @@
                 <h2 id="modalTitle">Nuevo Registro</h2>
                 <button class="close-btn" onclick="closeModal()">×</button>
             </div>
-            <form id="modalForm">
+            <form id="modalForm" th:action="@{/api/arbol/registrar}" method="POST">
                 <!-- CAMPO OCULTO CRÍTICO PARA EL USUARIO -->
-                <input type="hidden" name="usuarioId" id="modalUsuarioId" th:value="${usuario.id}">
+                <input type="text" name="usuarioId" id="modalUsuarioId" th:value="${usuario.id}">
                 
                 <div class="form-row">
                     <div class="form-group">
@@ -667,7 +668,7 @@
         </div>
     </div>
 
-    <script>
+   <script>
         // Configuración global
         let currentType = '';
         let currentEditId = null;
@@ -713,18 +714,18 @@
         }
 
         // Cargar Árboles - SOLO DEL USUARIO ACTUAL
-        async function loadArboles() {
-            try {
-                const response = await fetch(`${API_URL}/arboles/usuario/${USUARIO_ID}`);
-                if (!response.ok) throw new Error('Error al cargar árboles');
-                
-                allData.arboles = await response.json();
-                renderArbolesTable(allData.arboles);
-            } catch (error) {
-                console.error('Error:', error);
-                document.getElementById('arbolesTable').innerHTML = '<div class="empty-state">No se pudieron cargar los árboles</div>';
-            }
-        }
+async function loadArboles() {
+    try {
+        const response = await fetch(`${API_URL}/arbol/usuario/${USUARIO_ID}`);
+        if (!response.ok) throw new Error('Error al cargar árboles');
+        
+        allData.arboles = await response.json();
+        renderArbolesTable(allData.arboles);
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('arbolesTable').innerHTML = '<div class="empty-state">No se pudieron cargar los árboles</div>';
+    }
+}
 
         // Cargar Ramas
         async function loadRamas() {
@@ -813,7 +814,6 @@
             html += '</tbody></table>';
             document.getElementById('arbolesTable').innerHTML = html;
         }
-
 
         // Renderizar tabla de Ramas
         function renderRamasTable(ramas) {
@@ -918,7 +918,7 @@
         // Vista jerárquica
         async function loadTreeView() {
             const treeView = document.getElementById('treeView');
-            treeView.innerHTML = '<div class="loading">Cargando vista jerárquica</div>';
+            treeView.innerHTML = '<div class="loading">Cargando vista jerárquica...</div>';
 
             try {
                 await loadAllData();
@@ -988,23 +988,24 @@
 
         // Modal functions
         function openModal(type) {
-            
             currentType = type;
             currentEditId = null;
             document.getElementById('modalTitle').textContent = `Nuevo ${type.charAt(0).toUpperCase() + type.slice(1)}`;
             document.getElementById('modalForm').reset();
             
+            // IMPORTANTE: Establecer el usuario ID del campo hidden
+            document.getElementById('modalUsuarioId').value = USUARIO_ID;
+            
             // Configurar el selector de padre según el tipo
             const parentSelect = document.getElementById('parentSelect');
             const parentLabel = document.getElementById('parentLabel');
             const parentId = document.getElementById('parentId');
-            const usuarioIdOld = document.getElementById('usuarioId').value;
+            
             if (type === 'arbol') {
                 parentSelect.style.display = 'none';
             } else if (type === 'rama') {
                 parentSelect.style.display = 'block';
                 parentLabel.textContent = 'Seleccionar Árbol:';
-                // Cargar árboles en el select
                 parentId.innerHTML = '<option value="">Seleccione un árbol...</option>';
                 allData.arboles.forEach(arbol => {
                     parentId.innerHTML += `<option value="${arbol.id}">${arbol.a || 'Árbol ' + arbol.id}</option>`;
@@ -1012,12 +1013,16 @@
             } else if (type === 'hoja') {
                 parentSelect.style.display = 'block';
                 parentLabel.textContent = 'Seleccionar Rama:';
-                // Cargar ramas en el select
                 parentId.innerHTML = '<option value="">Seleccione una rama...</option>';
                 allData.ramas.forEach(rama => {
                     parentId.innerHTML += `<option value="${rama.id}">${rama.a || 'Rama ' + rama.id}</option>`;
                 });
             }
+            
+            // Establecer fecha actual
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.querySelector('[name="calendario"]').value = now.toISOString().slice(0, 16);
             
             document.getElementById('modal').classList.add('active');
         }
@@ -1028,69 +1033,107 @@
             currentEditId = null;
         }
 
-        // Form submission
-        document.getElementById('modalForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const formData = new FormData(e.target);
-            const data = {
-                a: formData.get('a'),
-                b: formData.get('b'),
-                c: formData.get('c'),
-                d: formData.get('d'),
-                e: formData.get('e'),
-                f: formData.get('f'),
-                af: parseFloat(formData.get('af')) || 0,
-                bf: parseFloat(formData.get('bf')) || 0,
-                cf: parseFloat(formData.get('cf')) || 0,
-                ba: formData.get('ba') ? true : false,
-                bb: formData.get('bb') ? true : false,
-                bc: formData.get('bc') ? true : false,
-                calendario: formData.get('calendario') || new Date().toISOString()
-            };
-            
-            // Agregar el ID del padre según el tipo
-            if (currentType === 'arbol') {
-                data.usuarioId = parseInt(usuarioId);
-            } else if (currentType === 'rama') {
-                data.arbolId = parseInt(formData.get('parentId'));
-            } else if (currentType === 'hoja') {
-                data.ramaId = parseInt(formData.get('parentId'));
+        // Form submission - CRÍTICO PARA GUARDAR
+document.getElementById('modalForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando...';
+    
+    try {
+        const formData = new FormData(e.target);
+        const data = {
+            a: formData.get('a') || '',
+            b: formData.get('b') || '',
+            c: formData.get('c') || '',
+            d: formData.get('d') || '',
+            e: formData.get('e') || '',
+            f: formData.get('f') || '',
+            af: parseFloat(formData.get('af')) || 0,
+            bf: parseFloat(formData.get('bf')) || 0,
+            cf: parseFloat(formData.get('cf')) || 0,
+            ba: formData.has('ba'),
+            bb: formData.has('bb'),
+            bc: formData.has('bc'),
+            calendario: formData.get('calendario') || new Date().toISOString()
+        };
+        
+        // CRÍTICO: Agregar el ID del usuario o padre según el tipo
+        if (currentType === 'arbol') {
+            const usuarioId = parseInt(formData.get('usuarioId'));
+            if (!usuarioId) {
+                throw new Error('No se pudo obtener el ID del usuario');
             }
+            data.usuarioId = usuarioId;
             
-            try {
-                const url = currentEditId 
-                    ? `${API_URL}/${currentType}s/${currentEditId}`
-                    : `${API_URL}/${currentType}s`;
-                    
-                const method = currentEditId ? 'PUT' : 'POST';
-                
-                const response = await fetch(url, {
-                    method: method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) throw new Error('Error al guardar');
-                
-                showNotification(`${currentType} guardado correctamente`, 'success');
-                closeModal();
-                loadAllData();
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Error al guardar el registro', 'error');
+        } else if (currentType === 'rama') {
+            data.arbolId = parseInt(formData.get('parentId'));
+            if (!data.arbolId) {
+                showNotification('Debe seleccionar un árbol', 'error');
+                return;
             }
+        } else if (currentType === 'hoja') {
+            data.ramaId = parseInt(formData.get('parentId'));
+            if (!data.ramaId) {
+                showNotification('Debe seleccionar una rama', 'error');
+                return;
+            }
+        }
+        
+        // URL CORREGIDA - Agrega /registrar para crear
+        const url = currentEditId 
+            ? `${API_URL}/${currentType}/${currentEditId}`
+            : `${API_URL}/${currentType}/registrar`;
+            
+        const method = currentEditId ? 'PUT' : 'POST';
+        
+        console.log('Enviando a:', url, 'Método:', method);
+        console.log('Datos:', data);
+        
+        const response = await fetch(url, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
         });
-
+        
+        const responseText = await response.text();
+        console.log('Respuesta del servidor:', responseText);
+        
+        if (!response.ok) {
+            throw new Error(responseText || `Error ${response.status}: ${response.statusText}`);
+        }
+        
+        let result;
+        try {
+            result = JSON.parse(responseText);
+        } catch (e) {
+            result = { success: true, message: 'Guardado exitoso' };
+        }
+        
+        showNotification(result.message || `${currentType} guardado correctamente`, 'success');
+        closeModal();
+        await loadAllData();
+        
+    } catch (error) {
+        console.error('Error completo:', error);
+        showNotification('Error al guardar: ' + error.message, 'error');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    }
+});
         // Edit record
-        async function editRecord(type, id) {
-            currentType = type;
-            currentEditId = id;
-            
-            try {
-                const response = await fetch(`${API_URL}/${type}s/${id}`);
+ async function editRecord(type, id) {
+    currentType = type;
+    currentEditId = id;
+    
+    try {
+        const response = await fetch(`${API_URL}/${type}s/${id}`);
                 if (!response.ok) throw new Error('Error al cargar registro');
                 
                 const data = await response.json();
@@ -1114,6 +1157,30 @@
                     document.querySelector('[name="calendario"]').value = date.toISOString().slice(0, 16);
                 }
                 
+                // Configurar el selector padre si es necesario
+                const parentSelect = document.getElementById('parentSelect');
+                if (type === 'rama') {
+                    parentSelect.style.display = 'block';
+                    document.getElementById('parentLabel').textContent = 'Árbol:';
+                    document.getElementById('parentId').innerHTML = '<option value="">Seleccione...</option>';
+                    allData.arboles.forEach(arbol => {
+                        const selected = arbol.id === data.arbolId ? 'selected' : '';
+                        document.getElementById('parentId').innerHTML += 
+                            `<option value="${arbol.id}" ${selected}>${arbol.a || 'Árbol ' + arbol.id}</option>`;
+                    });
+                } else if (type === 'hoja') {
+                    parentSelect.style.display = 'block';
+                    document.getElementById('parentLabel').textContent = 'Rama:';
+                    document.getElementById('parentId').innerHTML = '<option value="">Seleccione...</option>';
+                    allData.ramas.forEach(rama => {
+                        const selected = rama.id === data.ramaId ? 'selected' : '';
+                        document.getElementById('parentId').innerHTML += 
+                            `<option value="${rama.id}" ${selected}>${rama.a || 'Rama ' + rama.id}</option>`;
+                    });
+                } else {
+                    parentSelect.style.display = 'none';
+                }
+                
                 document.getElementById('modalTitle').textContent = `Editar ${type.charAt(0).toUpperCase() + type.slice(1)}`;
                 document.getElementById('modal').classList.add('active');
             } catch (error) {
@@ -1123,13 +1190,15 @@
         }
 
         // Delete record
-        async function deleteRecord(type, id) {
-            if (!confirm(`¿Está seguro de eliminar este ${type}?`)) return;
-            
-            try {
-                const response = await fetch(`${API_URL}/${type}s/${id}`, {
-                    method: 'DELETE'
-                });
+      
+// Eliminar registro - ACTUALIZADO  
+async function deleteRecord(type, id) {
+    if (!confirm(`¿Está seguro de eliminar este ${type}?`)) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/${type}s/${id}`, {
+            method: 'DELETE'
+        });
                 
                 if (!response.ok) throw new Error('Error al eliminar');
                 
@@ -1174,7 +1243,7 @@
 
         // Update statistics
         function updateStats() {
-            document.getElementById('totalUsuarios').textContent = '4'; // Hardcoded por ahora
+            document.getElementById('totalUsuarios').textContent = '1'; // Solo el usuario actual
             document.getElementById('totalArboles').textContent = allData.arboles.length;
             document.getElementById('totalRamas').textContent = allData.ramas.length;
             document.getElementById('totalHojas').textContent = allData.hojas.length;
@@ -1201,15 +1270,38 @@
 
         // Load test data
         async function loadTestData() {
-            if (!confirm('¿Cargar datos de prueba? Esto puede sobrescribir datos existentes.')) return;
+            if (!confirm('¿Cargar datos de prueba? Esto creará varios registros de ejemplo.')) return;
             
-            showNotification('Función de carga de datos de prueba no implementada aún', 'info');
-            // Aquí podrías implementar la carga de datos de prueba mediante la API
+            try {
+                // Crear árboles de prueba
+                const arboles = [
+                    { a: 'Proyecto Alpha', b: 'Desarrollo', c: 'Activo', d: 'Web', e: 'React', f: 'Frontend', af: 85.5, bf: 92.3, cf: 78.9, ba: true, bb: false, bc: true },
+                    { a: 'Proyecto Beta', b: 'Testing', c: 'Completado', d: 'API', e: 'Node.js', f: 'Backend', af: 95.0, bf: 88.7, cf: 91.2, ba: true, bb: true, bc: false },
+                    { a: 'Proyecto Gamma', b: 'Planificación', c: 'Pendiente', d: 'Mobile', e: 'Flutter', f: 'Híbrido', af: 45.2, bf: 55.8, cf: 60.1, ba: false, bb: false, bc: false }
+                ];
+
+                for (const arbol of arboles) {
+                    arbol.usuarioId = USUARIO_ID;
+                    arbol.calendario = new Date().toISOString();
+                    
+                    await fetch(`${API_URL}/arbol`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(arbol)
+                    });
+                }
+                
+                showNotification('Datos de prueba cargados exitosamente', 'success');
+                loadAllData();
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error al cargar datos de prueba', 'error');
+            }
         }
 
         // Clear all data
         async function clearAllData() {
-            if (!confirm('¿Está seguro de eliminar TODOS los datos? Esta acción no se puede deshacer.')) return;
+            if (!confirm('¿Está seguro de eliminar TODOS sus datos? Esta acción no se puede deshacer.')) return;
             if (!confirm('¿Está REALMENTE seguro? Se eliminarán todos los árboles, ramas y hojas.')) return;
             
             try {
@@ -1225,7 +1317,7 @@
                 
                 // Finalmente los árboles
                 for (const arbol of allData.arboles) {
-                    await fetch(`${API_URL}/arboles/${arbol.id}`, { method: 'DELETE' });
+                    await fetch(`${API_URL}/arbol/${arbol.id}`, { method: 'DELETE' });
                 }
                 
                 showNotification('Todos los datos han sido eliminados', 'success');
@@ -1235,6 +1327,19 @@
                 showNotification('Error al eliminar los datos', 'error');
             }
         }
+
+        // Verificar sesión cada 5 minutos
+        setInterval(async () => {
+            try {
+                const response = await fetch('/api/auth/check');
+                if (!response.ok) {
+                    alert('Su sesión ha expirado. Por favor, inicie sesión nuevamente.');
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Error verificando sesión:', error);
+            }
+        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>

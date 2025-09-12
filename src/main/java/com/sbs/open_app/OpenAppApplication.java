@@ -8,8 +8,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.LocalDateTime;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
+@ComponentScan(basePackages = {
+    "com.sbs.open_app",
+    "com.sbs.open_app.controllers",  // ← Agrega esto
+    "com.sbs.open_app.servicios",      // ← Y esto
+    "com.sbs.open_app.repositorios"    // ← Y esto
+})
 public class OpenAppApplication {
 
     public static void main(String[] args) {
