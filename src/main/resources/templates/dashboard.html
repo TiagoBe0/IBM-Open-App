@@ -732,7 +732,7 @@ async function loadArboles() {
             try {
                 const ramas = [];
                 for (const arbol of allData.arboles) {
-                    const response = await fetch(`${API_URL}/ramas/arbol/${arbol.id}`);
+                    const response = await fetch(`${API_URL}/rama/arbol/${arbol.id}`);
                     if (response.ok) {
                         const arbolRamas = await response.json();
                         ramas.push(...arbolRamas);
@@ -751,7 +751,7 @@ async function loadArboles() {
             try {
                 const hojas = [];
                 for (const rama of allData.ramas) {
-                    const response = await fetch(`${API_URL}/hojas/rama/${rama.id}`);
+                    const response = await fetch(`${API_URL}/hoja/rama/${rama.id}`);
                     if (response.ok) {
                         const ramaHojas = await response.json();
                         hojas.push(...ramaHojas);
@@ -1307,12 +1307,12 @@ async function deleteRecord(type, id) {
             try {
                 // Eliminar todas las hojas primero
                 for (const hoja of allData.hojas) {
-                    await fetch(`${API_URL}/hojas/${hoja.id}`, { method: 'DELETE' });
+                    await fetch(`${API_URL}/hoja/${hoja.id}`, { method: 'DELETE' });
                 }
                 
                 // Luego las ramas
                 for (const rama of allData.ramas) {
-                    await fetch(`${API_URL}/ramas/${rama.id}`, { method: 'DELETE' });
+                    await fetch(`${API_URL}/rama/${rama.id}`, { method: 'DELETE' });
                 }
                 
                 // Finalmente los árboles

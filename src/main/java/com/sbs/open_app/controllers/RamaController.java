@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ramas")
+@RequestMapping("/api/rama")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class RamaController {
     
     private final RamaService ramaService;
     
-    @PostMapping
+    @PostMapping("/registrar")
     public ResponseEntity<RamaDTO> crear(@RequestBody RamaDTO ramaDTO) {
         RamaDTO nuevaRama = ramaService.crear(ramaDTO);
         return new ResponseEntity<>(nuevaRama, HttpStatus.CREATED);

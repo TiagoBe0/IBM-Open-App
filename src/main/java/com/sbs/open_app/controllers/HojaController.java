@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/hojas")
+@RequestMapping("/api/hoja")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
 public class HojaController {
     
     private final HojaService hojaService;
     
-    @PostMapping
+    @PostMapping("/registrar")
     public ResponseEntity<HojaDTO> crear(@RequestBody HojaDTO hojaDTO) {
         HojaDTO nuevaHoja = hojaService.crear(hojaDTO);
         return new ResponseEntity<>(nuevaHoja, HttpStatus.CREATED);
