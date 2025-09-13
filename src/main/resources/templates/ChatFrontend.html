@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat en Tiempo Real</title>
+    <style>
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chat-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff4444;
+            transition: background 0.3s;
+        }
+
+        .status-indicator.connected {
+            background: #44ff44;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.own {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.other {
+            align-self: flex-start;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 5px;
+        }
+
+        .message.system {
+            align-self: center;
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+            font-style: italic;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        .message-header {
+            font-size: 0.8em;
+            margin-bottom: 5px;
+            opacity: 0.7;
+        }
+
+        .message-content {
+            margin: 0;
+        }
+
+        .message-time {
+            font-size: 0.7em;
+            margin-top: 5px;
+            opacity: 0.6;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+            border-radius: 0 0 10px 10px;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: #667eea;
+        }
+
+        .chat-input button {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .chat-input button:hover {
+            transform: translateY(-1px);
+        }
+
+        .chat-input button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .typing-indicator {
+            padding: 10px 15px;
+            font-style: italic;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .users-online {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        .emoji-picker {
+            display: none;
+            position: absolute;
+            bottom: 70px;
+            right: 15px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .emoji-picker.show {
+            display: block;
+        }
+
+        .emoji {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 2px;
+            transition: background 0.2s;
+        }
+
+        .emoji:hover {
+            background: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-container">
+    <div class="chat-header">
+        <h3>💬 Chat en Tiempo Real</h3>
+        <div class="chat-status">
+            <div class="status-indicator" id="connectionStatus"></div>
+            <span id="statusText">Desconectado</span>
+            <div class="users-online" id="usersOnline">👥 0 usuarios</div>
+        </div>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+        <div class="message system">
+            <div class="message-content">Bienvenido al chat. Conectando...</div>
+        </div>
+    </div>
+    
+    <div class="typing-indicator" id="typingIndicator" style="display: none;">
+        Alguien está escribiendo...
+    </div>
+    
+    <div class="chat-input">
+        <input type="text" id="messageInput" placeholder="Escribe tu mensaje..." disabled>
+        <button id="emojiButton" type="button" disabled>😊</button>
+        <button id="sendButton" type="button" disabled>Enviar</button>
+    </div>
+    
+    <div class="emoji-picker" id="emojiPicker">
+        <span class="emoji" onclick="addEmoji('😊')">😊</span>
+        <span class="emoji" onclick="addEmoji('😂')">😂</span>
+        <span class="emoji" onclick="addEmoji('❤️')">❤️</span>
+        <span class="emoji" onclick="addEmoji('👍')">👍</span>
+        <span class="emoji" onclick="addEmoji('👎')">👎</span>
+        <span class="emoji" onclick="addEmoji('🎉')">🎉</span>
+        <span class="emoji" onclick="addEmoji('🚀')">🚀</span>
+        <span class="emoji" onclick="addEmoji('💡')">💡</span>
+    </div>
+</div>
+
+<!-- SockJS y STOMP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+<script>
+    // Variables globales
+    let stompClient = null;
+    let currentUser = {
+        id: USUARIO_ID, // Viene del HTML principal
+        nombre: USUARIO_NOMBRE,
+        username: USUARIO_USERNAME
+    };
+    let isConnected = false;
+    let usersOnline = 0;
+    let isTyping = false;
+    let typingTimeout = null;
+
+    // Elementos del DOM
+    const chatMessages = document.getElementById('chatMessages');
+    const messageInput = document.getElementById('messageInput');
+    const sendButton = document.getElementById('sendButton');
+    const emojiButton = document.getElementById('emojiButton');
+    const emojiPicker = document.getElementById('emojiPicker');
+    const connectionStatus = document.getElementById('connectionStatus');
+    const statusText = document.getElementById('statusText');
+    const usersOnlineElement = document.getElementById('usersOnline');
+    const typingIndicator = document.getElementById('typingIndicator');
+
+    // Inicializar chat
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Inicializando chat para usuario:', currentUser);
+        connectToChat();
+        setupEventListeners();
+        loadChatHistory();
+    });
+
+    // Configurar event listeners
+    function setupEventListeners() {
+        // Enviar mensaje con Enter
+        messageInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Botón enviar
+        sendButton.addEventListener('click', sendMessage);
+
+        // Botón emoji
+        emojiButton.addEventListener('click', function() {
+            emojiPicker.classList.toggle('show');
+        });
+
+        // Cerrar emoji picker al hacer click fuera
+        document.addEventListener('click', function(e) {
+            if (!emojiButton.contains(e.target) && !emojiPicker.contains(e.target)) {
+                emojiPicker.classList.remove('show');
+            }
+        });
+
+        // Indicador de escritura
+        messageInput.addEventListener('input', function() {
+            if (!isTyping && messageInput.value.trim() !== '') {
+                isTyping = true;
+                sendTypingIndicator(true);
+            }
+            
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                if (isTyping) {
+                    isTyping = false;
+                    sendTypingIndicator(false);
+                }
+            }, 1000);
+        });
+    }
+
+    // Conectar al WebSocket
+    function connectToChat() {
+        const socket = new SockJS('/ws-chat');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function(frame) {
+            console.log('Conectado al chat:', frame);
+            isConnected = true;
+            updateConnectionStatus(true);
+            
+            // Suscribirse al canal público
+            stompClient.subscribe('/topic/public', function(message) {
+                const chatMessage = JSON.parse(message.body);
+                displayMessage(chatMessage);
+            });
+
+            // Suscribirse a mensajes privados
+            stompClient.subscribe('/user/queue/private', function(message) {
+                const chatMessage = JSON.parse(message.body);
+                displayMessage(chatMessage, true);
+            });
+
+            // Notificar que el usuario se unió
+            const joinMessage = {
+                usuarioId: currentUser.id,
+                usuarioNombre: currentUser.nombre,
+                tipo: 'JOIN',
+                salaChat: 'general'
+            };
+
+            stompClient.send('/app/chat.addUser', {}, JSON.stringify(joinMessage));
+            
+            // Habilitar controles
+            enableChatControls();
+            
+        }, function(error) {
+            console.error('Error de conexión:', error);
+            updateConnectionStatus(false);
+            
+            // Intentar reconectar después de 5 segundos
+            setTimeout(connectToChat, 5000);
+        });
+    }
+
+    // Enviar mensaje
+    function sendMessage() {
+        const messageContent = messageInput.value.trim();
+        
+        if (messageContent === '' || !isConnected) {
+            return;
+        }
+
+        const chatMessage = {
+            usuarioId: currentUser.id,
+            usuarioNombre: currentUser.nombre,
+            contenido: messageContent,
+            tipo: 'CHAT',
+            salaChat: 'general'
+        };
+
+        stompClient.send('/app/chat.sendMessage', {}, JSON.stringify(chatMessage));
+        
+        messageInput.value = '';
+        
+        // Detener indicador de escritura
+        if (isTyping) {
+            isTyping = false;
+            sendTypingIndicator(false);
+        }
+    }
+
+    // Mostrar mensaje en el chat
+    function displayMessage(message, isPrivate = false) {
+        const messageElement = document.createElement('div');
+        const isOwnMessage = message.usuarioId === currentUser.id;
+        const isSystemMessage = message.tipo === 'SYSTEM' || message.tipo === 'JOIN' || message.tipo === 'LEAVE';
+
+        if (isSystemMessage) {
+            messageElement.className = 'message system';
+            messageElement.innerHTML = `
+                <div class="message-content">${message.contenido}</div>
+                <div class="message-time">${formatTime(message.fechaEnvio)}</div>
+            `;
+        } else {
+            messageElement.className = `message ${isOwnMessage ? 'own' : 'other'}`;
+            
+            let headerText = message.usuarioNombre;
+            if (isPrivate) headerText += ' (privado)';
+            
+            messageElement.innerHTML = `
+                ${!isOwnMessage ? `<div class="message-header">${headerText}</div>` : ''}
+                <div class="message-content">${escapeHtml(message.contenido)}</div>
+                <div class="message-time">${formatTime(message.fechaEnvio)}</div>
+            `;
+        }
+
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Actualizar contador si es mensaje de entrada/salida
+        if (message.tipo === 'JOIN') {
+            usersOnline++;
+        } else if (message.tipo === 'LEAVE') {
+            usersOnline = Math.max(0, usersOnline - 1);
+        }
+        
+        updateUsersOnlineCount();
+    }
+
+    // Cargar historial del chat
+    async function loadChatHistory() {
+        try {
+            const response = await fetch('/api/chat/messages/general?limite=20');
+            if (response.ok) {
+                const messages = await response.json();
+                
+                // Limpiar mensajes existentes excepto el de bienvenida
+                chatMessages.innerHTML = '';
+                
+                messages.forEach(message => {
+                    displayMessage(message);
+                });
+            }
+        } catch (error) {
+            console.error('Error cargando historial:', error);
+        }
+    }
+
+    // Enviar indicador de escritura
+    function sendTypingIndicator(typing) {
+        if (!isConnected) return;
+        
+        // Aquí puedes implementar la lógica para mostrar "usuario está escribiendo"
+        // Por simplicidad, no se implementa el backend para esto
+    }
+
+    // Agregar emoji
+    function addEmoji(emoji) {
+        messageInput.value += emoji;
+        messageInput.focus();
+        emojiPicker.classList.remove('show');
+    }
+
+    // Actualizar estado de conexión
+    function updateConnectionStatus(connected) {
+        if (connected) {
+            connectionStatus.classList.add('connected');
+            statusText.textContent = 'Conectado';
+        } else {
+            connectionStatus.classList.remove('connected');
+            statusText.textContent = 'Desconectado';
+        }
+    }
+
+    // Habilitar controles del chat
+    function enableChatControls() {
+        messageInput.disabled = false;
+        sendButton.disabled = false;
+        emojiButton.disabled = false;
+        messageInput.placeholder = 'Escribe tu mensaje...';
+        messageInput.focus();
+    }
+
+    // Actualizar contador de usuarios online
+    function updateUsersOnlineCount() {
+        usersOnlineElement.textContent = `👥 ${usersOnline} usuarios`;
+    }
+
+    // Formatear tiempo
+    function formatTime(dateString) {
+        if (!dateString) return '';
+        
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        
+        if (diffMins < 1) return 'ahora';
+        if (diffMins < 60) return `hace ${diffMins}m`;
+        if (diffMins < 1440) return `hace ${Math.floor(diffMins / 60)}h`;
+        
+        return date.toLocaleString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Escapar HTML para prevenir XSS
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Desconectar al cerrar la ventana
+    window.addEventListener('beforeunload', function() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+    });
+
+    // Función para integrar en el dashboard principal
+    function toggleChat() {
+        const chatContainer = document.querySelector('.chat-container');
+        if (chatContainer.style.display === 'none') {
+            chatContainer.style.display = 'flex';
+        } else {
+            chatContainer.style.display = 'none';
+        }
+    }
+</script>

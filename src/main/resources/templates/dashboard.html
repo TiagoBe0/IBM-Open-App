@@ -5,6 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistema Árbol/Rama/Hoja</title>
     <style>
+        
+        
+        
+.photo-upload-container {
+    border: 2px dashed #e0e0e0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.3s;
+}
+
+.photo-upload-container:hover {
+    border-color: #667eea;
+}
+
+.photo-preview, .current-photo {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.photo-preview img, .current-photo img {
+    border: 2px solid #e0e0e0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+#photoInput {
+    margin-bottom: 10px;
+}
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.8em;
+    margin: 0 5px;
+}
         * {
             margin: 0;
             padding: 0;
@@ -143,7 +177,115 @@
             flex-wrap: wrap;
             gap: 10px;
         }
+/* Estilos para el botón flotante del chat */
+    .chat-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        transition: all 0.3s ease;
+        user-select: none;
+    }
 
+    .chat-toggle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .unread-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: #ff4444;
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    /* Modal específico para el chat */
+    .chat-modal-content {
+        max-width: 600px;
+        width: 90vw;
+        height: 70vh;
+        max-height: 600px;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chat-modal-content .modal-header {
+        margin: 0;
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
+        flex-shrink: 0;
+    }
+
+    .chat-modal-content .chat-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Notificaciones para mensajes nuevos */
+    .chat-notification {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 15px 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 2000;
+        animation: slideInRight 0.3s ease;
+        cursor: pointer;
+    }
+
+    @keyframes slideInRight {
+        from { transform: translateX(100%); }
+        to { transform: translateX(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .chat-modal-content {
+            width: 95vw;
+            height: 80vh;
+            max-height: none;
+        }
+        
+        .chat-toggle {
+            bottom: 15px;
+            right: 15px;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+        }
+    }
         .btn {
             padding: 10px 20px;
             border: none;
@@ -434,6 +576,611 @@
         .notification.info {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
+        
+        /* AGREGAR ESTO DENTRO DEL <style> DE TU DASHBOARD */
+
+/* Estilos para el botón flotante del chat */
+.chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    user-select: none;
+}
+
+.chat-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.unread-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff4444;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Modal específico para el chat */
+.chat-modal-content {
+    max-width: 600px;
+    width: 90vw;
+    height: 70vh;
+    max-height: 600px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-modal-content .modal-header {
+    margin: 0;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+}
+
+.chat-modal-content .chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Estilos del chat */
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    height: 500px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chat-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 15px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #ff4444;
+    transition: background 0.3s;
+}
+
+.status-indicator.connected {
+    background: #44ff44;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    background: #f8f9fa;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 15px;
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.message.own {
+    align-self: flex-end;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-bottom-right-radius: 5px;
+}
+
+.message.other {
+    align-self: flex-start;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-bottom-left-radius: 5px;
+}
+
+.message.system {
+    align-self: center;
+    background: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+    font-style: italic;
+    text-align: center;
+    max-width: 90%;
+}
+
+.message-header {
+    font-size: 0.8em;
+    margin-bottom: 5px;
+    opacity: 0.7;
+}
+
+.message-content {
+    margin: 0;
+}
+
+.message-time {
+    font-size: 0.7em;
+    margin-top: 5px;
+    opacity: 0.6;
+}
+
+.chat-input {
+    display: flex;
+    padding: 15px;
+    border-top: 1px solid #e0e0e0;
+    background: white;
+    border-radius: 0 0 10px 10px;
+    gap: 10px;
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.chat-input input:focus {
+    border-color: #667eea;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.chat-input button:hover {
+    transform: translateY(-1px);
+}
+
+.chat-input button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.users-online {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.9em;
+}
+
+.emoji-picker {
+    display: none;
+    position: absolute;
+    bottom: 70px;
+    right: 15px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.emoji-picker.show {
+    display: block;
+}
+
+.emoji {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+    display: inline-block;
+    margin: 2px;
+    transition: background 0.2s;
+}
+
+.emoji:hover {
+    background: #f0f0f0;
+}
+
+
+/* Estilos para Claude Assistant */
+.claude-toggle {
+    position: fixed;
+    bottom: 100px; /* Arriba del botón de chat */
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    user-select: none;
+    position: relative;
+}
+
+.claude-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.claude-badge {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: #ff6b6b;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.claude-modal-content {
+    max-width: 700px;
+    width: 90vw;
+    height: 80vh;
+    max-height: 700px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.claude-modal-content .modal-header {
+    margin: 0;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.claude-status {
+    display: flex;
+    align-items: center;
+    font-size: 0.9em;
+}
+
+.status-connected {
+    color: #28a745;
+}
+
+.status-disconnected {
+    color: #dc3545;
+}
+
+.status-loading {
+    color: #ffc107;
+}
+
+.claude-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.claude-conversation {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    background: #f8f9fa;
+}
+
+.claude-welcome {
+    text-align: center;
+    padding: 40px 20px;
+    color: #666;
+}
+
+.welcome-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+}
+
+.claude-welcome h3 {
+    margin: 0 0 8px 0;
+    color: #333;
+}
+
+.claude-welcome p {
+    margin: 0 0 20px 0;
+}
+
+.suggestion-chips {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.chip {
+    background: #e9ecef;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.2s;
+}
+
+.chip:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.claude-message {
+    margin: 16px 0;
+    padding: 16px;
+    border-radius: 12px;
+    max-width: 85%;
+    word-wrap: break-word;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.claude-message.user {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 4px;
+}
+
+.claude-message.assistant {
+    background: white;
+    border: 1px solid #e0e0e0;
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+}
+
+.claude-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    margin-right: auto;
+}
+
+.message-header {
+    font-size: 0.8em;
+    opacity: 0.7;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.message-content {
+    line-height: 1.5;
+}
+
+.message-content pre {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 8px;
+    border-radius: 4px;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+
+.message-footer {
+    font-size: 0.7em;
+    opacity: 0.6;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.claude-input-area {
+    border-top: 1px solid #e0e0e0;
+    background: white;
+    padding: 20px;
+    flex-shrink: 0;
+}
+
+.input-type-selector {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    justify-content: center;
+}
+
+.input-type-selector label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.input-type-selector input[type="radio"] {
+    display: none;
+}
+
+.selector-label {
+    padding: 6px 12px;
+    border-radius: 16px;
+    background: #e9ecef;
+    font-size: 0.9em;
+    transition: all 0.2s;
+}
+
+.input-type-selector input[type="radio"]:checked + .selector-label {
+    background: #667eea;
+    color: white;
+}
+
+.claude-input {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.claude-input textarea {
+    flex: 1;
+    min-height: 60px;
+    max-height: 120px;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 0.95em;
+    transition: border-color 0.3s;
+}
+
+.claude-input textarea:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.claude-input button {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: transform 0.2s;
+    min-width: 80px;
+}
+
+.claude-input button:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.claude-input button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.token-info {
+    margin-top: 8px;
+    text-align: center;
+    color: #666;
+}
+
+.typing-indicator {
+    margin: 16px 0;
+    padding: 16px;
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    max-width: 85%;
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
+}
+
+.typing-dots {
+    display: inline-block;
+}
+
+.typing-dots span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #667eea;
+    margin: 0 2px;
+    animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .claude-modal-content {
+        width: 95vw;
+        height: 90vh;
+    }
+    
+    .claude-toggle {
+        bottom: 80px;
+        right: 15px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+    
+    .input-type-selector {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .suggestion-chips {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+
+
     </style>
 </head>
 <body>
@@ -580,94 +1327,230 @@
             <button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpiar Mis Datos</button>
         </div>
     </div>
+<div id="chatToggle" class="chat-toggle" onclick="toggleChatModal()">
+    💬
+    <span id="unreadCount" class="unread-badge" style="display: none;">0</span>
+</div>
 
-    <!-- Modal -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Nuevo Registro</h2>
-                <button class="close-btn" onclick="closeModal()">×</button>
+<div id="claudeToggle" class="claude-toggle" onclick="toggleClaudeModal()">
+    🤖
+    <span class="claude-badge">AI</span>
+</div>
+<!-- Modal del Chat -->
+<div class="modal" id="chatModal">
+    <div class="modal-content chat-modal-content">
+        <div class="modal-header">
+            <h2>💬 Chat en Tiempo Real</h2>
+            <button class="close-btn" onclick="closeChatModal()">&times;</button>
+        </div>
+        
+        <!-- Aquí va todo el HTML del chat que creamos anteriormente -->
+        <div class="chat-container" style="margin: 0; border: none; box-shadow: none;">
+            <div class="chat-header" style="border-radius: 0;">
+                <h3>Chat General</h3>
+                <div class="chat-status">
+                    <div class="status-indicator" id="chatConnectionStatus"></div>
+                    <span id="chatStatusText">Desconectado</span>
+                    <div class="users-online" id="chatUsersOnline">👥 0 usuarios</div>
+                </div>
             </div>
-            <form id="modalForm" th:action="@{/api/arbol/registrar}" method="POST">
-                <!-- CAMPO OCULTO CRÍTICO PARA EL USUARIO -->
-                <input type="text" name="usuarioId" id="modalUsuarioId" th:value="${usuario.id}">
-                
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Campo A: *</label>
-                        <input type="text" name="a" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Campo B:</label>
-                        <input type="text" name="b">
-                    </div>
+            
+            <div class="chat-messages" id="chatMessagesModal">
+                <div class="message system">
+                    <div class="message-content">Bienvenido al chat. Conectando...</div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Campo C:</label>
-                        <input type="text" name="c">
-                    </div>
-                    <div class="form-group">
-                        <label>Campo D:</label>
-                        <input type="text" name="d">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Campo E:</label>
-                        <input type="text" name="e">
-                    </div>
-                    <div class="form-group">
-                        <label>Campo F:</label>
-                        <input type="text" name="f">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Valor AF:</label>
-                        <input type="number" step="0.01" name="af" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Valor BF:</label>
-                        <input type="number" step="0.01" name="bf" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label>Valor CF:</label>
-                        <input type="number" step="0.01" name="cf" value="0">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Flags:</label>
-                    <div class="checkbox-group">
-                        <label>
-                            <input type="checkbox" name="ba"> BA
-                        </label>
-                        <label>
-                            <input type="checkbox" name="bb"> BB
-                        </label>
-                        <label>
-                            <input type="checkbox" name="bc"> BC
-                        </label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Calendario:</label>
-                    <input type="datetime-local" name="calendario">
-                </div>
-                <div class="form-group" id="parentSelect" style="display: none;">
-                    <label id="parentLabel">Seleccionar padre:</label>
-                    <select name="parentId" id="parentId">
-                        <option value="">Seleccione...</option>
-                    </select>
-                </div>
-                <div class="actions">
-                    <button type="submit" class="btn btn-success">Guardar</button>
-                    <button type="button" class="btn btn-danger" onclick="closeModal()">Cancelar</button>
-                </div>
-            </form>
+            </div>
+            
+            <div class="typing-indicator" id="chatTypingIndicator" style="display: none;">
+                Alguien está escribiendo...
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="chatMessageInput" placeholder="Escribe tu mensaje..." disabled>
+                <button id="chatEmojiButton" type="button" disabled>😊</button>
+                <button id="chatSendButton" type="button" disabled>Enviar</button>
+            </div>
+            
+            <div class="emoji-picker" id="chatEmojiPicker">
+                <span class="emoji" onclick="addChatEmoji('😊')">😊</span>
+                <span class="emoji" onclick="addChatEmoji('😂')">😂</span>
+                <span class="emoji" onclick="addChatEmoji('❤️')">❤️</span>
+                <span class="emoji" onclick="addChatEmoji('👍')">👍</span>
+                <span class="emoji" onclick="addChatEmoji('👎')">👎</span>
+                <span class="emoji" onclick="addChatEmoji('🎉')">🎉</span>
+                <span class="emoji" onclick="addChatEmoji('🚀')">🚀</span>
+                <span class="emoji" onclick="addChatEmoji('💡')">💡</span>
+            </div>
         </div>
     </div>
+</div>
+    <!-- Modal --><!-- Modal actualizado con soporte para fotos -->
+    
+<!-- Modal de Claude Assistant -->
+<div class="modal" id="claudeModal">
+    <div class="modal-content claude-modal-content">
+        <div class="modal-header">
+            <h2>🤖 Claude Assistant</h2>
+            <div class="claude-status">
+                <span id="claudeStatus" class="status-disconnected">Verificando...</span>
+            </div>
+            <button class="close-btn" onclick="closeClaudeModal()">&times;</button>
+        </div>
+        
+        <div class="claude-container">
+            <!-- Área de conversación -->
+            <div class="claude-conversation" id="claudeConversation">
+                <div class="claude-welcome">
+                    <div class="welcome-icon">🤖</div>
+                    <h3>¡Hola! Soy Claude</h3>
+                    <p>Tu asistente IA integrado. Puedo ayudarte con:</p>
+                    <div class="suggestion-chips">
+                        <button class="chip" onclick="useSuggestion('help')">💡 Ayuda del Sistema</button>
+                        <button class="chip" onclick="useSuggestion('analysis')">📊 Análisis de Datos</button>
+                        <button class="chip" onclick="useSuggestion('general')">💬 Consulta General</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Área de entrada -->
+            <div class="claude-input-area">
+                <div class="input-type-selector">
+                    <label>
+                        <input type="radio" name="queryType" value="help" checked>
+                        <span class="selector-label">💡 Ayuda</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="queryType" value="analysis">
+                        <span class="selector-label">📊 Análisis</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="queryType" value="general">
+                        <span class="selector-label">💬 General</span>
+                    </label>
+                </div>
+                
+                <div class="claude-input">
+                    <textarea id="claudeMessageInput" placeholder="Hazle una pregunta a Claude..." disabled></textarea>
+                    <button id="claudeSendButton" type="button" disabled>
+                        <span class="send-text">Enviar</span>
+                        <span class="send-loading" style="display: none;">⏳</span>
+                    </button>
+                </div>
+                
+                <div class="token-info" id="tokenInfo" style="display: none;">
+                    <small>Tokens: <span id="tokenCount">0</span> | Costo estimado: $<span id="estimatedCost">0.00</span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal" id="modal">
+    
+    
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Nuevo Registro</h2>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        <form id="modalForm">
+            <!-- CAMPO OCULTO CRÍTICO PARA EL USUARIO -->
+            <input type="hidden" name="usuarioId" id="modalUsuarioId" th:value="${usuario.id}">
+            
+            <!-- NUEVA SECCIÓN DE FOTO -->
+            <div class="form-group">
+                <label>Foto (opcional):</label>
+                <div class="photo-upload-container">
+                    <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(this)">
+                    <div class="photo-preview" id="photoPreview" style="display: none;">
+                        <img id="previewImage" src="" alt="Vista previa" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removePhoto()" style="margin-top: 10px;">Quitar foto</button>
+                    </div>
+                    <div class="current-photo" id="currentPhoto" style="display: none;">
+                        <img id="currentImage" src="" alt="Foto actual" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                        <button type="button" class="btn btn-warning btn-sm" onclick="changePhoto()" style="margin-top: 10px;">Cambiar foto</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteCurrentPhoto()" style="margin-top: 10px;">Eliminar foto</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Campo A: *</label>
+                    <input type="text" name="a" required>
+                </div>
+                <div class="form-group">
+                    <label>Campo B:</label>
+                    <input type="text" name="b">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Campo C:</label>
+                    <input type="text" name="c">
+                </div>
+                <div class="form-group">
+                    <label>Campo D:</label>
+                    <input type="text" name="d">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Campo E:</label>
+                    <input type="text" name="e">
+                </div>
+                <div class="form-group">
+                    <label>Campo F:</label>
+                    <input type="text" name="f">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Valor AF:</label>
+                    <input type="number" step="0.01" name="af" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Valor BF:</label>
+                    <input type="number" step="0.01" name="bf" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Valor CF:</label>
+                    <input type="number" step="0.01" name="cf" value="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Flags:</label>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" name="ba"> BA
+                    </label>
+                    <label>
+                        <input type="checkbox" name="bb"> BB
+                    </label>
+                    <label>
+                        <input type="checkbox" name="bc"> BC
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Calendario:</label>
+                <input type="datetime-local" name="calendario">
+            </div>
+            <div class="form-group" id="parentSelect" style="display: none;">
+                <label id="parentLabel">Seleccionar padre:</label>
+                <select name="parentId" id="parentId">
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+            <div class="actions">
+                <button type="submit" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-danger" onclick="closeModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
    <script>
   // Configuración global
 let currentType = '';
@@ -1070,6 +1953,7 @@ async function loadParentOptions(parentType) {
 // ==================== FUNCIÓN DE ENVÍO DEL FORMULARIO ====================
 
 // Event listener para el formulario
+// Modificar el event listener del formulario para incluir fotos
 document.getElementById('modalForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -1087,17 +1971,35 @@ document.getElementById('modalForm').addEventListener('submit', async (e) => {
     data.cf = parseFloat(data.cf) || 0;
     data.usuarioId = parseInt(data.usuarioId);
     
-    // Agregar ID del padre según el tipo
-    if (currentType === 'rama' && data.parentId) {
-        data.arbolId = parseInt(data.parentId);
-        delete data.parentId;
-    } else if (currentType === 'hoja' && data.parentId) {
-        data.ramaId = parseInt(data.parentId);
-        delete data.parentId;
-    }
-    
     try {
-        // Determinar la URL según el tipo de entidad
+        // 1. SUBIR FOTO PRIMERO (si hay una nueva)
+        let fotoId = currentPhotoId; // Mantener la foto actual si existe
+        
+        if (selectedPhotoFile) {
+            showNotification('Subiendo foto...', 'info');
+            fotoId = await uploadPhoto();
+            
+            if (!fotoId) {
+                // Si falla la subida de foto, no continuar
+                return;
+            }
+        }
+        
+        // 2. Agregar foto ID a los datos
+        if (fotoId) {
+            data.fotoId = fotoId;
+        }
+        
+        // 3. Agregar ID del padre según el tipo
+        if (currentType === 'rama' && data.parentId) {
+            data.arbolId = parseInt(data.parentId);
+            delete data.parentId;
+        } else if (currentType === 'hoja' && data.parentId) {
+            data.ramaId = parseInt(data.parentId);
+            delete data.parentId;
+        }
+        
+        // 4. Determinar la URL según el tipo de entidad
         let url;
         switch(currentType) {
             case 'arbol':
@@ -1165,6 +2067,257 @@ document.getElementById('modalForm').addEventListener('submit', async (e) => {
         );
     }
 });
+
+// Variables globales para fotos
+let selectedPhotoFile = null;
+let currentPhotoId = null;
+
+// ==================== FUNCIONES DE FOTO ====================
+
+// Previsualizar foto seleccionada
+function previewPhoto(input) {
+    const file = input.files[0];
+    if (file) {
+        // Validaciones
+        if (file.size > 5 * 1024 * 1024) { // 5MB
+            showNotification('La imagen es demasiado grande. Máximo 5MB.', 'error');
+            input.value = '';
+            return;
+        }
+        
+        if (!file.type.startsWith('image/')) {
+            showNotification('Solo se permiten archivos de imagen.', 'error');
+            input.value = '';
+            return;
+        }
+        
+        selectedPhotoFile = file;
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImage').src = e.target.result;
+            document.getElementById('photoPreview').style.display = 'block';
+            document.getElementById('currentPhoto').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Quitar foto seleccionada
+function removePhoto() {
+    selectedPhotoFile = null;
+    document.getElementById('photoInput').value = '';
+    document.getElementById('photoPreview').style.display = 'none';
+    
+    // Si hay una foto actual, mostrarla de nuevo
+    if (currentPhotoId) {
+        document.getElementById('currentPhoto').style.display = 'block';
+    }
+}
+
+// Cambiar foto actual
+function changePhoto() {
+    document.getElementById('photoInput').click();
+}
+
+// Eliminar foto actual
+async function deleteCurrentPhoto() {
+    if (!currentPhotoId) return;
+    
+    if (!confirm('¿Estás seguro de que quieres eliminar la foto actual?')) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/foto/${currentPhotoId}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            currentPhotoId = null;
+            document.getElementById('currentPhoto').style.display = 'none';
+            showNotification('Foto eliminada correctamente', 'success');
+        } else {
+            throw new Error('Error al eliminar la foto');
+        }
+    } catch (error) {
+        console.error('Error eliminando foto:', error);
+        showNotification('Error al eliminar la foto', 'error');
+    }
+}
+
+// Subir foto al servidor
+async function uploadPhoto() {
+    if (!selectedPhotoFile) return null;
+    
+    const formData = new FormData();
+    formData.append('file', selectedPhotoFile);
+    
+    try {
+        const response = await fetch(`${API_URL}/foto/upload`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            throw new Error('Error al subir la foto');
+        }
+        
+        const fotoData = await response.json();
+        console.log('Foto subida exitosamente:', fotoData);
+        return fotoData.id;
+    } catch (error) {
+        console.error('Error subiendo foto:', error);
+        showNotification('Error al subir la foto: ' + error.message, 'error');
+        return null;
+    }
+}
+
+// Cargar foto en el modal para edición
+async function loadPhotoForEdit(fotoId) {
+    if (!fotoId) {
+        document.getElementById('currentPhoto').style.display = 'none';
+        return;
+    }
+    
+    try {
+        currentPhotoId = fotoId;
+        document.getElementById('currentImage').src = `${API_URL}/foto/${fotoId}`;
+        document.getElementById('currentPhoto').style.display = 'block';
+        document.getElementById('photoPreview').style.display = 'none';
+    } catch (error) {
+        console.error('Error cargando foto:', error);
+        document.getElementById('currentPhoto').style.display = 'none';
+    }
+}
+
+// Limpiar estado de fotos al cerrar modal
+function clearPhotoState() {
+    selectedPhotoFile = null;
+    currentPhotoId = null;
+    document.getElementById('photoInput').value = '';
+    document.getElementById('photoPreview').style.display = 'none';
+    document.getElementById('currentPhoto').style.display = 'none';
+}
+
+// ==================== MODIFICAR FUNCIONES EXISTENTES ====================
+
+// Modificar la función openModal para manejar fotos
+function openModal(type, editId = null) {
+    currentType = type;
+    currentEditId = editId;
+    
+    const modal = document.getElementById('modal');
+    const form = document.getElementById('modalForm');
+    const title = document.getElementById('modalTitle');
+    const parentSelect = document.getElementById('parentSelect');
+    const parentLabel = document.getElementById('parentLabel');
+    
+    // Limpiar formulario y fotos
+    form.reset();
+    clearPhotoState();
+    
+    // Configurar título y opciones según el tipo
+    switch(type) {
+        case 'arbol':
+            title.textContent = editId ? 'Editar Árbol' : 'Nuevo Árbol';
+            parentSelect.style.display = 'none';
+            break;
+            
+        case 'rama':
+            title.textContent = editId ? 'Editar Rama' : 'Nueva Rama';
+            parentSelect.style.display = 'block';
+            parentLabel.textContent = 'Seleccionar Árbol:';
+            loadParentOptions('arbol');
+            break;
+            
+        case 'hoja':
+            title.textContent = editId ? 'Editar Hoja' : 'Nueva Hoja';
+            parentSelect.style.display = 'block';
+            parentLabel.textContent = 'Seleccionar Rama:';
+            loadParentOptions('rama');
+            break;
+    }
+    
+    // Si es edición, cargar datos existentes
+    if (editId) {
+        loadRecordForEdit(type, editId);
+    } else {
+        // Establecer el usuario ID para nuevos registros
+        document.getElementById('modalUsuarioId').value = USUARIO_ID;
+        // Establecer fecha actual
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        document.querySelector('[name="calendario"]').value = now.toISOString().slice(0, 16);
+    }
+    
+    modal.classList.add('active');
+}
+
+// Modificar la función closeModal para limpiar fotos
+function closeModal() {
+    document.getElementById('modal').classList.remove('active');
+    clearPhotoState();
+    currentType = '';
+    currentEditId = null;
+}
+
+// Modificar la función loadRecordForEdit para cargar fotos
+async function loadRecordForEdit(type, id) {
+    try {
+        let url;
+        switch(type) {
+            case 'arbol':
+                url = `${API_URL}/arbol/${id}`;
+                break;
+            case 'rama':
+                url = `${API_URL}/rama/${id}`;
+                break;
+            case 'hoja':
+                url = `${API_URL}/hoja/${id}`;
+                break;
+        }
+        
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Error al cargar datos para edición');
+        
+        const data = await response.json();
+        
+        // Llenar el formulario con los datos existentes
+        const form = document.getElementById('modalForm');
+        Object.keys(data).forEach(key => {
+            const input = form.querySelector(`[name="${key}"]`);
+            if (input) {
+                if (input.type === 'checkbox') {
+                    input.checked = data[key];
+                } else if (input.type === 'datetime-local' && data[key]) {
+                    const date = new Date(data[key]);
+                    input.value = date.toISOString().slice(0, 16);
+                } else {
+                    input.value = data[key] || '';
+                }
+            }
+        });
+        
+        // Cargar foto si existe
+        if (data.fotoId) {
+            await loadPhotoForEdit(data.fotoId);
+        }
+        
+        // Establecer el padre si corresponde
+        if (type === 'rama' && data.arbolId) {
+            setTimeout(() => {
+                document.getElementById('parentId').value = data.arbolId;
+            }, 100);
+        } else if (type === 'hoja' && data.ramaId) {
+            setTimeout(() => {
+                document.getElementById('parentId').value = data.ramaId;
+            }, 100);
+        }
+        
+    } catch (error) {
+        console.error('Error cargando datos para edición:', error);
+        showNotification('Error al cargar datos para edición', 'error');
+    }
+}
 
 // ==================== FUNCIÓN DE EDICIÓN ====================
 
@@ -1399,6 +2552,697 @@ setInterval(async () => {
         console.error('Error verificando sesión:', error);
     }
 }, 5 * 60 * 1000);
+
+
+
+  // Variables globales del chat
+    let stompClient = null;
+    let currentUser = {
+        id: USUARIO_ID, // Viene del HTML principal
+        nombre: USUARIO_NOMBRE,
+        username: USUARIO_USERNAME
+    };
+    let isConnected = false;
+    let chatModalOpen = false;
+    let unreadMessages = 0;
+
+    // Elementos del DOM
+    let chatMessages, messageInput, sendButton, emojiButton, emojiPicker;
+    let connectionStatus, statusText, usersOnlineElement;
+
+    // Inicializar chat cuando se carga la página
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Inicializando chat para usuario:', currentUser);
+        initializeChatElements();
+    });
+
+    // Inicializar elementos del DOM
+    function initializeChatElements() {
+        chatMessages = document.getElementById('chatMessagesModal');
+        messageInput = document.getElementById('chatMessageInput');
+        sendButton = document.getElementById('chatSendButton');
+        emojiButton = document.getElementById('chatEmojiButton');
+        emojiPicker = document.getElementById('chatEmojiPicker');
+        connectionStatus = document.getElementById('chatConnectionStatus');
+        statusText = document.getElementById('chatStatusText');
+        usersOnlineElement = document.getElementById('chatUsersOnline');
+
+        setupEventListeners();
+    }
+
+    // Configurar event listeners
+    function setupEventListeners() {
+        if (messageInput && sendButton) {
+            // Enviar mensaje con Enter
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            // Botón enviar
+            sendButton.addEventListener('click', sendMessage);
+
+            // Botón emoji
+            if (emojiButton) {
+                emojiButton.addEventListener('click', function() {
+                    emojiPicker.classList.toggle('show');
+                });
+            }
+        }
+    }
+
+    // Función para abrir/cerrar el modal del chat
+    function toggleChatModal() {
+        const chatModal = document.getElementById('chatModal');
+        const isOpen = chatModal.classList.contains('active');
+        
+        if (isOpen) {
+            closeChatModal();
+        } else {
+            openChatModal();
+        }
+    }
+
+    function openChatModal() {
+        const chatModal = document.getElementById('chatModal');
+        chatModal.classList.add('active');
+        chatModalOpen = true;
+        
+        // Marcar mensajes como leídos
+        unreadMessages = 0;
+        updateUnreadBadge();
+        
+        // Conectar al chat si no está conectado
+        if (!isConnected) {
+            connectToChat();
+        }
+        
+        // Cargar historial
+        loadChatHistory();
+    }
+
+    function closeChatModal() {
+        const chatModal = document.getElementById('chatModal');
+        chatModal.classList.remove('active');
+        chatModalOpen = false;
+    }
+
+    // Conectar al WebSocket
+    function connectToChat() {
+        const socket = new SockJS('/ws-chat');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function(frame) {
+            console.log('Conectado al chat:', frame);
+            isConnected = true;
+            updateConnectionStatus(true);
+            
+            // Suscribirse al canal público
+            stompClient.subscribe('/topic/public', function(message) {
+                const chatMessage = JSON.parse(message.body);
+                displayMessage(chatMessage);
+            });
+
+            // Notificar que el usuario se unió
+            const joinMessage = {
+                usuarioId: currentUser.id,
+                usuarioNombre: currentUser.nombre,
+                tipo: 'JOIN',
+                salaChat: 'general'
+            };
+
+            stompClient.send('/app/chat.addUser', {}, JSON.stringify(joinMessage));
+            
+            // Habilitar controles
+            enableChatControls();
+            
+        }, function(error) {
+            console.error('Error de conexión:', error);
+            updateConnectionStatus(false);
+            
+            // Intentar reconectar después de 5 segundos
+            setTimeout(connectToChat, 5000);
+        });
+    }
+
+    // Enviar mensaje
+    function sendMessage() {
+        const messageContent = messageInput.value.trim();
+        
+        if (messageContent === '' || !isConnected) {
+            return;
+        }
+
+        const chatMessage = {
+            usuarioId: currentUser.id,
+            usuarioNombre: currentUser.nombre,
+            contenido: messageContent,
+            tipo: 'CHAT',
+            salaChat: 'general'
+        };
+
+        stompClient.send('/app/chat.sendMessage', {}, JSON.stringify(chatMessage));
+        
+        messageInput.value = '';
+    }
+
+    // Mostrar mensaje en el chat
+    function displayMessage(message) {
+        if (!chatMessages) return;
+
+        const messageElement = document.createElement('div');
+        const isOwnMessage = message.usuarioId === currentUser.id;
+        const isSystemMessage = message.tipo === 'SYSTEM' || message.tipo === 'JOIN' || message.tipo === 'LEAVE';
+
+        if (isSystemMessage) {
+            messageElement.className = 'message system';
+            messageElement.innerHTML = `
+                <div class="message-content">${message.contenido}</div>
+                <div class="message-time">${formatTime(message.fechaEnvio)}</div>
+            `;
+        } else {
+            messageElement.className = `message ${isOwnMessage ? 'own' : 'other'}`;
+            
+            messageElement.innerHTML = `
+                ${!isOwnMessage ? `<div class="message-header">${message.usuarioNombre}</div>` : ''}
+                <div class="message-content">${escapeHtml(message.contenido)}</div>
+                <div class="message-time">${formatTime(message.fechaEnvio)}</div>
+            `;
+        }
+
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Mostrar notificación si el chat está cerrado
+        if (!chatModalOpen && !isOwnMessage && !isSystemMessage) {
+            showChatNotification(message);
+        }
+    }
+
+    // Cargar historial del chat
+    async function loadChatHistory() {
+        try {
+            const response = await fetch('/api/chat/messages/general?limite=20');
+            if (response.ok) {
+                const messages = await response.json();
+                
+                // Limpiar mensajes existentes
+                if (chatMessages) {
+                    chatMessages.innerHTML = '';
+                    
+                    messages.forEach(message => {
+                        displayMessage(message);
+                    });
+                }
+            }
+        } catch (error) {
+            console.error('Error cargando historial:', error);
+        }
+    }
+
+    // Actualizar estado de conexión
+    function updateConnectionStatus(connected) {
+        if (connectionStatus && statusText) {
+            if (connected) {
+                connectionStatus.classList.add('connected');
+                statusText.textContent = 'Conectado';
+            } else {
+                connectionStatus.classList.remove('connected');
+                statusText.textContent = 'Desconectado';
+            }
+        }
+    }
+
+    // Habilitar controles del chat
+    function enableChatControls() {
+        if (messageInput && sendButton && emojiButton) {
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+            emojiButton.disabled = false;
+            messageInput.placeholder = 'Escribe tu mensaje...';
+            messageInput.focus();
+        }
+    }
+
+    // Actualizar badge de mensajes no leídos
+    function updateUnreadBadge() {
+        const unreadBadge = document.getElementById('unreadCount');
+        if (unreadBadge) {
+            if (unreadMessages > 0) {
+                unreadBadge.textContent = unreadMessages > 99 ? '99+' : unreadMessages;
+                unreadBadge.style.display = 'flex';
+            } else {
+                unreadBadge.style.display = 'none';
+            }
+        }
+    }
+
+    // Mostrar notificación de mensaje nuevo
+    function showChatNotification(message) {
+        const notification = document.createElement('div');
+        notification.className = 'chat-notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 2000;
+            animation: slideInRight 0.3s ease;
+            cursor: pointer;
+        `;
+        
+        notification.innerHTML = `
+            <strong>${message.usuarioNombre}</strong><br>
+            ${message.contenido.length > 50 ? message.contenido.substring(0, 50) + '...' : message.contenido}
+        `;
+        
+        notification.onclick = function() {
+            openChatModal();
+            document.body.removeChild(notification);
+        };
+        
+        document.body.appendChild(notification);
+        
+        // Incrementar contador de no leídos
+        unreadMessages++;
+        updateUnreadBadge();
+        
+        // Remover notificación después de 5 segundos
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.parentNode.removeChild(notification);
+            }
+        }, 5000);
+    }
+
+    // Agregar emoji
+    function addChatEmoji(emoji) {
+        if (messageInput) {
+            messageInput.value += emoji;
+            messageInput.focus();
+            emojiPicker.classList.remove('show');
+        }
+    }
+
+    // Formatear tiempo
+    function formatTime(dateString) {
+        if (!dateString) return '';
+        
+        const date = new Date(dateString);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        
+        if (diffMins < 1) return 'ahora';
+        if (diffMins < 60) return `hace ${diffMins}m`;
+        if (diffMins < 1440) return `hace ${Math.floor(diffMins / 60)}h`;
+        
+        return date.toLocaleString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    // Escapar HTML para prevenir XSS
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Desconectar al cerrar la ventana
+    window.addEventListener('beforeunload', function() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+    });
+    
+    
+    
+     // Variables globales para Claude Assistant
+    let claudeModalOpen = false;
+    let claudeConfigured = false;
+    let claudeConversation = [];
+    let claudeLoading = false;
+
+    // Elementos del DOM para Claude
+    let claudeModal, claudeConversationEl, claudeMessageInput, claudeSendButton;
+    let claudeStatus, tokenInfo, tokenCount, estimatedCost;
+
+    // Inicializar Claude Assistant
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeClaudeElements();
+        checkClaudeStatus();
+    });
+
+    // Inicializar elementos del DOM de Claude
+    function initializeClaudeElements() {
+        claudeModal = document.getElementById('claudeModal');
+        claudeConversationEl = document.getElementById('claudeConversation');
+        claudeMessageInput = document.getElementById('claudeMessageInput');
+        claudeSendButton = document.getElementById('claudeSendButton');
+        claudeStatus = document.getElementById('claudeStatus');
+        tokenInfo = document.getElementById('tokenInfo');
+        tokenCount = document.getElementById('tokenCount');
+        estimatedCost = document.getElementById('estimatedCost');
+
+        setupClaudeEventListeners();
+    }
+
+    // Configurar event listeners de Claude
+    function setupClaudeEventListeners() {
+        if (claudeMessageInput && claudeSendButton) {
+            claudeMessageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault();
+                    askClaude();
+                }
+            });
+
+            claudeSendButton.addEventListener('click', askClaude);
+        }
+    }
+
+    // Verificar estado de Claude
+    async function checkClaudeStatus() {
+        try {
+            const response = await fetch('/api/claude/status');
+            if (response.ok) {
+                const status = await response.json();
+                claudeConfigured = status.configured;
+                updateClaudeStatus(status.configured, status.message);
+                
+                if (status.configured) {
+                    enableClaudeControls();
+                }
+            }
+        } catch (error) {
+            console.error('Error verificando estado de Claude:', error);
+            updateClaudeStatus(false, 'Error de conexión');
+        }
+    }
+
+    // Abrir/cerrar modal de Claude
+    function toggleClaudeModal() {
+        if (claudeModalOpen) {
+            closeClaudeModal();
+        } else {
+            openClaudeModal();
+        }
+    }
+
+    function openClaudeModal() {
+        claudeModal.classList.add('active');
+        claudeModalOpen = true;
+        
+        if (claudeConfigured && claudeMessageInput) {
+            claudeMessageInput.focus();
+        }
+    }
+
+    function closeClaudeModal() {
+        claudeModal.classList.remove('active');
+        claudeModalOpen = false;
+    }
+
+    // Actualizar estado de Claude
+    function updateClaudeStatus(configured, message) {
+        if (claudeStatus) {
+            claudeStatus.textContent = message;
+            claudeStatus.className = configured ? 'status-connected' : 'status-disconnected';
+        }
+    }
+
+    // Habilitar controles de Claude
+    function enableClaudeControls() {
+        if (claudeMessageInput && claudeSendButton) {
+            claudeMessageInput.disabled = false;
+            claudeSendButton.disabled = false;
+            claudeMessageInput.placeholder = 'Hazle una pregunta a Claude... (Ctrl+Enter para enviar)';
+        }
+    }
+
+    // Usar sugerencia predefinida
+    function useSuggestion(type) {
+        // Seleccionar el tipo de consulta
+        const radioButton = document.querySelector(`input[name="queryType"][value="${type}"]`);
+        if (radioButton) {
+            radioButton.checked = true;
+        }
+
+        // Sugerencias por tipo
+        const suggestions = {
+            help: [
+                '¿Cómo crear un nuevo árbol en el sistema?',
+                'Explícame la diferencia entre árboles, ramas y hojas',
+                '¿Cómo puedo editar mis datos existentes?'
+            ],
+            analysis: [
+                'Analiza los patrones en mis datos actuales',
+                '¿Qué insights puedes darme sobre mi información?',
+                'Sugiere mejoras para mi estructura de datos'
+            ],
+            general: [
+                '¿Qué es la inteligencia artificial?',
+                'Explícame Spring Boot de manera simple',
+                'Dame consejos para mejorar como programador'
+            ]
+        };
+
+        // Seleccionar sugerencia aleatoria
+        const typeSuggestions = suggestions[type] || suggestions.general;
+        const randomSuggestion = typeSuggestions[Math.floor(Math.random() * typeSuggestions.length)];
+        
+        if (claudeMessageInput) {
+            claudeMessageInput.value = randomSuggestion;
+            claudeMessageInput.focus();
+        }
+    }
+
+    // Preguntar a Claude
+    async function askClaude() {
+        const message = claudeMessageInput.value.trim();
+        if (!message || claudeLoading || !claudeConfigured) {
+            return;
+        }
+
+        // Obtener tipo de consulta seleccionado
+        const selectedType = document.querySelector('input[name="queryType"]:checked');
+        const queryType = selectedType ? selectedType.value : 'general';
+
+        claudeLoading = true;
+        updateSendButton(true);
+
+        // Agregar mensaje del usuario a la conversación
+        addMessageToConversation('user', message, currentUser.nombre);
+
+        // Mostrar indicador de escritura
+        showTypingIndicator();
+
+        // Limpiar input
+        claudeMessageInput.value = '';
+
+        try {
+            // Enviar pregunta via WebSocket para que aparezca en el chat también
+            if (stompClient && isConnected) {
+                const claudeRequest = {
+                    mensaje: message,
+                    usuarioNombre: currentUser.nombre,
+                    usuarioId: currentUser.id,
+                    tipo: queryType
+                };
+                
+                stompClient.send('/app/chat.askClaude', {}, JSON.stringify(claudeRequest));
+            }
+
+            // También hacer llamada REST directa para la respuesta en el modal
+            const response = await fetch('/api/claude/ask', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    mensaje: message,
+                    usuarioNombre: currentUser.nombre,
+                    tipo: queryType
+                })
+            });
+
+            hideTypingIndicator();
+
+            if (response.ok) {
+                const claudeResponse = await response.json();
+                
+                if (claudeResponse.success) {
+                    addMessageToConversation('assistant', claudeResponse.content, 'Claude');
+                    updateTokenInfo(claudeResponse.totalTokens, claudeResponse.inputTokens, claudeResponse.outputTokens);
+                } else {
+                    addMessageToConversation('error', claudeResponse.error || 'Error desconocido', 'Sistema');
+                }
+            } else {
+                addMessageToConversation('error', 'Error de comunicación con el servidor', 'Sistema');
+            }
+
+        } catch (error) {
+            console.error('Error preguntando a Claude:', error);
+            hideTypingIndicator();
+            addMessageToConversation('error', 'Error de red al comunicarse con Claude', 'Sistema');
+        } finally {
+            claudeLoading = false;
+            updateSendButton(false);
+        }
+    }
+
+    // Agregar mensaje a la conversación de Claude
+    function addMessageToConversation(type, content, sender) {
+        if (!claudeConversationEl) return;
+
+        // Remover mensaje de bienvenida si existe
+        const welcomeMessage = claudeConversationEl.querySelector('.claude-welcome');
+        if (welcomeMessage) {
+            welcomeMessage.remove();
+        }
+
+        const messageEl = document.createElement('div');
+        messageEl.className = `claude-message ${type}`;
+
+        const timestamp = new Date().toLocaleString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        // Formatear contenido con markdown básico
+        const formattedContent = formatClaudeContent(content);
+
+        messageEl.innerHTML = `
+            <div class="message-header">${sender}</div>
+            <div class="message-content">${formattedContent}</div>
+            <div class="message-footer">
+                <span>${timestamp}</span>
+                ${type === 'assistant' ? '<span>🤖</span>' : ''}
+            </div>
+        `;
+
+        claudeConversationEl.appendChild(messageEl);
+        claudeConversationEl.scrollTop = claudeConversationEl.scrollHeight;
+
+        // Guardar en historial
+        claudeConversation.push({
+            type: type,
+            content: content,
+            sender: sender,
+            timestamp: new Date()
+        });
+    }
+
+    // Formatear contenido de Claude con markdown básico
+    function formatClaudeContent(content) {
+        if (!content) return '';
+
+        return content
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`(.*?)`/g, '<code>$1</code>')
+            .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+            .replace(/\n/g, '<br>');
+    }
+
+    // Mostrar indicador de escritura
+    function showTypingIndicator() {
+        if (!claudeConversationEl) return;
+
+        const typingEl = document.createElement('div');
+        typingEl.className = 'typing-indicator';
+        typingEl.id = 'claudeTypingIndicator';
+        typingEl.innerHTML = `
+            <div class="message-header">Claude está escribiendo...</div>
+            <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        `;
+
+        claudeConversationEl.appendChild(typingEl);
+        claudeConversationEl.scrollTop = claudeConversationEl.scrollHeight;
+    }
+
+    // Ocultar indicador de escritura
+    function hideTypingIndicator() {
+        const typingIndicator = document.getElementById('claudeTypingIndicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+
+    // Actualizar botón de envío
+    function updateSendButton(loading) {
+        if (!claudeSendButton) return;
+
+        const sendText = claudeSendButton.querySelector('.send-text');
+        const sendLoading = claudeSendButton.querySelector('.send-loading');
+
+        if (loading) {
+            sendText.style.display = 'none';
+            sendLoading.style.display = 'inline';
+            claudeSendButton.disabled = true;
+        } else {
+            sendText.style.display = 'inline';
+            sendLoading.style.display = 'none';
+            claudeSendButton.disabled = false;
+        }
+    }
+
+    // Actualizar información de tokens
+    function updateTokenInfo(total, input, output) {
+        if (!tokenInfo || !tokenCount || !estimatedCost) return;
+
+        tokenCount.textContent = total;
+        
+        // Cálculo estimado de costo (basado en precios aproximados de Claude)
+        const estimatedCostValue = (input * 0.000003 + output * 0.000015).toFixed(4);
+        estimatedCost.textContent = estimatedCostValue;
+        
+        tokenInfo.style.display = 'block';
+    }
+
+    // Limpiar conversación de Claude
+    function clearClaudeConversation() {
+        if (claudeConversationEl) {
+            claudeConversationEl.innerHTML = `
+                <div class="claude-welcome">
+                    <div class="welcome-icon">🤖</div>
+                    <h3>¡Hola! Soy Claude</h3>
+                    <p>Tu asistente IA integrado. Puedo ayudarte con:</p>
+                    <div class="suggestion-chips">
+                        <button class="chip" onclick="useSuggestion('help')">💡 Ayuda del Sistema</button>
+                        <button class="chip" onclick="useSuggestion('analysis')">📊 Análisis de Datos</button>
+                        <button class="chip" onclick="useSuggestion('general')">💬 Consulta General</button>
+                    </div>
+                </div>
+            `;
+        }
+        claudeConversation = [];
+        
+        if (tokenInfo) {
+            tokenInfo.style.display = 'none';
+        }
+    }
     </script>
+
+<!-- SockJS y STOMP (si no los tienes ya incluidos) -->
 </body>
 </html>
