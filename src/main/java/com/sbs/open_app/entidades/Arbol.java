@@ -21,7 +21,11 @@ public class Arbol extends BaseEntity {
     @JoinColumn(name = "usuario_id")
     @JsonBackReference
     private Usuario usuario;
-    
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "foto_id")
+    private Foto foto;
+
     @OneToMany(mappedBy = "arbol", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Rama> ramas = new ArrayList<>();

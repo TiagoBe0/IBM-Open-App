@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/arbol")
@@ -25,7 +26,7 @@ public class ArbolController {
     private final ArbolService arbolService;
     
     @PostMapping("/registrar")
-    public ResponseEntity<?> crear(@RequestBody ArbolDTO arbolDTO) {
+    public ResponseEntity<?> crear(@RequestBody ArbolDTO arbolDTO,MultipartFile archivoFoto) {
         logger.info("=== PETICIÓN POST RECIBIDA ===");
         logger.info("Datos del body: {}", arbolDTO);
         

@@ -20,6 +20,8 @@ public class RamaDTO {
     private float cf;
     private boolean ba;
     private boolean bb;
+    private Long fotoId; 
+    
     private boolean bc;
     private Calendar calendario;
     private Long arbolId;

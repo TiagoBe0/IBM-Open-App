@@ -21,6 +21,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 
 @Service
 public class UsuarioServicio implements UserDetailsService {
@@ -77,8 +79,6 @@ public class UsuarioServicio implements UserDetailsService {
     
     
     
-    
-    @PostConstruct
     public void verificarUsuarios() {
         System.out.println("\n=== VERIFICACIÓN DE USUARIOS EN BASE DE DATOS ===");
         List<Usuario> usuarios = usuarioRepositorio.findAll();

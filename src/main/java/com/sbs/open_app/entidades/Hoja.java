@@ -18,4 +18,9 @@ public class Hoja extends BaseEntity {
     @JoinColumn(name = "rama_id")
     @JsonBackReference
     private Rama rama;
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "foto_id")
+    private Foto foto;
+
 }

@@ -13,6 +13,7 @@ public class HojaDTO {
     private String d;
     private String e;
     private String f;
+    private Long fotoId; 
     private float af;
     private float bf;
     private float cf;
