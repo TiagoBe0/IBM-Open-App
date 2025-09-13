@@ -1,84 +1,197 @@
 package com.sbs.open_app.servicios;
 
-import com.sbs.open_app.dto.FotoDTO;
 import com.sbs.open_app.entidades.Foto;
 import com.sbs.open_app.repositorios.FotoRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class FotoService {
-    
+
+    private static final Logger logger = LoggerFactory.getLogger(FotoService.class);
     private final FotoRepository fotoRepository;
-    
-    public FotoDTO guardarFoto(MultipartFile archivo) throws IOException {
-        // Validaciones
-        if (archivo.isEmpty()) {
-            throw new IllegalArgumentException("El archivo está vacío");
+
+    /**
+     * Guardar una foto desde un MultipartFile
+     */
+    public Foto guardarFoto(MultipartFile file) {
+        logger.info("Guardando foto: {}", file.getOriginalFilename());
+
+        try {
+            // Validaciones
+            if (file.isEmpty()) {
+                throw new IllegalArgumentException("El archivo está vacío");
+            }
+
+            if (file.getSize() > 5 * 1024 * 1024) { // 5MB
+                throw new IllegalArgumentException("El archivo es demasiado grande. Máximo 5MB.");
+            }
+
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("Solo se permiten archivos de imagen");
+            }
+
+            // Crear entidad Foto
+            Foto foto = new Foto();
+            foto.setNombre(file.getOriginalFilename());
+            foto.setMime(contentType);
+            foto.setContenido(file.getBytes());
+
+            // Guardar en base de datos
+            Foto fotoGuardada = fotoRepository.save(foto);
+            
+            logger.info("Foto guardada exitosamente con ID: {}", fotoGuardada.getId());
+            return fotoGuardada;
+
+        } catch (IOException e) {
+            logger.error("Error leyendo el archivo: ", e);
+            throw new RuntimeException("Error procesando el archivo: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error guardando foto: ", e);
+            throw new RuntimeException("Error guardando la foto: " + e.getMessage());
         }
-        
-        if (archivo.getSize() > 5 * 1024 * 1024) { // 5MB máximo
-            throw new IllegalArgumentException("El archivo es demasiado grande (máximo 5MB)");
+    }
+
+    /**
+     * Obtener foto por ID
+     */
+    @Transactional(readOnly = true)
+    public Foto obtenerPorId(Long id) {
+        logger.info("Obteniendo foto con ID: {}", id);
+
+        if (id == null) {
+            throw new IllegalArgumentException("El ID no puede ser null");
         }
-        
-        String mimeType = archivo.getContentType();
-        if (mimeType == null || !mimeType.startsWith("image/")) {
-            throw new IllegalArgumentException("Solo se permiten archivos de imagen");
+
+        Optional<Foto> fotoOpt = fotoRepository.findById(id);
+        if (fotoOpt.isEmpty()) {
+            throw new RuntimeException("Foto no encontrada con ID: " + id);
         }
-        
-        // Crear entidad
-        Foto foto = new Foto();
-        foto.setNombre(archivo.getOriginalFilename());
-        foto.setMime(mimeType);
-        foto.setContenido(archivo.getBytes());
-        
-        // Guardar
-        Foto fotoGuardada = fotoRepository.save(foto);
-        
-        return convertirADTO(fotoGuardada);
+
+        return fotoOpt.get();
     }
-    
-    public Optional<FotoDTO> obtenerPorId(Long id) {
-        return fotoRepository.findById(id)
-                .map(this::convertirADTO);
+
+    /**
+     * Verificar si una foto existe
+     */
+    @Transactional(readOnly = true)
+    public boolean existe(Long id) {
+        if (id == null) return false;
+        return fotoRepository.existsById(id);
     }
-    
-    public List<FotoDTO> listarMetadatos() {
-        return fotoRepository.findAllMetadataOnly()
-                .stream()
-                .map(this::convertirADTO)
-                .collect(Collectors.toList());
-    }
-    
+
+    /**
+     * Eliminar foto por ID
+     */
     public void eliminar(Long id) {
-        if (!fotoRepository.existsById(id)) {
-            throw new IllegalArgumentException("Foto no encontrada con ID: " + id);
+        logger.info("Eliminando foto con ID: {}", id);
+
+        if (id == null) {
+            throw new IllegalArgumentException("El ID no puede ser null");
         }
-        fotoRepository.deleteById(id);
+
+        if (!fotoRepository.existsById(id)) {
+            throw new RuntimeException("Foto no encontrada con ID: " + id);
+        }
+
+        try {
+            fotoRepository.deleteById(id);
+            logger.info("Foto eliminada exitosamente");
+        } catch (Exception e) {
+            logger.error("Error eliminando foto: ", e);
+            throw new RuntimeException("Error eliminando la foto: " + e.getMessage());
+        }
     }
-    
-    public List<FotoDTO> buscarPorNombre(String nombre) {
-        return fotoRepository.findByNombreContainingIgnoreCase(nombre)
-                .stream()
-                .map(this::convertirADTO)
-                .collect(Collectors.toList());
+
+    /**
+     * Actualizar foto existente
+     */
+    public Foto actualizarFoto(Long id, MultipartFile file) {
+        logger.info("Actualizando foto con ID: {}", id);
+
+        // Verificar que la foto existe
+        Foto fotoExistente = obtenerPorId(id);
+
+        try {
+            // Validaciones del nuevo archivo
+            if (file.isEmpty()) {
+                throw new IllegalArgumentException("El archivo está vacío");
+            }
+
+            if (file.getSize() > 5 * 1024 * 1024) { // 5MB
+                throw new IllegalArgumentException("El archivo es demasiado grande. Máximo 5MB.");
+            }
+
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new IllegalArgumentException("Solo se permiten archivos de imagen");
+            }
+
+            // Actualizar datos
+            fotoExistente.setNombre(file.getOriginalFilename());
+            fotoExistente.setMime(contentType);
+            fotoExistente.setContenido(file.getBytes());
+
+            // Guardar cambios
+            Foto fotoActualizada = fotoRepository.save(fotoExistente);
+            
+            logger.info("Foto actualizada exitosamente");
+            return fotoActualizada;
+
+        } catch (IOException e) {
+            logger.error("Error leyendo el archivo: ", e);
+            throw new RuntimeException("Error procesando el archivo: " + e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error actualizando foto: ", e);
+            throw new RuntimeException("Error actualizando la foto: " + e.getMessage());
+        }
     }
-    
-    private FotoDTO convertirADTO(Foto foto) {
-        return new FotoDTO(
+
+    /**
+     * Obtener información básica de la foto (sin contenido binario)
+     */
+    @Transactional(readOnly = true)
+    public FotoInfo obtenerInfo(Long id) {
+        Foto foto = obtenerPorId(id);
+        
+        return new FotoInfo(
             foto.getId(),
-            foto.getMime(),
             foto.getNombre(),
-            foto.getContenido()
+            foto.getMime(),
+            foto.getContenido().length
         );
+    }
+
+    /**
+     * DTO para información básica de foto
+     */
+    public static class FotoInfo {
+        private final Long id;
+        private final String nombre;
+        private final String mime;
+        private final int tamaño;
+
+        public FotoInfo(Long id, String nombre, String mime, int tamaño) {
+            this.id = id;
+            this.nombre = nombre;
+            this.mime = mime;
+            this.tamaño = tamaño;
+        }
+
+        // Getters
+        public Long getId() { return id; }
+        public String getNombre() { return nombre; }
+        public String getMime() { return mime; }
+        public int getTamaño() { return tamaño; }
     }
 }

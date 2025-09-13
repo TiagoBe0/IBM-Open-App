@@ -1,7 +1,10 @@
+// Foto.java - Entidad
 package com.sbs.open_app.entidades;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "foto")
@@ -9,18 +12,18 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Foto {
-
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(length = 100)
-    private String mime;   // ej: image/jpeg
     
-    @Column(length = 255)
-    private String nombre; // nombre original
+    @Column(name = "nombre")
+    private String nombre;
+    
+    @Column(name = "mime", length = 100)
+    private String mime;
     
     @Lob
-    // QUITAR LA LÍNEA columnDefinition COMPLETAMENTE para PostgreSQL
+    @Column(name = "contenido")
     private byte[] contenido;
 }

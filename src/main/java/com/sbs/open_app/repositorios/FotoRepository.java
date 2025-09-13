@@ -23,10 +23,6 @@ public interface FotoRepository extends JpaRepository<Foto, Long> {
     @Query("SELECT f FROM Foto f WHERE f.mime LIKE 'image/%'")
     List<Foto> findImagenesOnly();
     
-    // Obtener información básica sin el contenido (para listas)
-    @Query("SELECT new Foto(f.id, f.mime, f.nombre, null) FROM Foto f")
-    List<Foto> findAllMetadataOnly();
-    
     // Verificar si existe una foto con un nombre específico
     boolean existsByNombre(String nombre);
 }

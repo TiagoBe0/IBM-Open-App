@@ -1167,7 +1167,95 @@
         height: 50px;
         font-size: 20px;
     }
+    /* AGREGAR ESTOS ESTILOS CSS A TU DASHBOARD */
+
+/* Estilos para fotos en tablas */
+table img {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+table img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 10;
+    position: relative;
+}
+
+/* Columna de foto en tablas */
+td:nth-child(2) {
+    width: 70px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Placeholder para cuando no hay foto */
+.no-photo-placeholder {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    background: #f8f9fa;
+    border: 2px dashed #dee2e6;
+    border-radius: 8px;
+    text-align: center;
+    line-height: 46px;
+    color: #6c757d;
+    font-size: 0.8em;
+}
+
+/* Estilos para vista jerárquica con fotos */
+.tree-item img {
+    border: 2px solid #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tree-item img:hover {
+    border-color: #667eea;
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Loading state para imágenes */
+.img-loading {
+    background: #f8f9fa;
+    position: relative;
+}
+
+.img-loading::after {
+    content: '📷';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: #dee2e6;
+}
+
+/* Error state para imágenes */
+.img-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 2px dashed #f5c6cb !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7em;
+}
+
+/* Responsive para fotos en móvil */
+@media (max-width: 768px) {
+    table img {
+        width: 30px !important;
+        height: 30px !important;
+    }
     
+    .tree-item img {
+        width: 20px !important;
+        height: 20px !important;
+    }
+    
+    td:nth-child(2) {
+        width: 50px;
+    }
+}
     .input-type-selector {
         flex-direction: column;
         gap: 8px;
@@ -1649,6 +1737,10 @@ async function loadHojas() {
 }
 
 // Renderizar tabla de Árboles
+
+// Renderizar tabla de Árboles con fotos
+
+// Función corregida para renderizar tabla de Árboles con fotos en dashboard
 function renderArbolesTable(arboles) {
     if (!arboles || arboles.length === 0) {
         document.getElementById('arbolesTable').innerHTML = '<div class="empty-state">No hay árboles disponibles</div>';
@@ -1660,6 +1752,7 @@ function renderArbolesTable(arboles) {
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Foto</th>
                     <th>Campo A</th>
                     <th>Campo B</th>
                     <th>Campo C</th>
@@ -1673,13 +1766,25 @@ function renderArbolesTable(arboles) {
     `;
 
     arboles.forEach(arbol => {
+        // Función corregida para generar HTML de imagen
+        const fotoHtml = arbol.fotoId ? 
+            `<img src="/api/foto/${arbol.fotoId}" 
+                  alt="Foto del árbol" 
+                  style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid #e0e0e0;"
+                  onclick="viewFullImage(${arbol.fotoId})"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
+                  title="Click para ver en tamaño completo">
+             <span style="display: none; color: #999; font-size: 0.8em;">❌ Error</span>` :
+            '<span style="color: #ccc; font-size: 0.8em;">📷 Sin foto</span>';
+            
         html += `
             <tr>
                 <td>${arbol.id}</td>
+                <td style="text-align: center;">${fotoHtml}</td>
                 <td><strong>${arbol.a || '-'}</strong></td>
                 <td>${arbol.b || '-'}</td>
                 <td>${arbol.c || '-'}</td>
-                <td>AF: ${arbol.af}, BF: ${arbol.bf}, CF: ${arbol.cf}</td>
+                <td>AF: ${arbol.af || 0}, BF: ${arbol.bf || 0}, CF: ${arbol.cf || 0}</td>
                 <td>
                     <span class="badge badge-${arbol.ba}">BA</span>
                     <span class="badge badge-${arbol.bb}">BB</span>
@@ -1687,8 +1792,8 @@ function renderArbolesTable(arboles) {
                 </td>
                 <td>${formatDate(arbol.calendario)}</td>
                 <td class="actions">
-                    <button class="btn btn-warning" onclick="editRecord('arbol', ${arbol.id})">✏️</button>
-                    <button class="btn btn-danger" onclick="deleteRecord('arbol', ${arbol.id})">🗑️</button>
+                    <button class="btn btn-warning" onclick="editRecord('arbol', ${arbol.id})" title="Editar">✏️</button>
+                    <button class="btn btn-danger" onclick="deleteRecord('arbol', ${arbol.id})" title="Eliminar">🗑️</button>
                 </td>
             </tr>
         `;
@@ -1698,7 +1803,7 @@ function renderArbolesTable(arboles) {
     document.getElementById('arbolesTable').innerHTML = html;
 }
 
-// Renderizar tabla de Ramas
+// Función corregida para renderizar tabla de Ramas con fotos
 function renderRamasTable(ramas) {
     if (!ramas || ramas.length === 0) {
         document.getElementById('ramasTable').innerHTML = '<div class="empty-state">No hay ramas disponibles</div>';
@@ -1710,6 +1815,7 @@ function renderRamasTable(ramas) {
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Foto</th>
                     <th>Campo A</th>
                     <th>Campo B</th>
                     <th>Campo C</th>
@@ -1723,13 +1829,24 @@ function renderRamasTable(ramas) {
     `;
 
     ramas.forEach(rama => {
+        const fotoHtml = rama.fotoId ? 
+            `<img src="/api/foto/${rama.fotoId}" 
+                  alt="Foto de la rama" 
+                  style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid #e0e0e0;"
+                  onclick="viewFullImage(${rama.fotoId})"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
+                  title="Click para ver en tamaño completo">
+             <span style="display: none; color: #999; font-size: 0.8em;">❌ Error</span>` :
+            '<span style="color: #ccc; font-size: 0.8em;">📷 Sin foto</span>';
+            
         html += `
             <tr>
                 <td>${rama.id}</td>
+                <td style="text-align: center;">${fotoHtml}</td>
                 <td><strong>${rama.a || '-'}</strong></td>
                 <td>${rama.b || '-'}</td>
                 <td>${rama.c || '-'}</td>
-                <td>AF: ${rama.af}, BF: ${rama.bf}, CF: ${rama.cf}</td>
+                <td>AF: ${rama.af || 0}, BF: ${rama.bf || 0}, CF: ${rama.cf || 0}</td>
                 <td>
                     <span class="badge badge-${rama.ba}">BA</span>
                     <span class="badge badge-${rama.bb}">BB</span>
@@ -1737,8 +1854,8 @@ function renderRamasTable(ramas) {
                 </td>
                 <td>${rama.arbolId}</td>
                 <td class="actions">
-                    <button class="btn btn-warning" onclick="editRecord('rama', ${rama.id})">✏️</button>
-                    <button class="btn btn-danger" onclick="deleteRecord('rama', ${rama.id})">🗑️</button>
+                    <button class="btn btn-warning" onclick="editRecord('rama', ${rama.id})" title="Editar">✏️</button>
+                    <button class="btn btn-danger" onclick="deleteRecord('rama', ${rama.id})" title="Eliminar">🗑️</button>
                 </td>
             </tr>
         `;
@@ -1748,7 +1865,7 @@ function renderRamasTable(ramas) {
     document.getElementById('ramasTable').innerHTML = html;
 }
 
-// Renderizar tabla de Hojas
+// Función corregida para renderizar tabla de Hojas con fotos
 function renderHojasTable(hojas) {
     if (!hojas || hojas.length === 0) {
         document.getElementById('hojasTable').innerHTML = '<div class="empty-state">No hay hojas disponibles</div>';
@@ -1760,6 +1877,7 @@ function renderHojasTable(hojas) {
             <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Foto</th>
                     <th>Campo A</th>
                     <th>Campo B</th>
                     <th>Campo C</th>
@@ -1773,13 +1891,24 @@ function renderHojasTable(hojas) {
     `;
 
     hojas.forEach(hoja => {
+        const fotoHtml = hoja.fotoId ? 
+            `<img src="/api/foto/${hoja.fotoId}" 
+                  alt="Foto de la hoja" 
+                  style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid #e0e0e0;"
+                  onclick="viewFullImage(${hoja.fotoId})"
+                  onerror="this.style.display='none'; this.nextElementSibling.style.display='inline';"
+                  title="Click para ver en tamaño completo">
+             <span style="display: none; color: #999; font-size: 0.8em;">❌ Error</span>` :
+            '<span style="color: #ccc; font-size: 0.8em;">📷 Sin foto</span>';
+            
         html += `
             <tr>
                 <td>${hoja.id}</td>
+                <td style="text-align: center;">${fotoHtml}</td>
                 <td><strong>${hoja.a || '-'}</strong></td>
                 <td>${hoja.b || '-'}</td>
                 <td>${hoja.c || '-'}</td>
-                <td>AF: ${hoja.af}, BF: ${hoja.bf}, CF: ${hoja.cf}</td>
+                <td>AF: ${hoja.af || 0}, BF: ${hoja.bf || 0}, CF: ${hoja.cf || 0}</td>
                 <td>
                     <span class="badge badge-${hoja.ba}">BA</span>
                     <span class="badge badge-${hoja.bb}">BB</span>
@@ -1787,8 +1916,8 @@ function renderHojasTable(hojas) {
                 </td>
                 <td>${hoja.ramaId}</td>
                 <td class="actions">
-                    <button class="btn btn-warning" onclick="editRecord('hoja', ${hoja.id})">✏️</button>
-                    <button class="btn btn-danger" onclick="deleteRecord('hoja', ${hoja.id})">🗑️</button>
+                    <button class="btn btn-warning" onclick="editRecord('hoja', ${hoja.id})" title="Editar">✏️</button>
+                    <button class="btn btn-danger" onclick="deleteRecord('hoja', ${hoja.id})" title="Eliminar">🗑️</button>
                 </td>
             </tr>
         `;
@@ -1798,75 +1927,173 @@ function renderHojasTable(hojas) {
     document.getElementById('hojasTable').innerHTML = html;
 }
 
-// Vista jerárquica
-async function loadTreeView() {
-    const treeView = document.getElementById('treeView');
-    treeView.innerHTML = '<div class="loading">Cargando vista jerárquica...</div>';
+// Función mejorada para ver imagen completa (si no la tienes ya)
+function viewFullImage(fotoId) {
+    if (!fotoId) return;
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        cursor: pointer;
+    `;
+    
+    const img = document.createElement('img');
+    img.src = `/api/foto/${fotoId}`;
+    img.style.cssText = `
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    `;
+    
+    // Mostrar loading mientras carga la imagen
+    const loading = document.createElement('div');
+    loading.textContent = 'Cargando imagen...';
+    loading.style.cssText = 'color: white; font-size: 1.2em;';
+    modal.appendChild(loading);
+    
+    img.onload = function() {
+        modal.removeChild(loading);
+        modal.appendChild(img);
+    };
+    
+    img.onerror = function() {
+        loading.textContent = 'Error al cargar la imagen';
+        loading.style.color = '#ff6b6b';
+    };
+    
+    document.body.appendChild(modal);
+    
+    // Cerrar al hacer click
+    modal.onclick = function() {
+        document.body.removeChild(modal);
+    };
+    
+    // Cerrar con ESC
+    const closeHandler = function(e) {
+        if (e.key === 'Escape') {
+            if (document.body.contains(modal)) {
+                document.body.removeChild(modal);
+            }
+            document.removeEventListener('keydown', closeHandler);
+        }
+    };
+    document.addEventListener('keydown', closeHandler);
+}
 
-    try {
-        await loadAllData();
+// Vista jerárquica
+function loadTreeView() {
+    const treeView = document.getElementById('treeView');
+    
+    if (allData.arboles.length === 0) {
+        treeView.innerHTML = '<div class="empty-state">No hay datos para mostrar en la vista jerárquica</div>';
+        return;
+    }
+    
+    let html = '';
+    
+    allData.arboles.forEach(arbol => {
+        const arbolRamas = allData.ramas.filter(r => r.arbolId === arbol.id);
         
-        let html = '';
+        // Foto del árbol
+        const arbolFoto = arbol.fotoId ? 
+            `<img src="/api/foto/${arbol.fotoId}" 
+                  style="width: 30px; height: 30px; object-fit: cover; border-radius: 50%; margin-right: 10px; vertical-align: middle;"
+                  onclick="viewFullImage(${arbol.fotoId})"
+                  title="Click para ver completa">` : 
+            '<span style="margin-right: 10px;">📁</span>';
         
-        allData.arboles.forEach(arbol => {
+        html += `
+            <div class="tree-item">
+                <div class="tree-header">
+                    <div class="tree-title">
+                        ${arbolFoto}
+                        🌳 ${arbol.a || 'Árbol sin nombre'} (ID: ${arbol.id})
+                    </div>
+                    <div style="font-size: 0.9em; color: #666;">
+                        ${arbolRamas.length} ramas
+                    </div>
+                </div>
+                <div class="tree-details">
+                    <div><strong>Descripción:</strong> ${arbol.b || 'Sin descripción'}</div>
+                    <div><strong>Categoría:</strong> ${arbol.c || 'Sin categoría'}</div>
+                    <div><strong>Valores:</strong> AF: ${arbol.af || 0}, BF: ${arbol.bf || 0}, CF: ${arbol.cf || 0}</div>
+                    <div><strong>Fecha:</strong> ${formatDate(arbol.calendario)}</div>
+                </div>
+            </div>
+        `;
+        
+        arbolRamas.forEach(rama => {
+            const ramaHojas = allData.hojas.filter(h => h.ramaId === rama.id);
+            
+            // Foto de la rama
+            const ramaFoto = rama.fotoId ? 
+                `<img src="/api/foto/${rama.fotoId}" 
+                      style="width: 25px; height: 25px; object-fit: cover; border-radius: 50%; margin-right: 8px; vertical-align: middle;"
+                      onclick="viewFullImage(${rama.fotoId})"
+                      title="Click para ver completa">` : 
+                '<span style="margin-right: 8px;">🌿</span>';
+            
             html += `
-                <div class="tree-item">
+                <div class="tree-item rama">
                     <div class="tree-header">
-                        <span class="tree-title">🌳 ${arbol.a || 'Sin nombre'}</span>
-                        <span>ID: ${arbol.id}</span>
+                        <div class="tree-title">
+                            ${ramaFoto}
+                            🌿 ${rama.a || 'Rama sin nombre'} (ID: ${rama.id})
+                        </div>
+                        <div style="font-size: 0.9em; color: #666;">
+                            ${ramaHojas.length} hojas
+                        </div>
                     </div>
                     <div class="tree-details">
-                        <div>B: ${arbol.b || '-'}</div>
-                        <div>C: ${arbol.c || '-'}</div>
-                        <div>Valores: AF=${arbol.af}, BF=${arbol.bf}, CF=${arbol.cf}</div>
+                        <div><strong>Descripción:</strong> ${rama.b || 'Sin descripción'}</div>
+                        <div><strong>Ubicación:</strong> ${rama.c || 'Sin ubicación'}</div>
+                        <div><strong>Valores:</strong> AF: ${rama.af || 0}, BF: ${rama.bf || 0}, CF: ${rama.cf || 0}</div>
+                        <div><strong>Fecha:</strong> ${formatDate(rama.calendario)}</div>
                     </div>
+                </div>
             `;
             
-            // Agregar ramas
-            const ramas = allData.ramas.filter(r => r.arbolId === arbol.id);
-            ramas.forEach(rama => {
+            ramaHojas.forEach(hoja => {
+                // Foto de la hoja
+                const hojaFoto = hoja.fotoId ? 
+                    `<img src="/api/foto/${hoja.fotoId}" 
+                          style="width: 20px; height: 20px; object-fit: cover; border-radius: 50%; margin-right: 6px; vertical-align: middle;"
+                          onclick="viewFullImage(${hoja.fotoId})"
+                          title="Click para ver completa">` : 
+                    '<span style="margin-right: 6px;">🍃</span>';
+                
                 html += `
-                    <div class="tree-item rama">
+                    <div class="tree-item hoja">
                         <div class="tree-header">
-                            <span class="tree-title">🌿 ${rama.a || 'Sin nombre'}</span>
-                            <span>ID: ${rama.id}</span>
+                            <div class="tree-title">
+                                ${hojaFoto}
+                                🍃 ${hoja.a || 'Hoja sin nombre'} (ID: ${hoja.id})
+                            </div>
                         </div>
                         <div class="tree-details">
-                            <div>B: ${rama.b || '-'}</div>
-                            <div>C: ${rama.c || '-'}</div>
-                            <div>Valores: AF=${rama.af}, BF=${rama.bf}, CF=${rama.cf}</div>
+                            <div><strong>Contenido:</strong> ${hoja.b || 'Sin contenido'}</div>
+                            <div><strong>Tipo:</strong> ${hoja.c || 'Sin tipo'}</div>
+                            <div><strong>Valores:</strong> AF: ${hoja.af || 0}, BF: ${hoja.bf || 0}, CF: ${hoja.cf || 0}</div>
+                            <div><strong>Fecha:</strong> ${formatDate(hoja.calendario)}</div>
                         </div>
+                    </div>
                 `;
-                
-                // Agregar hojas
-                const hojas = allData.hojas.filter(h => h.ramaId === rama.id);
-                hojas.forEach(hoja => {
-                    html += `
-                        <div class="tree-item hoja">
-                            <div class="tree-header">
-                                <span class="tree-title">🍃 ${hoja.a || 'Sin nombre'}</span>
-                                <span>ID: ${hoja.id}</span>
-                            </div>
-                            <div class="tree-details">
-                                <div>B: ${hoja.b || '-'}</div>
-                                <div>C: ${hoja.c || '-'}</div>
-                                <div>Valores: AF=${hoja.af}, BF=${hoja.bf}, CF=${hoja.cf}</div>
-                            </div>
-                        </div>
-                    `;
-                });
-                
-                html += '</div>';
             });
-            
-            html += '</div>';
         });
-        
-        treeView.innerHTML = html || '<div class="empty-state">No hay datos para mostrar</div>';
-    } catch (error) {
-        console.error('Error:', error);
-        treeView.innerHTML = '<div class="empty-state">Error al cargar la vista jerárquica</div>';
-    }
+    });
+    
+    treeView.innerHTML = html;
 }
 
 // ==================== FUNCIONES DE MODAL ====================
@@ -2073,41 +2300,49 @@ let selectedPhotoFile = null;
 let currentPhotoId = null;
 
 // ==================== FUNCIONES DE FOTO ====================
+// REEMPLAZAR/ACTUALIZAR ESTAS FUNCIONES EN TU CÓDIGO EXISTENTE
 
-// Previsualizar foto seleccionada
+// Función mejorada para previsualizar foto
 function previewPhoto(input) {
     const file = input.files[0];
-    if (file) {
-        // Validaciones
-        if (file.size > 5 * 1024 * 1024) { // 5MB
-            showNotification('La imagen es demasiado grande. Máximo 5MB.', 'error');
-            input.value = '';
-            return;
-        }
-        
-        if (!file.type.startsWith('image/')) {
-            showNotification('Solo se permiten archivos de imagen.', 'error');
-            input.value = '';
-            return;
-        }
-        
-        selectedPhotoFile = file;
-        
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('previewImage').src = e.target.result;
-            document.getElementById('photoPreview').style.display = 'block';
-            document.getElementById('currentPhoto').style.display = 'none';
-        };
-        reader.readAsDataURL(file);
+    if (!file) return;
+    
+    // Validaciones mejoradas
+    if (file.size > 5 * 1024 * 1024) { // 5MB
+        showNotification('La imagen es demasiado grande. Máximo 5MB.', 'error');
+        input.value = '';
+        return;
     }
+    
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+        showNotification('Formato no válido. Solo JPG, PNG, GIF y WebP.', 'error');
+        input.value = '';
+        return;
+    }
+    
+    selectedPhotoFile = file;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        document.getElementById('previewImage').src = e.target.result;
+        document.getElementById('photoPreview').style.display = 'block';
+        document.getElementById('currentPhoto').style.display = 'none';
+        document.getElementById('addPhotoButton').style.display = 'none';
+    };
+    reader.onerror = function() {
+        showNotification('Error al leer la imagen', 'error');
+        removePhoto();
+    };
+    reader.readAsDataURL(file);
 }
 
-// Quitar foto seleccionada
+// Función mejorada para quitar foto
 function removePhoto() {
     selectedPhotoFile = null;
     document.getElementById('photoInput').value = '';
     document.getElementById('photoPreview').style.display = 'none';
+    document.getElementById('addPhotoButton').style.display = 'block';
     
     // Si hay una foto actual, mostrarla de nuevo
     if (currentPhotoId) {
@@ -2115,18 +2350,20 @@ function removePhoto() {
     }
 }
 
-// Cambiar foto actual
+// Función mejorada para cambiar foto actual
 function changePhoto() {
     document.getElementById('photoInput').click();
 }
 
-// Eliminar foto actual
+// Función mejorada para eliminar foto actual
 async function deleteCurrentPhoto() {
     if (!currentPhotoId) return;
     
     if (!confirm('¿Estás seguro de que quieres eliminar la foto actual?')) return;
     
     try {
+        showNotification('Eliminando foto...', 'info');
+        
         const response = await fetch(`${API_URL}/foto/${currentPhotoId}`, {
             method: 'DELETE'
         });
@@ -2134,17 +2371,57 @@ async function deleteCurrentPhoto() {
         if (response.ok) {
             currentPhotoId = null;
             document.getElementById('currentPhoto').style.display = 'none';
+            document.getElementById('addPhotoButton').style.display = 'block';
             showNotification('Foto eliminada correctamente', 'success');
         } else {
-            throw new Error('Error al eliminar la foto');
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
     } catch (error) {
         console.error('Error eliminando foto:', error);
-        showNotification('Error al eliminar la foto', 'error');
+        showNotification('Error al eliminar la foto: ' + error.message, 'error');
+    }
+}
+// FUNCIÓN DE DEPURACIÓN - Agregar temporalmente al dashboard
+function debugFotos() {
+    console.log('=== DEPURACIÓN DE FOTOS ===');
+    
+    allData.arboles.forEach((arbol, index) => {
+        console.log(`Árbol ${index + 1}:`, {
+            id: arbol.id,
+            nombre: arbol.a,
+            fotoId: arbol.fotoId,
+            tipoFotoId: typeof arbol.fotoId
+        });
+        
+        if (arbol.fotoId) {
+            console.log(`Generando URL para árbol ${arbol.id}: /api/foto/${arbol.fotoId}`);
+        }
+    });
+    
+    // Verificar el primer árbol con foto
+    const arbolConFoto = allData.arboles.find(a => a.fotoId);
+    if (arbolConFoto) {
+        console.log('Probando cargar foto del primer árbol con imagen...');
+        const testUrl = `/api/foto/${arbolConFoto.fotoId}`;
+        console.log('URL de prueba:', testUrl);
+        
+        // Crear imagen de prueba
+        const testImg = new Image();
+        testImg.onload = function() {
+            console.log('✅ Imagen cargada correctamente');
+        };
+        testImg.onerror = function() {
+            console.log('❌ Error cargando imagen');
+        };
+        testImg.src = testUrl;
+    } else {
+        console.log('❌ No se encontraron árboles con fotoId');
     }
 }
 
-// Subir foto al servidor
+// Llamar después de cargar datos
+// debugFotos();
+// Función mejorada para subir foto
 async function uploadPhoto() {
     if (!selectedPhotoFile) return null;
     
@@ -2152,18 +2429,24 @@ async function uploadPhoto() {
     formData.append('file', selectedPhotoFile);
     
     try {
+        console.log('Subiendo foto:', selectedPhotoFile.name);
+        
         const response = await fetch(`${API_URL}/foto/upload`, {
             method: 'POST',
             body: formData
         });
         
         if (!response.ok) {
-            throw new Error('Error al subir la foto');
+            const errorText = await response.text();
+            throw new Error(`Error ${response.status}: ${errorText}`);
         }
         
         const fotoData = await response.json();
         console.log('Foto subida exitosamente:', fotoData);
+        
+        showNotification('Foto subida correctamente', 'success');
         return fotoData.id;
+        
     } catch (error) {
         console.error('Error subiendo foto:', error);
         showNotification('Error al subir la foto: ' + error.message, 'error');
@@ -2171,96 +2454,49 @@ async function uploadPhoto() {
     }
 }
 
-// Cargar foto en el modal para edición
+// Función mejorada para cargar foto en edición
 async function loadPhotoForEdit(fotoId) {
     if (!fotoId) {
         document.getElementById('currentPhoto').style.display = 'none';
+        document.getElementById('addPhotoButton').style.display = 'block';
         return;
     }
     
     try {
         currentPhotoId = fotoId;
-        document.getElementById('currentImage').src = `${API_URL}/foto/${fotoId}`;
-        document.getElementById('currentPhoto').style.display = 'block';
-        document.getElementById('photoPreview').style.display = 'none';
+        
+        // Verificar que la foto existe antes de mostrarla
+        const response = await fetch(`${API_URL}/foto/${fotoId}`);
+        if (response.ok) {
+            document.getElementById('currentImage').src = `${API_URL}/foto/${fotoId}`;
+            document.getElementById('currentPhoto').style.display = 'block';
+            document.getElementById('addPhotoButton').style.display = 'none';
+            document.getElementById('photoPreview').style.display = 'none';
+        } else {
+            console.warn('Foto no encontrada:', fotoId);
+            currentPhotoId = null;
+            document.getElementById('currentPhoto').style.display = 'none';
+            document.getElementById('addPhotoButton').style.display = 'block';
+        }
     } catch (error) {
         console.error('Error cargando foto:', error);
+        currentPhotoId = null;
         document.getElementById('currentPhoto').style.display = 'none';
+        document.getElementById('addPhotoButton').style.display = 'block';
     }
 }
 
-// Limpiar estado de fotos al cerrar modal
+// Función mejorada para limpiar estado de fotos
 function clearPhotoState() {
     selectedPhotoFile = null;
     currentPhotoId = null;
     document.getElementById('photoInput').value = '';
     document.getElementById('photoPreview').style.display = 'none';
     document.getElementById('currentPhoto').style.display = 'none';
+    document.getElementById('addPhotoButton').style.display = 'block';
 }
 
-// ==================== MODIFICAR FUNCIONES EXISTENTES ====================
-
-// Modificar la función openModal para manejar fotos
-function openModal(type, editId = null) {
-    currentType = type;
-    currentEditId = editId;
-    
-    const modal = document.getElementById('modal');
-    const form = document.getElementById('modalForm');
-    const title = document.getElementById('modalTitle');
-    const parentSelect = document.getElementById('parentSelect');
-    const parentLabel = document.getElementById('parentLabel');
-    
-    // Limpiar formulario y fotos
-    form.reset();
-    clearPhotoState();
-    
-    // Configurar título y opciones según el tipo
-    switch(type) {
-        case 'arbol':
-            title.textContent = editId ? 'Editar Árbol' : 'Nuevo Árbol';
-            parentSelect.style.display = 'none';
-            break;
-            
-        case 'rama':
-            title.textContent = editId ? 'Editar Rama' : 'Nueva Rama';
-            parentSelect.style.display = 'block';
-            parentLabel.textContent = 'Seleccionar Árbol:';
-            loadParentOptions('arbol');
-            break;
-            
-        case 'hoja':
-            title.textContent = editId ? 'Editar Hoja' : 'Nueva Hoja';
-            parentSelect.style.display = 'block';
-            parentLabel.textContent = 'Seleccionar Rama:';
-            loadParentOptions('rama');
-            break;
-    }
-    
-    // Si es edición, cargar datos existentes
-    if (editId) {
-        loadRecordForEdit(type, editId);
-    } else {
-        // Establecer el usuario ID para nuevos registros
-        document.getElementById('modalUsuarioId').value = USUARIO_ID;
-        // Establecer fecha actual
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.querySelector('[name="calendario"]').value = now.toISOString().slice(0, 16);
-    }
-    
-    modal.classList.add('active');
-}
-
-// Modificar la función closeModal para limpiar fotos
-function closeModal() {
-    document.getElementById('modal').classList.remove('active');
-    clearPhotoState();
-    currentType = '';
-    currentEditId = null;
-}
-
-// Modificar la función loadRecordForEdit para cargar fotos
+// ACTUALIZAR LA FUNCIÓN loadRecordForEdit PARA INCLUIR MANEJO DE FOTOS
 async function loadRecordForEdit(type, id) {
     try {
         let url;
@@ -2280,6 +2516,7 @@ async function loadRecordForEdit(type, id) {
         if (!response.ok) throw new Error('Error al cargar datos para edición');
         
         const data = await response.json();
+        console.log('Datos cargados para edición:', data);
         
         // Llenar el formulario con los datos existentes
         const form = document.getElementById('modalForm');
@@ -2297,26 +2534,108 @@ async function loadRecordForEdit(type, id) {
             }
         });
         
-        // Cargar foto si existe
+        // CARGAR FOTO SI EXISTE
         if (data.fotoId) {
+            console.log('Cargando foto con ID:', data.fotoId);
             await loadPhotoForEdit(data.fotoId);
+        } else {
+            clearPhotoState();
         }
         
         // Establecer el padre si corresponde
         if (type === 'rama' && data.arbolId) {
             setTimeout(() => {
-                document.getElementById('parentId').value = data.arbolId;
+                const parentSelect = document.getElementById('parentId');
+                if (parentSelect) {
+                    parentSelect.value = data.arbolId;
+                }
             }, 100);
         } else if (type === 'hoja' && data.ramaId) {
             setTimeout(() => {
-                document.getElementById('parentId').value = data.ramaId;
+                const parentSelect = document.getElementById('parentId');
+                if (parentSelect) {
+                    parentSelect.value = data.ramaId;
+                }
             }, 100);
         }
         
     } catch (error) {
         console.error('Error cargando datos para edición:', error);
-        showNotification('Error al cargar datos para edición', 'error');
+        showNotification('Error al cargar datos para edición: ' + error.message, 'error');
     }
+}
+// Verificar qué datos estamos recibiendo
+console.log('Datos completos de árboles:', allData.arboles);
+
+// Verificar si algún árbol tiene fotoId
+allData.arboles.forEach((arbol, index) => {
+    console.log(`Árbol ${index + 1}:`, {
+        id: arbol.id,
+        nombre: arbol.a,
+        fotoId: arbol.fotoId,
+        tieneTodasLasPropiedades: Object.keys(arbol)
+    });
+});
+// Función para mostrar las imágenes en las tablas
+function getImageHtml(fotoId) {
+    if (!fotoId) {
+        return '<span style="color: #ccc;">Sin foto</span>';
+    }
+    
+    return `
+        <img src="${API_URL}/foto/${fotoId}" 
+             alt="Foto" 
+             style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer;"
+             onclick="viewFullImage(${fotoId})"
+             title="Click para ver en tamaño completo">
+    `;
+}
+
+// Función para ver imagen completa
+function viewFullImage(fotoId) {
+    if (!fotoId) return;
+    
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        cursor: pointer;
+    `;
+    
+    const img = document.createElement('img');
+    img.src = `${API_URL}/foto/${fotoId}`;
+    img.style.cssText = `
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    `;
+    
+    modal.appendChild(img);
+    document.body.appendChild(modal);
+    
+    // Cerrar al hacer click
+    modal.onclick = function() {
+        document.body.removeChild(modal);
+    };
+    
+    // Cerrar con ESC
+    const closeHandler = function(e) {
+        if (e.key === 'Escape') {
+            document.body.removeChild(modal);
+            document.removeEventListener('keydown', closeHandler);
+        }
+    };
+    document.addEventListener('keydown', closeHandler);
 }
 
 // ==================== FUNCIÓN DE EDICIÓN ====================

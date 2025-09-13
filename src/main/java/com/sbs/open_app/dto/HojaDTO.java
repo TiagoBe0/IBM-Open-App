@@ -21,5 +21,6 @@ public class HojaDTO {
     private boolean bb;
     private boolean bc;
     private Calendar calendario;
+    
     private Long ramaId;
 }

@@ -1,14 +1,13 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.sbs.open_app.servicios;
 
 import com.sbs.open_app.dto.ArbolDTO;
 import com.sbs.open_app.entidades.Arbol;
+import com.sbs.open_app.entidades.Foto;
 import com.sbs.open_app.entidades.Usuario;
 import com.sbs.open_app.repositorios.UsuarioRepositorio;
 import com.sbs.open_app.repositorios.ArbolRepository;
+import com.sbs.open_app.repositorios.FotoRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +27,10 @@ public class ArbolService {
     private final ArbolRepository arbolRepository;
     @Autowired
     private final UsuarioRepositorio usuarioRepository;
+    
+  @Autowired
+    private final FotoRepository fotoRepository; // AGREGAR ESTA DEPENDENCIA
+    
     @Transactional
     public ArbolDTO crear(ArbolDTO arbolDTO) {
         // Log para debug
@@ -101,35 +104,6 @@ public class ArbolService {
             .collect(Collectors.toList());
     }
     
-    public ArbolDTO actualizar(Long id, ArbolDTO arbolDTO) {
-        logger.info("Actualizando árbol ID: {}", id);
-        
-        Arbol arbol = arbolRepository.findById(id)
-            .orElseThrow(() -> {
-                logger.error("Árbol no encontrado para actualizar, ID: {}", id);
-                return new RuntimeException("Árbol no encontrado con ID: " + id);
-            });
-        
-        // Actualizar campos
-        arbol.setA(arbolDTO.getA());
-        arbol.setB(arbolDTO.getB());
-        arbol.setC(arbolDTO.getC());
-        arbol.setD(arbolDTO.getD());
-        arbol.setE(arbolDTO.getE());
-        arbol.setF(arbolDTO.getF());
-        arbol.setAf(arbolDTO.getAf());
-        arbol.setBf(arbolDTO.getBf());
-        arbol.setCf(arbolDTO.getCf());
-        arbol.setBa(arbolDTO.isBa());
-        arbol.setBb(arbolDTO.isBb());
-        arbol.setBc(arbolDTO.isBc());
-        arbol.setCalendario(arbolDTO.getCalendario());
-        
-        Arbol arbolActualizado = arbolRepository.save(arbol);
-        logger.info("Árbol actualizado exitosamente");
-        
-        return convertirEntidadADTO(arbolActualizado);
-    }
     
     public void eliminar(Long id) {
         logger.info("Eliminando árbol ID: {}", id);
@@ -143,6 +117,9 @@ public class ArbolService {
         logger.info("Árbol eliminado exitosamente");
     }
     
+   
+    
+    // MÉTODO convertirEntidadADTO CORREGIDO
     private ArbolDTO convertirEntidadADTO(Arbol arbol) {
         ArbolDTO dto = new ArbolDTO();
         dto.setId(arbol.getId());
@@ -160,9 +137,14 @@ public class ArbolService {
         dto.setBc(arbol.isBc());
         dto.setCalendario(arbol.getCalendario());
         dto.setUsuarioId(arbol.getUsuario() != null ? arbol.getUsuario().getId() : null);
+        
+        // AGREGAR ESTA LÍNEA PARA MAPEAR fotoId
+        dto.setFotoId(arbol.getFoto() != null ? arbol.getFoto().getId() : null);
+        
         return dto;
     }
     
+    // MÉTODO convertirDTOaEntidad CORREGIDO
     private Arbol convertirDTOaEntidad(ArbolDTO dto) {
         Arbol arbol = new Arbol();
         arbol.setA(dto.getA());
@@ -178,6 +160,67 @@ public class ArbolService {
         arbol.setBb(dto.isBb());
         arbol.setBc(dto.isBc());
         arbol.setCalendario(dto.getCalendario());
+        
+        // MANEJO CORRECTO DE LA FOTO - Cargar desde BD en lugar de crear nueva instancia
+        if (dto.getFotoId() != null) {
+            try {
+                Foto foto = fotoRepository.findById(dto.getFotoId())
+                    .orElseThrow(() -> new RuntimeException("Foto no encontrada con ID: " + dto.getFotoId()));
+                arbol.setFoto(foto);
+                logger.info("Foto asignada al árbol: ID {}", foto.getId());
+            } catch (Exception e) {
+                logger.warn("No se pudo cargar la foto con ID {}: {}", dto.getFotoId(), e.getMessage());
+                // No asignar foto si no se encuentra
+            }
+        }
+        
         return arbol;
+    }
+    
+    // MÉTODO actualizar CORREGIDO
+    public ArbolDTO actualizar(Long id, ArbolDTO arbolDTO) {
+        logger.info("Actualizando árbol ID: {}", id);
+        
+        Arbol arbol = arbolRepository.findById(id)
+            .orElseThrow(() -> {
+                logger.error("Árbol no encontrado para actualizar, ID: {}", id);
+                return new RuntimeException("Árbol no encontrado con ID: " + id);
+            });
+        
+        // Actualizar campos básicos
+        arbol.setA(arbolDTO.getA());
+        arbol.setB(arbolDTO.getB());
+        arbol.setC(arbolDTO.getC());
+        arbol.setD(arbolDTO.getD());
+        arbol.setE(arbolDTO.getE());
+        arbol.setF(arbolDTO.getF());
+        arbol.setAf(arbolDTO.getAf());
+        arbol.setBf(arbolDTO.getBf());
+        arbol.setCf(arbolDTO.getCf());
+        arbol.setBa(arbolDTO.isBa());
+        arbol.setBb(arbolDTO.isBb());
+        arbol.setBc(arbolDTO.isBc());
+        arbol.setCalendario(arbolDTO.getCalendario());
+        
+        // MANEJO CORRECTO DE FOTO EN ACTUALIZACIÓN
+        if (arbolDTO.getFotoId() != null) {
+            try {
+                Foto foto = fotoRepository.findById(arbolDTO.getFotoId())
+                    .orElseThrow(() -> new RuntimeException("Foto no encontrada con ID: " + arbolDTO.getFotoId()));
+                arbol.setFoto(foto);
+                logger.info("Foto actualizada en árbol: ID {}", foto.getId());
+            } catch (Exception e) {
+                logger.warn("No se pudo cargar la foto con ID {}: {}", arbolDTO.getFotoId(), e.getMessage());
+            }
+        } else {
+            // Si fotoId es null, remover la foto del árbol
+            arbol.setFoto(null);
+            logger.info("Foto removida del árbol");
+        }
+        
+        Arbol arbolActualizado = arbolRepository.save(arbol);
+        logger.info("Árbol actualizado exitosamente");
+        
+        return convertirEntidadADTO(arbolActualizado);
     }
 }

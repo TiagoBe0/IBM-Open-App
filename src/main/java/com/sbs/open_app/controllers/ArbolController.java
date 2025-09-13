@@ -1,19 +1,19 @@
 package com.sbs.open_app.controllers;
 
-
 import com.sbs.open_app.dto.ArbolDTO;
 import com.sbs.open_app.servicios.ArbolService;
+import com.sbs.open_app.servicios.FotoService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import jakarta.validation.Valid;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/arbol")
@@ -24,9 +24,10 @@ public class ArbolController {
     private static final Logger logger = LoggerFactory.getLogger(ArbolController.class);
     
     private final ArbolService arbolService;
+    private final FotoService fotoService; // Añadir dependencia de FotoService
     
     @PostMapping("/registrar")
-    public ResponseEntity<?> crear(@RequestBody ArbolDTO arbolDTO,MultipartFile archivoFoto) {
+    public ResponseEntity<?> crear(@RequestBody ArbolDTO arbolDTO) {
         logger.info("=== PETICIÓN POST RECIBIDA ===");
         logger.info("Datos del body: {}", arbolDTO);
         
@@ -47,7 +48,6 @@ public class ArbolController {
                 error.put("campo", "a");
                 return ResponseEntity.badRequest().body(error);
             }
-            
             
             logger.info("Validación pasada, creando árbol...");
             ArbolDTO nuevoArbol = arbolService.crear(arbolDTO);
@@ -70,10 +70,9 @@ public class ArbolController {
         }
     }
     
-    
     @GetMapping("/testArbol")
     public String ind(){
-    return "arbol.html";
+        return "arbol.html";
     }
     
     @GetMapping("/{id}")

@@ -1,12 +1,15 @@
 package com.sbs.open_app.servicios;
 
-
 import com.sbs.open_app.dto.RamaDTO;
 import com.sbs.open_app.entidades.Arbol;
 import com.sbs.open_app.entidades.Rama;
+import com.sbs.open_app.entidades.Foto;
 import com.sbs.open_app.repositorios.ArbolRepository;
 import com.sbs.open_app.repositorios.RamaRepository;
+import com.sbs.open_app.repositorios.FotoRepository;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -17,8 +20,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class RamaService {
     
+    private static final Logger logger = LoggerFactory.getLogger(RamaService.class);
+    
     private final RamaRepository ramaRepository;
     private final ArbolRepository arbolRepository;
+    private final FotoRepository fotoRepository; // AGREGAR ESTA DEPENDENCIA
     
     public RamaDTO crear(RamaDTO ramaDTO) {
         Arbol arbol = arbolRepository.findById(ramaDTO.getArbolId())
@@ -50,7 +56,7 @@ public class RamaService {
         Rama rama = ramaRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Rama no encontrada"));
         
-        // Actualizar campos
+        // Actualizar campos básicos
         rama.setA(ramaDTO.getA());
         rama.setB(ramaDTO.getB());
         rama.setC(ramaDTO.getC());
@@ -65,6 +71,21 @@ public class RamaService {
         rama.setBc(ramaDTO.isBc());
         rama.setCalendario(ramaDTO.getCalendario());
         
+        // MANEJO CORRECTO DE FOTO EN ACTUALIZACIÓN
+        if (ramaDTO.getFotoId() != null) {
+            try {
+                Foto foto = fotoRepository.findById(ramaDTO.getFotoId())
+                    .orElseThrow(() -> new RuntimeException("Foto no encontrada con ID: " + ramaDTO.getFotoId()));
+                rama.setFoto(foto);
+                logger.info("Foto actualizada en rama: ID {}", foto.getId());
+            } catch (Exception e) {
+                logger.warn("No se pudo cargar la foto con ID {}: {}", ramaDTO.getFotoId(), e.getMessage());
+            }
+        } else {
+            rama.setFoto(null);
+            logger.info("Foto removida de la rama");
+        }
+        
         Rama ramaActualizada = ramaRepository.save(rama);
         return convertirEntidadADTO(ramaActualizada);
     }
@@ -76,6 +97,7 @@ public class RamaService {
         ramaRepository.deleteById(id);
     }
     
+    // MÉTODO convertirEntidadADTO CORREGIDO - INCLUYE fotoId
     private RamaDTO convertirEntidadADTO(Rama rama) {
         RamaDTO dto = new RamaDTO();
         dto.setId(rama.getId());
@@ -93,10 +115,14 @@ public class RamaService {
         dto.setBc(rama.isBc());
         dto.setCalendario(rama.getCalendario());
         dto.setArbolId(rama.getArbol() != null ? rama.getArbol().getId() : null);
-        // Si necesitas las hojas, las puedes mapear aquí
+        
+        // AGREGAR ESTA LÍNEA PARA MAPEAR fotoId
+        dto.setFotoId(rama.getFoto() != null ? rama.getFoto().getId() : null);
+        
         return dto;
     }
     
+    // MÉTODO convertirDTOaEntidad CORREGIDO - MANEJA LA FOTO
     private Rama convertirDTOaEntidad(RamaDTO dto) {
         Rama rama = new Rama();
         rama.setA(dto.getA());
@@ -112,6 +138,19 @@ public class RamaService {
         rama.setBb(dto.isBb());
         rama.setBc(dto.isBc());
         rama.setCalendario(dto.getCalendario());
+        
+        // MANEJO CORRECTO DE LA FOTO - Cargar desde BD
+        if (dto.getFotoId() != null) {
+            try {
+                Foto foto = fotoRepository.findById(dto.getFotoId())
+                    .orElseThrow(() -> new RuntimeException("Foto no encontrada con ID: " + dto.getFotoId()));
+                rama.setFoto(foto);
+                logger.info("Foto asignada a la rama: ID {}", foto.getId());
+            } catch (Exception e) {
+                logger.warn("No se pudo cargar la foto con ID {}: {}", dto.getFotoId(), e.getMessage());
+            }
+        }
+        
         return rama;
     }
 }
