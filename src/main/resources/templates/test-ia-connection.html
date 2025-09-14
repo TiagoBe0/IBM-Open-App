@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test IA - Botón Simple</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .btn-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); }
+        .btn-warning { background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        
+        .input-group {
+            margin: 15px 0;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group input, .input-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .input-group textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .online { background: #d4edda; color: #155724; }
+        .offline { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 Test de Conexión IA</h1>
+        <p>Herramienta simple para probar la conexión con tu sistema de IA local.</p>
+        
+        <!-- Estados del sistema -->
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+            <h3>📊 Estado del Sistema</h3>
+            <div>
+                <strong>Spring Boot:</strong>
+                <span id="springBootStatus" class="status offline">Verificando...</span>
+                <span id="springBootUrl">http://localhost:8081</span>
+            </div>
+            <div style="margin-top: 10px;">
+                <strong>IA Local:</strong>
+                <span id="aiStatus" class="status offline">Verificando...</span>
+                <span id="aiModel">-</span>
+            </div>
+            <div style="margin-top: 10px;">
+                <strong>Ollama:</strong>
+                <span id="ollamaStatus" class="status offline">Verificando...</span>
+                <span>http://localhost:11434</span>
+            </div>
+        </div>
+        
+        <!-- Botones de prueba -->
+        <div style="text-align: center; margin: 20px 0;">
+            <button class="btn" onclick="checkAllStatus()">🔍 Verificar Todo</button>
+            <button class="btn btn-success" onclick="testOllama()">🤖 Test Ollama</button>
+            <button class="btn btn-warning" onclick="testSpringBoot()">🚀 Test Spring Boot</button>
+            <button class="btn btn-danger" onclick="clearResults()">🗑️ Limpiar</button>
+        </div>
+        
+        <!-- Prueba de chat simple -->
+        <div class="input-group">
+            <label for="testMessage">💬 Mensaje de Prueba:</label>
+            <textarea id="testMessage" placeholder="Escribe un mensaje para probar la IA...">Hola, ¿funcionas correctamente? Responde en español.</textarea>
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="btn btn-success" onclick="testAIChat()" style="font-size: 18px; padding: 20px 40px;">
+                🚀 PROBAR CHAT IA
+            </button>
+        </div>
+        
+        <!-- Resultados -->
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // Configuración
+        const SPRING_BOOT_URL = 'http://localhost:8081';
+        const OLLAMA_URL = 'http://localhost:11434';
+        const API_URL = SPRING_BOOT_URL + '/api';
+        const LOCAL_AI_URL = API_URL + '/local-ai';
+        
+        // Función para mostrar resultados
+        function showResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const timestamp = new Date().toLocaleString();
+            
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = `[${timestamp}] ${message}`;
+            
+            resultsDiv.appendChild(resultDiv);
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+        
+        // Función para actualizar estado
+        function updateStatus(elementId, isOnline, text = '') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.className = `status ${isOnline ? 'online' : 'offline'}`;
+                element.textContent = isOnline ? '✅ Online' : '❌ Offline';
+            }
+            
+            // Actualizar texto adicional si se proporciona
+            if (text) {
+                const textElement = document.getElementById(elementId.replace('Status', 'Model'));
+                if (textElement) {
+                    textElement.textContent = text;
+                }
+            }
+        }
+        
+        // 1. Test de Ollama directo
+        async function testOllama() {
+            showResult('🧪 Probando conexión directa con Ollama...', 'info');
+            
+            try {
+                const response = await fetch(`${OLLAMA_URL}/api/tags`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const models = data.models || [];
+                    const modelNames = models.map(m => m.name).join(', ');
+                    
+                    updateStatus('ollamaStatus', true);
+                    showResult(`✅ Ollama funciona correctamente`, 'success');
+                    showResult(`📦 Modelos disponibles: ${modelNames}`, 'success');
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                updateStatus('ollamaStatus', false);
+                showResult(`❌ Error conectando con Ollama: ${error.message}`, 'error');
+                showResult(`💡 Solución: Ejecutar 'ollama serve' en terminal`, 'warning');
+            }
+        }
+        
+        // 2. Test de Spring Boot
+        async function testSpringBoot() {
+            showResult('🧪 Probando conexión con Spring Boot...', 'info');
+            
+            try {
+                // Test básico
+                const response = await fetch(`${SPRING_BOOT_URL}/`);
+                
+                if (response.ok) {
+                    updateStatus('springBootStatus', true);
+                    showResult(`✅ Spring Boot responde en ${SPRING_BOOT_URL}`, 'success');
+                    
+                    // Test específico de IA
+                    await testSpringBootAI();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                updateStatus('springBootStatus', false);
+                showResult(`❌ Error conectando con Spring Boot: ${error.message}`, 'error');
+                showResult(`💡 Solución: Ejecutar './mvnw spring-boot:run' en tu proyecto`, 'warning');
+            }
+        }
+        
+        // 3. Test de IA en Spring Boot
+        async function testSpringBootAI() {
+            try {
+                const response = await fetch(`${LOCAL_AI_URL}/status`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    const isAvailable = data.available || data.configured || false;
+                    updateStatus('aiStatus', isAvailable, data.modelName || 'Sin modelo');
+                    
+                    if (isAvailable) {
+                        showResult(`✅ IA disponible: ${data.modelName || 'Modelo local'}`, 'success');
+                        showResult(`🔗 URL: ${data.serverUrl || LOCAL_AI_URL}`, 'success');
+                    } else {
+                        showResult(`⚠️ IA configurada pero no disponible: ${data.message}`, 'warning');
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+            } catch (error) {
+                updateStatus('aiStatus', false);
+                showResult(`❌ Error verificando IA: ${error.message}`, 'error');
+                showResult(`💡 Verifica que LocalAIController y LocalAIService estén creados`, 'warning');
+            }
+        }
+        
+        // 4. Test de chat completo
+        async function testAIChat() {
+            const messageInput = document.getElementById('testMessage');
+            const message = messageInput.value.trim();
+            
+            if (!message) {
+                showResult('❌ Escribe un mensaje para probar', 'error');
+                return;
+            }
+            
+            showResult('💬 Enviando mensaje a IA...', 'info');
+            showResult(`📝 Mensaje: "${message}"`, 'info');
+            
+            try {
+                const requestData = {
+                    mensaje: message,
+                    usuarioNombre: 'TestUser',
+                    tipo: 'test'
+                };
+                
+                showResult(`📦 Request: ${JSON.stringify(requestData)}`, 'info');
+                
+                const response = await fetch(`${LOCAL_AI_URL}/ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                showResult(`📡 Response status: ${response.status}`, 'info');
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                }
+                
+                const result = await response.json();
+                showResult(`📋 Response data: ${JSON.stringify(result, null, 2)}`, 'info');
+                
+                if (result.success) {
+                    showResult(`✅ ¡CHAT FUNCIONA!`, 'success');
+                    showResult(`🤖 Respuesta IA: "${result.content || result.response}"`, 'success');
+                    showResult(`📊 Modelo: ${result.model || 'N/A'}`, 'success');
+                } else {
+                    showResult(`❌ Error en respuesta: ${result.error}`, 'error');
+                }
+                
+            } catch (error) {
+                showResult(`❌ Error en chat: ${error.message}`, 'error');
+                
+                // Sugerencias de solución
+                if (error.message.includes('Failed to fetch')) {
+                    showResult(`💡 Solución: Verificar que Spring Boot esté corriendo en puerto 8081`, 'warning');
+                } else if (error.message.includes('404')) {
+                    showResult(`💡 Solución: Verificar que LocalAIController esté creado y mapeado`, 'warning');
+                } else if (error.message.includes('500')) {
+                    showResult(`💡 Solución: Verificar que Ollama esté corriendo y el modelo esté disponible`, 'warning');
+                }
+            }
+        }
+        
+        // 5. Verificar todo
+        async function checkAllStatus() {
+            showResult('🔍 Verificando estado completo del sistema...', 'info');
+            
+            await testOllama();
+            await new Promise(resolve => setTimeout(resolve, 500)); // Pequeña pausa
+            
+            await testSpringBoot();
+            
+            showResult('✅ Verificación completa terminada', 'success');
+        }
+        
+        // 6. Limpiar resultados
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+            showResult('🧹 Resultados limpiados', 'info');
+        }
+        
+        // Inicialización automática
+        window.addEventListener('load', function() {
+            showResult('🚀 Test de conexión IA inicializado', 'info');
+            showResult('💡 Haz clic en "Verificar Todo" para empezar', 'info');
+            
+            // Verificación automática al cargar
+            setTimeout(checkAllStatus, 1000);
+        });
+        
+        console.log('🧪 Test tool loaded');
+        console.log('🔗 Spring Boot URL:', SPRING_BOOT_URL);
+        console.log('🔗 Ollama URL:', OLLAMA_URL);
+        console.log('🔗 Local AI URL:', LOCAL_AI_URL);
+    </script>
+</body>
+</html>

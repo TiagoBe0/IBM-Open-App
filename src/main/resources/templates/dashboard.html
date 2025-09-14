@@ -3,84 +3,2323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sistema Árbol/Rama/Hoja</title>
-    
-    <!-- CSS con rutas de Spring Boot -->
-    <link rel="stylesheet" th:href="@{/dashboard/css/main.css}">
-    <link rel="stylesheet" th:href="@{/dashboard/css/chat.css}">
-    <link rel="stylesheet" th:href="@{/dashboard/css/claude.css}">
-    <link rel="stylesheet" th:href="@{/dashboard/css/amigos.css}">
-    <link rel="stylesheet" th:href="@{/dashboard/css/mensajes.css}">
+    <title>Dashboard - Sistema Árbol/Rama/Hoja con IA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .ai-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .ai-status.online { background: rgba(76, 175, 80, 0.3); }
+        .ai-status.offline { background: rgba(244, 67, 54, 0.3); }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-card .label {
+            color: #666;
+            font-size: 1.1em;
+            margin-top: 5px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 500;
+            transition: all 0.3s;
+            color: #666;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .content-section {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Chat flotante */
+        .chat-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .chat-widget.minimized {
+            height: 60px;
+            width: 250px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 20px 20px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .chat-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chat-widget.minimized .chat-body {
+            display: none;
+        }
+
+        .chat-input {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-widget.minimized .chat-input {
+            display: none;
+        }
+
+        .chat-message {
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .chat-message.user {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            align-self: flex-end;
+        }
+
+        .chat-message.ai {
+            background: #f0f0f0;
+            color: #333;
+            align-self: flex-start;
+        }
+
+        .chat-message.system {
+            background: #e8f5e8;
+            color: #2e7d32;
+            align-self: center;
+            font-size: 0.9em;
+        }
+
+        /* Asistente IA flotante */
+        .ai-assistant {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 10px 25px rgba(142, 45, 226, 0.3);
+            transition: all 0.3s;
+            z-index: 999;
+        }
+
+        .ai-assistant:hover {
+            transform: scale(1.1);
+            box-shadow: 0 15px 35px rgba(142, 45, 226, 0.4);
+        }
+
+        .ai-assistant::after {
+            content: '🤖';
+            font-size: 24px;
+        }
+
+        /* Modales */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .tree-view {
+            margin: 20px 0;
+        }
+
+        .tree-item {
+            margin: 10px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tree-item.rama {
+            margin-left: 30px;
+            border-left-color: #764ba2;
+        }
+
+        .tree-item.hoja {
+            margin-left: 60px;
+            border-left-color: #38ef7d;
+        }
+
+        .tree-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .tree-title {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .tree-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 500;
+            animation: slideInRight 0.3s;
+            z-index: 2000;
+            max-width: 400px;
+        }
+
+        @keyframes slideInRight {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .notification.info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Tablas responsivas */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 500;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        .badge-true {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-false {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .user-info {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                max-width: none;
+            }
+
+            .chat-widget {
+                width: calc(100vw - 40px);
+                right: 20px;
+                left: 20px;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- Variables de Thymeleaf convertidas a JavaScript -->
     <script th:inline="javascript">
         /*<![CDATA[*/
-        window.APP_CONFIG = {
-            USUARIO_ID: /*[[${usuario.id}]]*/ 1,
-            USUARIO_NOMBRE: /*[[${usuario.nombre}]]*/ 'Usuario',
-            USUARIO_APELLIDO: /*[[${usuario.apellido}]]*/ '',
-            USUARIO_USERNAME: /*[[${usuario.username}]]*/ 'usuario',
-            API_URL: /*[[@{/api}]]*/ '/api'
-        };
+        const USUARIO_ID = /*[[${usuario.id}]]*/ 1;
+        const USUARIO_NOMBRE = /*[[${usuario.nombre}]]*/ 'Usuario';
+        const USUARIO_APELLIDO = /*[[${usuario.apellido}]]*/ '';
+        const USUARIO_USERNAME = /*[[${usuario.username}]]*/ 'usuario';
+        const API_URL = 'http://localhost:8081/api';
+        const LOCAL_AI_URL = '/api/local-ai';
         
-        // Configurar rutas base para componentes
-        window.DASHBOARD_CONFIG = {
-            COMPONENTS_BASE_URL: /*[[@{/dashboard/components}]]*/ '/dashboard/components'
-        };
-        
-        console.log('Usuario autenticado - ID:', window.APP_CONFIG.USUARIO_ID, 'Nombre:', window.APP_CONFIG.USUARIO_NOMBRE);
+        console.log('Dashboard cargado para usuario:', USUARIO_NOMBRE, '(ID:', USUARIO_ID, ')');
         /*]]>*/
     </script>
 
     <div class="container">
-        <!-- Encabezado -->
-        <div id="header-container"></div>
-        
+        <!-- Header con información del usuario y estado de IA -->
+        <div class="header">
+            <h1>🌳 Sistema de Gestión Árbol-Rama-Hoja con IA</h1>
+            <p style="color: #666; margin-top: 10px;">Dashboard interactivo con asistente de IA local integrado</p>
+            
+            <div class="user-info">
+                <div>
+                    <strong>👤 Usuario activo:</strong>
+                    <span th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Usuario</span>
+                    <span th:text="'(@' + ${usuario.username} + ')'">@username</span>
+                    <span th:text="'[ID: ' + ${usuario.id} + ']'">[ID: 1]</span>
+                </div>
+                
+                <div class="ai-status" id="aiStatus">
+                    <span>🤖</span>
+                    <span id="aiStatusText">Verificando IA...</span>
+                </div>
+                
+                <div>
+                    <button class="btn btn-ai" onclick="openAIModal()">🧠 Asistente IA</button>
+                    <a href="/logout" class="btn btn-danger">🚪 Cerrar Sesión</a>
+                </div>
+            </div>
+        </div>
+
         <!-- Estadísticas -->
-        <div id="stats-container"></div>
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="number" id="totalUsuarios">0</div>
+                <div class="label">Usuarios</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalArboles">0</div>
+                <div class="label">Árboles</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalRamas">0</div>
+                <div class="label">Ramas</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalHojas">0</div>
+                <div class="label">Hojas</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="totalConsultasIA">0</div>
+                <div class="label">Consultas IA</div>
+            </div>
+        </div>
 
         <!-- Pestañas de navegación -->
         <div class="tabs">
-            <button class="tab active" data-tab="arboles">🌳 Árboles</button>
-            <button class="tab" data-tab="ramas">🌿 Ramas</button>
-            <button class="tab" data-tab="hojas">🍃 Hojas</button>
-            <button class="tab" data-tab="tree">📊 Vista Jerárquica</button>
-            <button class="tab" data-tab="amigos">👥 Amigos</button>
-            <button class="tab" data-tab="mensajes">💬 Mensajes</button>
-            <button class="tab" data-tab="config">⚙️ Mi Perfil</button>
+            <button class="tab active" onclick="switchTab('arboles')">🌳 Árboles</button>
+            <button class="tab" onclick="switchTab('ramas')">🌿 Ramas</button>
+            <button class="tab" onclick="switchTab('hojas')">🍃 Hojas</button>
+            <button class="tab" onclick="switchTab('tree')">📊 Vista Jerárquica</button>
+            <button class="tab" onclick="switchTab('ia')">🧠 Asistente IA</button>
+            <button class="tab" onclick="switchTab('chat')">💬 Chat</button>
+            <button class="tab" onclick="switchTab('amigos')">👥 Amigos</button>
+            <button class="tab" onclick="switchTab('config')">⚙️ Mi Perfil</button>
         </div>
 
-        <!-- Contenido de las pestañas -->
-        <div id="content-container">
-            <!-- Secciones se cargan dinámicamente -->
+        <!-- Sección Árboles -->
+        <div class="content-section active" id="arboles-section">
+            <div class="toolbar">
+                <h2>Gestión de Árboles</h2>
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar árboles..." id="searchArboles">
+                    <button class="btn btn-primary" onclick="searchArboles()">🔍</button>
+                </div>
+                <div>
+                    <button class="btn btn-ai" onclick="analyzeDataWithAI('arboles')">🧠 Analizar con IA</button>
+                    <button class="btn btn-success" onclick="openModal('arbol')">➕ Nuevo Árbol</button>
+                </div>
+            </div>
+            <div id="arbolesTable">
+                <div class="loading">Cargando árboles...</div>
+            </div>
+        </div>
+
+        <!-- Sección Ramas -->
+        <div class="content-section" id="ramas-section">
+            <div class="toolbar">
+                <h2>Gestión de Ramas</h2>
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar ramas..." id="searchRamas">
+                    <button class="btn btn-primary" onclick="searchRamas()">🔍</button>
+                </div>
+                <div>
+                    <button class="btn btn-ai" onclick="analyzeDataWithAI('ramas')">🧠 Analizar con IA</button>
+                    <button class="btn btn-success" onclick="openModal('rama')">➕ Nueva Rama</button>
+                </div>
+            </div>
+            <div id="ramasTable">
+                <div class="loading">Cargando ramas...</div>
+            </div>
+        </div>
+
+        <!-- Sección Hojas -->
+        <div class="content-section" id="hojas-section">
+            <div class="toolbar">
+                <h2>Gestión de Hojas</h2>
+                <div class="search-box">
+                    <input type="text" placeholder="Buscar hojas..." id="searchHojas">
+                    <button class="btn btn-primary" onclick="searchHojas()">🔍</button>
+                </div>
+                <div>
+                    <button class="btn btn-ai" onclick="analyzeDataWithAI('hojas')">🧠 Analizar con IA</button>
+                    <button class="btn btn-success" onclick="openModal('hoja')">➕ Nueva Hoja</button>
+                </div>
+            </div>
+            <div id="hojasTable">
+                <div class="loading">Cargando hojas...</div>
+            </div>
+        </div>
+
+        <!-- Vista Jerárquica -->
+        <div class="content-section" id="tree-section">
+            <div class="toolbar">
+                <h2>Vista Jerárquica</h2>
+                <div>
+                    <button class="btn btn-ai" onclick="generateTreeInsights()">🧠 Insights con IA</button>
+                    <button class="btn btn-primary" onclick="loadTreeView()">🔄 Actualizar</button>
+                </div>
+            </div>
+            <div id="treeView" class="tree-view">
+                <div class="loading">Cargando vista jerárquica...</div>
+            </div>
+        </div>
+
+        <!-- Sección Asistente IA -->
+        <div class="content-section" id="ia-section">
+            <div class="toolbar">
+                <h2>🧠 Asistente IA Local</h2>
+                <div>
+                    <button class="btn btn-primary" onclick="checkAIStatus()">🔄 Verificar Estado</button>
+                    <button class="btn btn-warning" onclick="clearAIHistory()">🗑️ Limpiar Historial</button>
+                </div>
+            </div>
+            
+            <div id="aiInterface">
+                <div class="form-group">
+                    <label>💭 Pregunta al asistente:</label>
+                    <textarea id="aiPrompt" rows="4" placeholder="Ejemplo: Analiza los datos de mis árboles y dame insights sobre patrones o tendencias..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>🎯 Tipo de análisis:</label>
+                    <select id="aiAnalysisType">
+                        <option value="general">Análisis General</option>
+                        <option value="patterns">Detectar Patrones</option>
+                        <option value="optimization">Sugerencias de Optimización</option>
+                        <option value="insights">Insights de Datos</option>
+                        <option value="predictions">Predicciones</option>
+                    </select>
+                </div>
+                
+                <div class="actions">
+                    <button class="btn btn-ai" onclick="consultarIA()">🚀 Consultar IA</button>
+                    <button class="btn btn-success" onclick="includeCurrentData()">📊 Incluir Datos Actuales</button>
+                </div>
+                
+                <div id="aiResponse" style="margin-top: 30px;">
+                    <div class="empty-state">🤖 Haz una pregunta al asistente IA para comenzar...</div>
+                </div>
+                
+                <div id="aiHistory" style="margin-top: 30px;">
+                    <h3>📚 Historial de Consultas</h3>
+                    <div id="aiHistoryList">
+                        <div class="empty-state">Sin consultas previas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección Chat -->
+        <div class="content-section" id="chat-section">
+            <div class="toolbar">
+                <h2>💬 Chat en Tiempo Real</h2>
+                <button class="btn btn-primary" onclick="refreshChat()">🔄 Actualizar</button>
+            </div>
+            
+            <div id="chatInterface">
+                <div id="chatMessages" style="height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: #f9f9f9;">
+                    <div class="empty-state">💬 Comienza una conversación...</div>
+                </div>
+                
+                <div class="chat-input">
+                    <input type="text" id="chatMessage" placeholder="Escribe tu mensaje..." style="flex: 1;">
+                    <button class="btn btn-primary" onclick="sendMessage()">📤 Enviar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección Amigos -->
+        <div class="content-section" id="amigos-section">
+            <div class="toolbar">
+                <h2>👥 Sistema de Amistades</h2>
+                <button class="btn btn-success" onclick="openModal('amigo')">➕ Buscar Amigos</button>
+            </div>
+            
+            <div id="amigosInterface">
+                <div class="form-group">
+                    <label>🔍 Buscar usuarios:</label>
+                    <div class="search-box">
+                        <input type="text" id="searchUsuarios" placeholder="Buscar por username o nombre...">
+                        <button class="btn btn-primary" onclick="searchUsuarios()">🔍</button>
+                    </div>
+                </div>
+                
+                <div id="amigosLists" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div>
+                        <h3>✅ Mis Amigos</h3>
+                        <div id="misamigos">
+                            <div class="empty-state">Sin amigos aún</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>📬 Solicitudes Recibidas</h3>
+                        <div id="solicitudesRecibidas">
+                            <div class="empty-state">Sin solicitudes pendientes</div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3>📤 Solicitudes Enviadas</h3>
+                        <div id="solicitudesEnviadas">
+                            <div class="empty-state">Sin solicitudes enviadas</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="resultadosBusqueda" style="margin-top: 30px;">
+                    <h3>🔍 Resultados de Búsqueda</h3>
+                    <div id="usuariosEncontrados">
+                        <div class="empty-state">Usa el buscador para encontrar usuarios</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mi Perfil -->
+        <div class="content-section" id="config-section">
+            <h2>⚙️ Mi Perfil y Configuración</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                <div>
+                    <h3>👤 Información Personal</h3>
+                    <div class="form-group">
+                        <label>ID de Usuario:</label>
+                        <input type="text" th:value="${usuario.id}" readonly style="background: #f0f0f0;">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre de Usuario:</label>
+                        <input type="text" th:value="${usuario.username}" readonly style="background: #f0f0f0;">
+                    </div>
+                    <div class="form-group">
+                        <label>Nombre Completo:</label>
+                        <input type="text" th:value="${usuario.nombre + ' ' + usuario.apellido}" readonly style="background: #f0f0f0;">
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="text" th:value="${usuario.email}" readonly style="background: #f0f0f0;">
+                    </div>
+                </div>
+                
+                <div>
+                    <h3>🤖 Configuración de IA</h3>
+                    <div class="form-group">
+                        <label>Estado del Modelo:</label>
+                        <input type="text" id="aiModelStatus" readonly style="background: #f0f0f0;" value="Verificando...">
+                    </div>
+                    <div class="form-group">
+                        <label>Modelo Activo:</label>
+                        <select id="aiModelSelect">
+                            <option value="codellama">CodeLlama (Recomendado)</option>
+                            <option value="llama2">Llama 2</option>
+                            <option value="mistral">Mistral</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Temperatura de IA:</label>
+                        <input type="range" id="aiTemperature" min="0" max="1" step="0.1" value="0.7">
+                        <span id="temperatureValue">0.7</span>
+                    </div>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="aiAutoAnalysis" checked> Análisis Automático
+                        </label>
+                        <label>
+                            <input type="checkbox" id="aiNotifications" checked> Notificaciones IA
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <hr style="margin: 30px 0;">
+            
+            <h3>🛠️ Acciones del Sistema</h3>
+            <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="testAIConnection()">🔧 Probar Conexión IA</button>
+                <button class="btn btn-warning" onclick="loadTestData()">📥 Cargar Datos de Prueba</button>
+                <button class="btn btn-danger" onclick="clearAllData()">🗑️ Limpiar Mis Datos</button>
+                <button class="btn btn-ai" onclick="exportDataForAI()">📊 Exportar para IA</button>
+            </div>
         </div>
     </div>
 
-    <!-- Botones flotantes -->
-    <div id="chat-toggle" class="chat-toggle" title="Chat en tiempo real">
-        💬
-        <span id="unread-count" class="unread-badge" style="display: none;">0</span>
-    </div>
-    
-    <div id="claude-toggle" class="claude-toggle" title="Asistente Claude AI">
-        🤖
-        <span class="claude-badge">AI</span>
+    <!-- Modal Universal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Nuevo Registro</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            <form id="modalForm">
+                <input type="hidden" name="usuarioId" id="modalUsuarioId" th:value="${usuario.id}">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Campo A: *</label>
+                        <input type="text" name="a" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Campo B:</label>
+                        <input type="text" name="b">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Campo C:</label>
+                        <input type="text" name="c">
+                    </div>
+                    <div class="form-group">
+                        <label>Campo D:</label>
+                        <input type="text" name="d">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Campo E:</label>
+                        <input type="text" name="e">
+                    </div>
+                    <div class="form-group">
+                        <label>Campo F:</label>
+                        <input type="text" name="f">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Valor AF:</label>
+                        <input type="number" step="0.01" name="af" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor BF:</label>
+                        <input type="number" step="0.01" name="bf" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Valor CF:</label>
+                        <input type="number" step="0.01" name="cf" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Flags:</label>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" name="ba"> BA
+                        </label>
+                        <label>
+                            <input type="checkbox" name="bb"> BB
+                        </label>
+                        <label>
+                            <input type="checkbox" name="bc"> BC
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Calendario:</label>
+                    <input type="datetime-local" name="calendario">
+                </div>
+                <div class="form-group" id="parentSelect" style="display: none;">
+                    <label id="parentLabel">Seleccionar padre:</label>
+                    <select name="parentId" id="parentId">
+                        <option value="">Seleccione...</option>
+                    </select>
+                </div>
+                <div class="actions">
+                    <button type="submit" class="btn btn-success">💾 Guardar</button>
+                    <button type="button" class="btn btn-danger" onclick="closeModal()">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- Modales -->
-    <div id="modal-container"></div>
+    <!-- Modal IA -->
+    <div class="modal" id="aiModal">
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2>🧠 Asistente IA - Consulta Rápida</h2>
+                <button class="close-btn" onclick="closeAIModal()">×</button>
+            </div>
+            <div class="form-group">
+                <label>💭 Pregunta:</label>
+                <textarea id="quickAIPrompt" rows="3" placeholder="Ejemplo: ¿Qué patrones ves en mis datos?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>📊 Incluir datos:</label>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" id="includeArboles" checked> Árboles</label>
+                    <label><input type="checkbox" id="includeRamas" checked> Ramas</label>
+                    <label><input type="checkbox" id="includeHojas" checked> Hojas</label>
+                </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-ai" onclick="quickAIConsult()">🚀 Consultar</button>
+                <button class="btn btn-primary" onclick="closeAIModal()">❌ Cerrar</button>
+            </div>
+            <div id="quickAIResponse" style="margin-top: 20px;">
+                <!-- Respuesta aparece aquí -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Widget de Chat Flotante -->
+    <div class="chat-widget" id="chatWidget">
+        <div class="chat-header" onclick="toggleChat()">
+            <span>💬 Chat en Tiempo Real</span>
+            <span id="chatToggle">➖</span>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-message system">¡Bienvenido al chat! 🎉</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Escribe un mensaje...">
+            <button class="btn btn-primary" onclick="sendChatMessage()" style="padding: 8px 12px;">📤</button>
+        </div>
+    </div>
+
+    <!-- Asistente IA Flotante -->
+    <div class="ai-assistant" id="aiAssistant" onclick="toggleAIAssistant()"></div>
+
+    <!-- Scripts principales -->
+    <script>
+        // Configuración global
+        let currentType = '';
+        let currentEditId = null;
+        let allData = {
+            arboles: [],
+            ramas: [],
+            hojas: [],
+            usuarios: []
+        };
+        
+        let aiHistory = [];
+        let chatMessages = [];
+        let isAIAvailable = false;
+        let currentAIModel = 'codellama';
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Dashboard con IA cargado para usuario:', USUARIO_NOMBRE, '(ID:', USUARIO_ID, ')');
+            initializeDashboard();
+        });
+
+        async function initializeDashboard() {
+            await checkAIStatus();
+            await loadAllData();
+            updateStats();
+            loadAIHistory();
+            initializeChat();
+            setupEventListeners();
+        }
+
+        // === GESTIÓN DE IA ===
+        async function checkAIStatus() {
+            try {
+                const response = await fetch(`${LOCAL_AI_URL}/status`);
+                const status = await response.json();
+                
+                isAIAvailable = status.available;
+                updateAIStatusUI(status);
+                
+                console.log('🤖 Estado IA:', status);
+            } catch (error) {
+                console.error('❌ Error verificando IA:', error);
+                isAIAvailable = false;
+                updateAIStatusUI({ available: false, message: 'Error de conexión' });
+            }
+        }
+
+        function updateAIStatusUI(status) {
+            const statusElement = document.getElementById('aiStatus');
+            const statusText = document.getElementById('aiStatusText');
+            const modelStatus = document.getElementById('aiModelStatus');
+            
+            if (statusElement) {
+                statusElement.className = `ai-status ${status.available ? 'online' : 'offline'}`;
+                statusText.textContent = status.available ? 'IA Activa' : 'IA Inactiva';
+            }
+            
+            if (modelStatus) {
+                modelStatus.value = status.available ? `✅ ${status.model || 'CodeLlama'}` : '❌ Desconectado';
+            }
+        }
+
+async function consultarIA() {
+    const prompt = document.getElementById('aiPrompt').value;
+    const analysisType = document.getElementById('aiAnalysisType').value;
     
-    <!-- Scripts externos -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    if (!prompt.trim()) {
+        showNotification('Por favor escribe una pregunta', 'error');
+        return;
+    }
+
+    if (!isAIAvailable) {
+        showNotification('Asistente IA no disponible', 'error');
+        return;
+    }
+
+    showAILoading();
     
-    <!-- Scripts de la aplicación con rutas de Spring Boot -->
-    <script th:src="@{/dashboard/js/main.js}"></script>
-    <script th:src="@{/dashboard/js/arboles-ramas-hojas.js}"></script>
-    <script th:src="@{/dashboard/js/chat.js}"></script>
-    <script th:src="@{/dashboard/js/claude.js}"></script>
-    <script th:src="@{/dashboard/js/amigos.js}"></script>
-    <script th:src="@{/dashboard/js/mensajes.js}"></script>
+    try {
+        // CORREGIDO: Usar la estructura que espera el backend
+        const requestData = {
+            mensaje: prompt,  // Cambiar 'prompt' por 'mensaje'
+            usuarioNombre: USUARIO_NOMBRE,
+            tipo: analysisType || 'general'
+        };
+
+        const response = await fetch(`${LOCAL_AI_URL}/ask`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestData)  // Estructura simplificada
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const aiResponse = await response.json();
+        console.log('Respuesta de IA recibida:', aiResponse); // Debug
+        
+        displayAIResponse(aiResponse);
+        saveToAIHistory(prompt, aiResponse);
+        updateStats();
+
+    } catch (error) {
+        console.error('Error consultando IA:', error);
+        showNotification('Error al consultar la IA: ' + error.message, 'error');
+        hideAILoading();
+    }
+}
+
+        function showAILoading() {
+            document.getElementById('aiResponse').innerHTML = `
+                <div class="loading">
+                    🤖 El asistente IA está analizando tus datos...<br>
+                    <small>Esto puede tomar unos segundos</small>
+                </div>
+            `;
+        }
+
+        function hideAILoading() {
+            // Se oculta automáticamente al mostrar respuesta
+        }
+
+function displayAIResponse(response) {
+    const responseDiv = document.getElementById('aiResponse');
+    const timestamp = new Date().toLocaleString();
+    
+    console.log('Mostrando respuesta IA:', response); // Debug
+    
+    // Verificar si la respuesta tiene el formato correcto
+    if (!response) {
+        responseDiv.innerHTML = `
+            <div style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px;">
+                Error: No se recibió respuesta de la IA
+            </div>
+        `;
+        return;
+    }
+    
+    // Obtener el contenido de la respuesta
+    let content = '';
+    if (response.success === false) {
+        // Error en la respuesta
+        content = `Error: ${response.error || 'Error desconocido'}`;
+        responseDiv.innerHTML = `
+            <div style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px;">
+                <h3>Error en la consulta</h3>
+                <p>${content}</p>
+                ${response.suggestion ? `<p><strong>Sugerencia:</strong> ${response.suggestion}</p>` : ''}
+            </div>
+        `;
+        return;
+    }
+    
+    // Respuesta exitosa
+    content = response.content || response.response || response.mensaje || 'Sin respuesta';
+    
+    responseDiv.innerHTML = `
+        <div style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+            <h3>Respuesta del Asistente IA</h3>
+            <small>Fecha: ${timestamp}</small>
+            ${response.model ? `<small style="display: block;">Modelo: ${response.model}</small>` : ''}
+            ${response.processingTime ? `<small style="display: block;">Tiempo: ${response.processingTime}s</small>` : ''}
+        </div>
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #8e2de2;">
+            <pre style="white-space: pre-wrap; font-family: inherit; margin: 0; line-height: 1.6;">${content}</pre>
+        </div>
+        ${response.totalTokens ? `
+        <div style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 8px; font-size: 0.9em;">
+            <strong>Información técnica:</strong>
+            <div>Tokens utilizados: ${response.totalTokens}</div>
+            ${response.inputTokens ? `<div>Tokens de entrada: ${response.inputTokens}</div>` : ''}
+            ${response.outputTokens ? `<div>Tokens de salida: ${response.outputTokens}</div>` : ''}
+        </div>` : ''}
+    `;
+    
+    // Hacer scroll hacia la respuesta
+    responseDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+        function saveToAIHistory(prompt, response) {
+            const historyItem = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString(),
+                prompt: prompt,
+                response: response.response || response.content,
+                type: document.getElementById('aiAnalysisType').value
+            };
+            
+            aiHistory.unshift(historyItem);
+            updateAIHistoryUI();
+            
+            // Guardar en localStorage
+            localStorage.setItem('aiHistory_' + USUARIO_ID, JSON.stringify(aiHistory));
+        }
+
+        function loadAIHistory() {
+            const stored = localStorage.getItem('aiHistory_' + USUARIO_ID);
+            if (stored) {
+                aiHistory = JSON.parse(stored);
+                updateAIHistoryUI();
+            }
+        }
+
+        function updateAIHistoryUI() {
+            const historyList = document.getElementById('aiHistoryList');
+            
+            if (aiHistory.length === 0) {
+                historyList.innerHTML = '<div class="empty-state">Sin consultas previas</div>';
+                return;
+            }
+
+            const html = aiHistory.slice(0, 10).map(item => `
+                <div style="background: white; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong>📝 ${item.type.charAt(0).toUpperCase() + item.type.slice(1)}</strong>
+                        <small>📅 ${item.timestamp}</small>
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <strong>❓ Pregunta:</strong> ${item.prompt}
+                    </div>
+                    <div style="background: #f8f9fa; padding: 10px; border-radius: 5px;">
+                        <strong>🤖 Respuesta:</strong> 
+                        <div style="margin-top: 5px; max-height: 100px; overflow-y: auto;">
+                            ${item.response.substring(0, 300)}${item.response.length > 300 ? '...' : ''}
+                        </div>
+                    </div>
+                    <div style="text-align: right; margin-top: 10px;">
+                        <button class="btn btn-primary" onclick="expandAIResponse(${item.id})" style="padding: 5px 10px; font-size: 0.8em;">📖 Ver Completo</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            historyList.innerHTML = html;
+        }
+
+        function clearAIHistory() {
+            if (confirm('¿Estás seguro de que deseas limpiar el historial de IA?')) {
+                aiHistory = [];
+                localStorage.removeItem('aiHistory_' + USUARIO_ID);
+                updateAIHistoryUI();
+                showNotification('Historial de IA limpiado', 'success');
+            }
+        }
+
+        // === ANÁLISIS CON IA ===
+        async function analyzeDataWithAI(dataType) {
+            if (!isAIAvailable) {
+                showNotification('Asistente IA no disponible', 'error');
+                return;
+            }
+
+            const data = allData[dataType];
+            if (!data || data.length === 0) {
+                showNotification(`No hay datos de ${dataType} para analizar`, 'error');
+                return;
+            }
+
+            const prompt = `Analiza los siguientes datos de ${dataType} y proporciona insights útiles, patrones y recomendaciones:`;
+            
+            showNotification('Iniciando análisis con IA...', 'info');
+            
+            try {
+                const response = await fetch(`${LOCAL_AI_URL}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        analysisType: 'patterns',
+                        data: data,
+                        userId: USUARIO_ID
+                    })
+                });
+
+                const result = await response.json();
+                
+                // Mostrar resultado en modal
+                showAIAnalysisModal(dataType, result);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error en el análisis con IA', 'error');
+            }
+        }
+
+        function showAIAnalysisModal(dataType, analysis) {
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px;">
+                    <div class="modal-header">
+                        <h2>🧠 Análisis IA - ${dataType.charAt(0).toUpperCase() + dataType.slice(1)}</h2>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    <div style="max-height: 60vh; overflow-y: auto;">
+                        <div style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                            <h3>📊 Análisis Completo</h3>
+                        </div>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; white-space: pre-wrap;">
+                            ${analysis.response || analysis.content}
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove()">✅ Cerrar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // === GESTIÓN DE PESTAÑAS ===
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(`${tabName}-section`).classList.add('active');
+            
+            switch(tabName) {
+                case 'tree':
+                    loadTreeView();
+                    break;
+                case 'ia':
+                    updateAIHistoryUI();
+                    break;
+                case 'chat':
+                    refreshChat();
+                    break;
+                case 'amigos':
+                    loadAmigos();
+                    break;
+            }
+        }
+
+        // === GESTIÓN DE DATOS ===
+        async function loadAllData() {
+            try {
+                await Promise.all([
+                    loadArboles(),
+                    loadRamas(),
+                    loadHojas(),
+                    loadUsuarios()
+                ]);
+                updateStats();
+            } catch (error) {
+                console.error('Error cargando datos:', error);
+                showNotification('Error al cargar los datos', 'error');
+            }
+        }
+
+        async function loadArboles() {
+            try {
+                const response = await fetch(`${API_URL}/arboles/usuario/${USUARIO_ID}`);
+                if (!response.ok) throw new Error('Error al cargar árboles');
+                
+                allData.arboles = await response.json();
+                renderArbolesTable(allData.arboles);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('arbolesTable').innerHTML = '<div class="empty-state">No se pudieron cargar los árboles</div>';
+            }
+        }
+
+        async function loadRamas() {
+            try {
+                const ramas = [];
+                for (const arbol of allData.arboles) {
+                    const response = await fetch(`${API_URL}/ramas/arbol/${arbol.id}`);
+                    if (response.ok) {
+                        const arbolRamas = await response.json();
+                        ramas.push(...arbolRamas);
+                    }
+                }
+                allData.ramas = ramas;
+                renderRamasTable(allData.ramas);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('ramasTable').innerHTML = '<div class="empty-state">No se pudieron cargar las ramas</div>';
+            }
+        }
+
+        async function loadHojas() {
+            try {
+                const hojas = [];
+                for (const rama of allData.ramas) {
+                    const response = await fetch(`${API_URL}/hojas/rama/${rama.id}`);
+                    if (response.ok) {
+                        const ramaHojas = await response.json();
+                        hojas.push(...ramaHojas);
+                    }
+                }
+                allData.hojas = hojas;
+                renderHojasTable(allData.hojas);
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('hojasTable').innerHTML = '<div class="empty-state">No se pudieron cargar las hojas</div>';
+            }
+        }
+
+        async function loadUsuarios() {
+            try {
+                const response = await fetch(`${API_URL}/usuarios`);
+                if (response.ok) {
+                    allData.usuarios = await response.json();
+                }
+            } catch (error) {
+                console.error('Error cargando usuarios:', error);
+            }
+        }
+
+        // === RENDERIZADO DE TABLAS ===
+        function renderArbolesTable(arboles) {
+            if (!arboles || arboles.length === 0) {
+                document.getElementById('arbolesTable').innerHTML = '<div class="empty-state">No hay árboles disponibles</div>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Campo A</th>
+                            <th>Campo B</th>
+                            <th>Campo C</th>
+                            <th>Valores</th>
+                            <th>Flags</th>
+                            <th>Calendario</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            arboles.forEach(arbol => {
+                html += `
+                    <tr>
+                        <td>${arbol.id}</td>
+                        <td><strong>${arbol.a || '-'}</strong></td>
+                        <td>${arbol.b || '-'}</td>
+                        <td>${arbol.c || '-'}</td>
+                        <td>AF: ${arbol.af || 0}, BF: ${arbol.bf || 0}, CF: ${arbol.cf || 0}</td>
+                        <td>
+                            <span class="badge badge-${arbol.ba}">BA</span>
+                            <span class="badge badge-${arbol.bb}">BB</span>
+                            <span class="badge badge-${arbol.bc}">BC</span>
+                        </td>
+                        <td>${formatDate(arbol.calendario)}</td>
+                        <td class="actions">
+                            <button class="btn btn-warning" onclick="editRecord('arbol', ${arbol.id})" style="padding: 5px 10px;">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteRecord('arbol', ${arbol.id})" style="padding: 5px 10px;">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('arbolesTable').innerHTML = html;
+        }
+
+        function renderRamasTable(ramas) {
+            if (!ramas || ramas.length === 0) {
+                document.getElementById('ramasTable').innerHTML = '<div class="empty-state">No hay ramas disponibles</div>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Campo A</th>
+                            <th>Campo B</th>
+                            <th>Campo C</th>
+                            <th>Valores</th>
+                            <th>Flags</th>
+                            <th>Árbol ID</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            ramas.forEach(rama => {
+                html += `
+                    <tr>
+                        <td>${rama.id}</td>
+                        <td><strong>${rama.a || '-'}</strong></td>
+                        <td>${rama.b || '-'}</td>
+                        <td>${rama.c || '-'}</td>
+                        <td>AF: ${rama.af || 0}, BF: ${rama.bf || 0}, CF: ${rama.cf || 0}</td>
+                        <td>
+                            <span class="badge badge-${rama.ba}">BA</span>
+                            <span class="badge badge-${rama.bb}">BB</span>
+                            <span class="badge badge-${rama.bc}">BC</span>
+                        </td>
+                        <td>${rama.arbolId}</td>
+                        <td class="actions">
+                            <button class="btn btn-warning" onclick="editRecord('rama', ${rama.id})" style="padding: 5px 10px;">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteRecord('rama', ${rama.id})" style="padding: 5px 10px;">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('ramasTable').innerHTML = html;
+        }
+
+        function renderHojasTable(hojas) {
+            if (!hojas || hojas.length === 0) {
+                document.getElementById('hojasTable').innerHTML = '<div class="empty-state">No hay hojas disponibles</div>';
+                return;
+            }
+
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Campo A</th>
+                            <th>Campo B</th>
+                            <th>Campo C</th>
+                            <th>Valores</th>
+                            <th>Flags</th>
+                            <th>Rama ID</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            hojas.forEach(hoja => {
+                html += `
+                    <tr>
+                        <td>${hoja.id}</td>
+                        <td><strong>${hoja.a || '-'}</strong></td>
+                        <td>${hoja.b || '-'}</td>
+                        <td>${hoja.c || '-'}</td>
+                        <td>AF: ${hoja.af || 0}, BF: ${hoja.bf || 0}, CF: ${hoja.cf || 0}</td>
+                        <td>
+                            <span class="badge badge-${hoja.ba}">BA</span>
+                            <span class="badge badge-${hoja.bb}">BB</span>
+                            <span class="badge badge-${hoja.bc}">BC</span>
+                        </td>
+                        <td>${hoja.ramaId}</td>
+                        <td class="actions">
+                            <button class="btn btn-warning" onclick="editRecord('hoja', ${hoja.id})" style="padding: 5px 10px;">✏️</button>
+                            <button class="btn btn-danger" onclick="deleteRecord('hoja', ${hoja.id})" style="padding: 5px 10px;">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += '</tbody></table>';
+            document.getElementById('hojasTable').innerHTML = html;
+        }
+
+        // === VISTA JERÁRQUICA ===
+        async function loadTreeView() {
+            document.getElementById('treeView').innerHTML = '<div class="loading">Cargando vista jerárquica...</div>';
+            
+            try {
+                let html = '';
+                
+                for (const arbol of allData.arboles) {
+                    html += `
+                        <div class="tree-item">
+                            <div class="tree-header">
+                                <div class="tree-title">🌳 ${arbol.a || 'Árbol'} (ID: ${arbol.id})</div>
+                                <div>
+                                    <button class="btn btn-ai" onclick="analyzeTreeItem('arbol', ${arbol.id})" style="padding: 5px 10px;">🧠</button>
+                                </div>
+                            </div>
+                            <div class="tree-details">
+                                <div><strong>B:</strong> ${arbol.b || '-'}</div>
+                                <div><strong>C:</strong> ${arbol.c || '-'}</div>
+                                <div><strong>Valores:</strong> AF:${arbol.af}, BF:${arbol.bf}, CF:${arbol.cf}</div>
+                                <div><strong>Flags:</strong> BA:${arbol.ba}, BB:${arbol.bb}, BC:${arbol.bc}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Ramas del árbol
+                    const arbolRamas = allData.ramas.filter(r => r.arbolId === arbol.id);
+                    for (const rama of arbolRamas) {
+                        html += `
+                            <div class="tree-item rama">
+                                <div class="tree-header">
+                                    <div class="tree-title">🌿 ${rama.a || 'Rama'} (ID: ${rama.id})</div>
+                                    <div>
+                                        <button class="btn btn-ai" onclick="analyzeTreeItem('rama', ${rama.id})" style="padding: 5px 10px;">🧠</button>
+                                    </div>
+                                </div>
+                                <div class="tree-details">
+                                    <div><strong>B:</strong> ${rama.b || '-'}</div>
+                                    <div><strong>C:</strong> ${rama.c || '-'}</div>
+                                    <div><strong>Valores:</strong> AF:${rama.af}, BF:${rama.bf}, CF:${rama.cf}</div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        // Hojas de la rama
+                        const ramaHojas = allData.hojas.filter(h => h.ramaId === rama.id);
+                        for (const hoja of ramaHojas) {
+                            html += `
+                                <div class="tree-item hoja">
+                                    <div class="tree-header">
+                                        <div class="tree-title">🍃 ${hoja.a || 'Hoja'} (ID: ${hoja.id})</div>
+                                        <div>
+                                            <button class="btn btn-ai" onclick="analyzeTreeItem('hoja', ${hoja.id})" style="padding: 5px 10px;">🧠</button>
+                                        </div>
+                                    </div>
+                                    <div class="tree-details">
+                                        <div><strong>B:</strong> ${hoja.b || '-'}</div>
+                                        <div><strong>C:</strong> ${hoja.c || '-'}</div>
+                                        <div><strong>Valores:</strong> AF:${hoja.af}, BF:${hoja.bf}, CF:${hoja.cf}</div>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                }
+                
+                if (html === '') {
+                    html = '<div class="empty-state">No hay datos para mostrar en la vista jerárquica</div>';
+                }
+                
+                document.getElementById('treeView').innerHTML = html;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('treeView').innerHTML = '<div class="empty-state">Error al cargar la vista jerárquica</div>';
+            }
+        }
+
+        async function analyzeTreeItem(type, id) {
+            if (!isAIAvailable) {
+                showNotification('IA no disponible', 'error');
+                return;
+            }
+
+            const data = allData[type + 's'].find(item => item.id === id);
+            if (!data) return;
+
+            const prompt = `Analiza este elemento específico de tipo ${type}:\n${JSON.stringify(data, null, 2)}\n\nProporciona insights específicos sobre este elemento.`;
+            
+            try {
+                const response = await fetch(`${LOCAL_AI_URL}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        analysisType: 'specific',
+                        data: data
+                    })
+                });
+
+                const result = await response.json();
+                showAIAnalysisModal(`${type} ${id}`, result);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error analizando elemento', 'error');
+            }
+        }
+
+        async function generateTreeInsights() {
+            if (!isAIAvailable) {
+                showNotification('IA no disponible', 'error');
+                return;
+            }
+
+            const prompt = "Analiza toda la estructura jerárquica (árboles-ramas-hojas) y proporciona insights sobre:\n1. Patrones en la estructura\n2. Distribución de datos\n3. Relaciones entre niveles\n4. Recomendaciones de optimización";
+            
+            try {
+                showNotification('Generando insights jerárquicos...', 'info');
+                
+                const response = await fetch(`${LOCAL_AI_URL}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        analysisType: 'hierarchical',
+                        userData: allData
+                    })
+                });
+
+                const result = await response.json();
+                showAIAnalysisModal('Estructura Jerárquica', result);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error generando insights', 'error');
+            }
+        }
+
+        // === GESTIÓN DE CHAT ===
+        function initializeChat() {
+            // Cargar mensajes del localStorage
+            const storedMessages = localStorage.getItem('chatMessages_' + USUARIO_ID);
+            if (storedMessages) {
+                chatMessages = JSON.parse(storedMessages);
+                updateChatUI();
+            }
+            
+            // Simular conexión WebSocket (placeholder)
+            console.log('💬 Chat inicializado');
+        }
+
+        function toggleChat() {
+            const widget = document.getElementById('chatWidget');
+            const toggle = document.getElementById('chatToggle');
+            
+            widget.classList.toggle('minimized');
+            toggle.textContent = widget.classList.contains('minimized') ? '➕' : '➖';
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            const chatMessage = {
+                id: Date.now(),
+                user: USUARIO_NOMBRE,
+                userId: USUARIO_ID,
+                message: message,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            chatMessages.push(chatMessage);
+            updateChatUI();
+            
+            // Guardar en localStorage
+            localStorage.setItem('chatMessages_' + USUARIO_ID, JSON.stringify(chatMessages));
+            
+            input.value = '';
+            
+            // Simular respuesta (en implementación real sería WebSocket)
+            setTimeout(() => {
+                const responses = [
+                    '¡Hola! 👋',
+                    'Interesante punto de vista 🤔',
+                    '¿Podrías elaborar más sobre eso?',
+                    '¡Excelente! 🎉',
+                    'Hmm, déjame pensarlo... 💭'
+                ];
+                
+                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                
+                chatMessages.push({
+                    id: Date.now(),
+                    user: 'Sistema',
+                    userId: 'system',
+                    message: randomResponse,
+                    timestamp: new Date().toLocaleString()
+                });
+                
+                updateChatUI();
+                localStorage.setItem('chatMessages_' + USUARIO_ID, JSON.stringify(chatMessages));
+            }, 1000 + Math.random() * 2000);
+        }
+
+        function updateChatUI() {
+            const chatBody = document.getElementById('chatBody');
+            const chatInterface = document.getElementById('chatMessages');
+            
+            const messagesHtml = chatMessages.slice(-50).map(msg => `
+                <div class="chat-message ${msg.userId === USUARIO_ID ? 'user' : msg.userId === 'system' ? 'system' : 'ai'}">
+                    <div style="font-size: 0.8em; margin-bottom: 5px;">
+                        <strong>${msg.user}</strong> - ${msg.timestamp}
+                    </div>
+                    ${msg.message}
+                </div>
+            `).join('');
+            
+            if (chatBody) {
+                chatBody.innerHTML = messagesHtml;
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+            
+            if (chatInterface) {
+                chatInterface.innerHTML = messagesHtml || '<div class="empty-state">💬 Comienza una conversación...</div>';
+                chatInterface.scrollTop = chatInterface.scrollHeight;
+            }
+        }
+
+        function sendMessage() {
+            sendChatMessage();
+        }
+
+        function refreshChat() {
+            updateChatUI();
+            showNotification('Chat actualizado', 'success');
+        }
+
+        // === SISTEMA DE AMIGOS ===
+        async function loadAmigos() {
+            // Placeholder para sistema de amigos
+            try {
+                // En implementación real, cargarías desde la API
+                console.log('👥 Cargando sistema de amigos...');
+                
+                document.getElementById('misamigos').innerHTML = '<div class="empty-state">Funcionalidad en desarrollo</div>';
+                document.getElementById('solicitudesRecibidas').innerHTML = '<div class="empty-state">Sin solicitudes</div>';
+                document.getElementById('solicitudesEnviadas').innerHTML = '<div class="empty-state">Sin solicitudes enviadas</div>';
+                
+            } catch (error) {
+                console.error('Error cargando amigos:', error);
+            }
+        }
+
+        async function searchUsuarios() {
+            const query = document.getElementById('searchUsuarios').value.trim();
+            if (!query) return;
+            
+            // Filtrar usuarios locales (en implementación real sería API)
+            const results = allData.usuarios.filter(u => 
+                u.username.toLowerCase().includes(query.toLowerCase()) ||
+                (u.nombre + ' ' + u.apellido).toLowerCase().includes(query.toLowerCase())
+            ).filter(u => u.id !== USUARIO_ID);
+            
+            const resultsDiv = document.getElementById('usuariosEncontrados');
+            
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<div class="empty-state">No se encontraron usuarios</div>';
+                return;
+            }
+            
+            const html = results.map(user => `
+                <div style="background: white; border: 1px solid #ddd; border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <strong>${user.nombre} ${user.apellido}</strong><br>
+                        <small>@${user.username}</small>
+                    </div>
+                    <button class="btn btn-success" onclick="enviarSolicitudAmistad(${user.id})" style="padding: 8px 15px;">➕ Agregar</button>
+                </div>
+            `).join('');
+            
+            resultsDiv.innerHTML = html;
+        }
+
+        function enviarSolicitudAmistad(userId) {
+            // Placeholder
+            showNotification('Solicitud enviada (demo)', 'success');
+        }
+
+        // === MODALES ===
+        function openModal(type) {
+            currentType = type;
+            currentEditId = null;
+            
+            document.getElementById('modalTitle').textContent = `Nuevo ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+            document.getElementById('modalForm').reset();
+            document.getElementById('modalUsuarioId').value = USUARIO_ID;
+            
+            // Configurar campo padre si es necesario
+            const parentSelect = document.getElementById('parentSelect');
+            const parentLabel = document.getElementById('parentLabel');
+            const parentId = document.getElementById('parentId');
+            
+            if (type === 'rama') {
+                parentSelect.style.display = 'block';
+                parentLabel.textContent = 'Seleccionar Árbol:';
+                parentId.innerHTML = '<option value="">Seleccione un árbol...</option>' +
+                    allData.arboles.map(a => `<option value="${a.id}">${a.a || 'Árbol'} (ID: ${a.id})</option>`).join('');
+            } else if (type === 'hoja') {
+                parentSelect.style.display = 'block';
+                parentLabel.textContent = 'Seleccionar Rama:';
+                parentId.innerHTML = '<option value="">Seleccione una rama...</option>' +
+                    allData.ramas.map(r => `<option value="${r.id}">${r.a || 'Rama'} (ID: ${r.id})</option>`).join('');
+            } else {
+                parentSelect.style.display = 'none';
+            }
+            
+            document.getElementById('modal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+            currentType = '';
+            currentEditId = null;
+        }
+
+        function openAIModal() {
+            document.getElementById('aiModal').classList.add('active');
+        }
+
+        function closeAIModal() {
+            document.getElementById('aiModal').classList.remove('active');
+        }
+
+        async function quickAIConsult() {
+            const prompt = document.getElementById('quickAIPrompt').value;
+            if (!prompt.trim()) {
+                showNotification('Escribe una pregunta', 'error');
+                return;
+            }
+            
+            const includeData = {
+                arboles: document.getElementById('includeArboles').checked,
+                ramas: document.getElementById('includeRamas').checked,
+                hojas: document.getElementById('includeHojas').checked
+            };
+            
+            const responseDiv = document.getElementById('quickAIResponse');
+            responseDiv.innerHTML = '<div class="loading">🤖 Consultando IA...</div>';
+            
+            try {
+                const response = await fetch(`${LOCAL_AI_URL}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        analysisType: 'quick',
+                        includeData: includeData,
+                        userData: allData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                responseDiv.innerHTML = `
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; border-left: 4px solid #8e2de2;">
+                        <strong>🤖 Respuesta:</strong><br>
+                        <div style="margin-top: 10px; white-space: pre-wrap;">${result.response || result.content}</div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.innerHTML = '<div style="color: red;">❌ Error en la consulta</div>';
+            }
+        }
+
+        // === GESTIÓN DE FORMULARIOS ===
+        document.getElementById('modalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Convertir checkboxes
+            data.ba = formData.has('ba');
+            data.bb = formData.has('bb');
+            data.bc = formData.has('bc');
+            
+            // Convertir números
+            data.af = parseFloat(data.af) || 0;
+            data.bf = parseFloat(data.bf) || 0;
+            data.cf = parseFloat(data.cf) || 0;
+            
+            // Asignar ID de padre según el tipo
+            if (currentType === 'rama' && data.parentId) {
+                data.arbolId = parseInt(data.parentId);
+                delete data.parentId;
+            } else if (currentType === 'hoja' && data.parentId) {
+                data.ramaId = parseInt(data.parentId);
+                delete data.parentId;
+            }
+            
+            try {
+                const endpoint = currentEditId ? 
+                    `${API_URL}/${currentType}s/${currentEditId}` : 
+                    `${API_URL}/${currentType}s`;
+                
+                const method = currentEditId ? 'PUT' : 'POST';
+                
+                const response = await fetch(endpoint, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) throw new Error('Error al guardar');
+                
+                closeModal();
+                await loadAllData();
+                showNotification(`${currentType.charAt(0).toUpperCase() + currentType.slice(1)} ${currentEditId ? 'actualizado' : 'creado'} exitosamente`, 'success');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error al guardar el registro', 'error');
+            }
+        });
+
+        // === FUNCIONES AUXILIARES ===
+        function updateStats() {
+            document.getElementById('totalUsuarios').textContent = allData.usuarios.length || 0;
+            document.getElementById('totalArboles').textContent = allData.arboles.length || 0;
+            document.getElementById('totalRamas').textContent = allData.ramas.length || 0;
+            document.getElementById('totalHojas').textContent = allData.hojas.length || 0;
+            document.getElementById('totalConsultasIA').textContent = aiHistory.length || 0;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            return new Date(dateString).toLocaleString();
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 4000);
+        }
+
+        async function editRecord(type, id) {
+            const item = allData[type + 's'].find(i => i.id === id);
+            if (!item) return;
+            
+            currentType = type;
+            currentEditId = id;
+            
+            // Llenar formulario
+            document.getElementById('modalTitle').textContent = `Editar ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+            
+            const form = document.getElementById('modalForm');
+            Object.keys(item).forEach(key => {
+                const input = form.querySelector(`[name="${key}"]`);
+                if (input) {
+                    if (input.type === 'checkbox') {
+                        input.checked = item[key];
+                    } else if (input.type === 'datetime-local' && item[key]) {
+                        input.value = new Date(item[key]).toISOString().slice(0, 16);
+                    } else {
+                        input.value = item[key] || '';
+                    }
+                }
+            });
+            
+            document.getElementById('modal').classList.add('active');
+        }
+
+        async function deleteRecord(type, id) {
+            if (!confirm(`¿Estás seguro de eliminar este ${type}?`)) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/${type}s/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Error al eliminar');
+                
+                await loadAllData();
+                showNotification(`${type.charAt(0).toUpperCase() + type.slice(1)} eliminado exitosamente`, 'success');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error al eliminar el registro', 'error');
+            }
+        }
+
+        async function loadTestData() {
+            if (!confirm('¿Cargar datos de prueba? Esto puede sobrescribir datos existentes.')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/test-data/load/${USUARIO_ID}`, {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) throw new Error('Error cargando datos de prueba');
+                
+                await loadAllData();
+                showNotification('Datos de prueba cargados exitosamente', 'success');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error cargando datos de prueba', 'error');
+            }
+        }
+
+        async function clearAllData() {
+            if (!confirm('¿ELIMINAR TODOS tus datos? Esta acción NO se puede deshacer.')) return;
+            
+            try {
+                const response = await fetch(`${API_URL}/usuarios/${USUARIO_ID}/clear-data`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Error limpiando datos');
+                
+                await loadAllData();
+                showNotification('Todos los datos han sido eliminados', 'success');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error limpiando los datos', 'error');
+            }
+        }
+
+        async function testAIConnection() {
+            showNotification('Probando conexión con IA...', 'info');
+            
+            try {
+                const response = await fetch(`${LOCAL_AI_URL}/test`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: 'Test de conexión' })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showNotification('✅ Conexión IA exitosa', 'success');
+                    checkAIStatus(); // Actualizar estado
+                } else {
+                    showNotification('❌ Error en conexión IA', 'error');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('❌ No se puede conectar con la IA', 'error');
+            }
+        }
+
+        function exportDataForAI() {
+            const exportData = {
+                usuario: USUARIO_NOMBRE,
+                timestamp: new Date().toISOString(),
+                data: allData,
+                aiHistory: aiHistory
+            };
+            
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `dashboard_data_${USUARIO_ID}_${new Date().toISOString().slice(0, 10)}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            showNotification('Datos exportados exitosamente', 'success');
+        }
+
+        function setupEventListeners() {
+            // Búsqueda en tiempo real
+            document.getElementById('searchArboles')?.addEventListener('input', debounce(searchArboles, 300));
+            document.getElementById('searchRamas')?.addEventListener('input', debounce(searchRamas, 300));
+            document.getElementById('searchHojas')?.addEventListener('input', debounce(searchHojas, 300));
+            
+            // Enter en inputs de chat
+            document.getElementById('chatInput')?.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendChatMessage();
+            });
+            
+            // Control de temperatura IA
+            document.getElementById('aiTemperature')?.addEventListener('input', (e) => {
+                document.getElementById('temperatureValue').textContent = e.target.value;
+            });
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function searchArboles() {
+            const query = document.getElementById('searchArboles').value.toLowerCase();
+            const filtered = allData.arboles.filter(item => 
+                Object.values(item).some(val => 
+                    String(val).toLowerCase().includes(query)
+                )
+            );
+            renderArbolesTable(filtered);
+        }
+
+        function searchRamas() {
+            const query = document.getElementById('searchRamas').value.toLowerCase();
+            const filtered = allData.ramas.filter(item => 
+                Object.values(item).some(val => 
+                    String(val).toLowerCase().includes(query)
+                )
+            );
+            renderRamasTable(filtered);
+        }
+
+        function searchHojas() {
+            const query = document.getElementById('searchHojas').value.toLowerCase();
+            const filtered = allData.hojas.filter(item => 
+                Object.values(item).some(val => 
+                    String(val).toLowerCase().includes(query)
+                )
+            );
+            renderHojasTable(filtered);
+        }
+
+        function toggleAIAssistant() {
+            openAIModal();
+        }
+
+        function includeCurrentData() {
+            const prompt = document.getElementById('aiPrompt');
+            const currentPrompt = prompt.value;
+            
+            const dataString = `\n\nDatos actuales del usuario:\n${JSON.stringify(allData, null, 2)}`;
+            prompt.value = currentPrompt + dataString;
+            
+            showNotification('Datos actuales incluidos en la consulta', 'success');
+        }
+
+        function expandAIResponse(id) {
+            const item = aiHistory.find(h => h.id === id);
+            if (!item) return;
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 900px;">
+                    <div class="modal-header">
+                        <h2>🤖 Consulta IA Completa</h2>
+                        <button class="close-btn" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    <div style="max-height: 70vh; overflow-y: auto;">
+                        <div style="margin-bottom: 20px;">
+                            <strong>📅 Fecha:</strong> ${item.timestamp}<br>
+                            <strong>🎯 Tipo:</strong> ${item.type}
+                        </div>
+                        <div style="background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                            <strong>❓ Pregunta:</strong><br>
+                            ${item.prompt}
+                        </div>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #8e2de2;">
+                            <strong>🤖 Respuesta:</strong><br>
+                            <pre style="white-space: pre-wrap; font-family: inherit; margin: 10px 0 0 0;">${item.response}</pre>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <button class="btn btn-primary" onclick="this.closest('.modal').remove()">✅ Cerrar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+    </script>
 </body>
 </html>

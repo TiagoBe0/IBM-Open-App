@@ -38,46 +38,62 @@ public class SecurityConfig {
     @Bean
 public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
-    configuration.addAllowedOriginPattern("*"); // Permite cualquier IP/origen
-    configuration.addAllowedMethod("*");        // Permite GET, POST, PUT, DELETE...
-    configuration.addAllowedHeader("*");        // Permite cualquier header
-    configuration.setAllowCredentials(true);    // Permite enviar cookies o Authorization
+    configuration.addAllowedOriginPattern("*");
+    configuration.addAllowedMethod("*");
+    configuration.addAllowedHeader("*");
+    configuration.setAllowCredentials(true);
+    
+    // Configuración específica para endpoints de IA
+    CorsConfiguration aiConfiguration = new CorsConfiguration();
+    aiConfiguration.addAllowedOriginPattern("*");
+    aiConfiguration.addAllowedMethod("*");
+    aiConfiguration.addAllowedHeader("*");
+    aiConfiguration.setAllowCredentials(true);
+    aiConfiguration.setMaxAge(3600L);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);
+    source.registerCorsConfiguration("/api/local-ai/**", aiConfiguration); // ✅ Específico para IA
+    
     return source;
 }
+
+
+
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            // Deshabilitar CSRF temporalmente para pruebas
-            .csrf(csrf -> csrf.disable()).cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-            
-            // Configurar el proveedor de autenticación
-            .authenticationProvider(authenticationProvider())
-            
-            // Configurar autorización
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers(
-                    "/",
-                    "/index",
-                    "/login",
-                    "/registro",
-                    "/registrar",
-                    "/error",
-                    "/css/**",
-                    "/js/**",
-                    "/img/**",
-                    "/webjars/**",
-                    "/test/**"  // Endpoints de prueba
-                ).permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/usuario/**").hasAnyRole("USUARIO", "ADMIN", "MODERADOR")
-                .requestMatchers("/perfil/**").authenticated()
-                .requestMatchers("/dashboard/**").authenticated()
-                .anyRequest().authenticated()
-            )
+    http
+        // Deshabilitar CSRF temporalmente para pruebas
+        .csrf(csrf -> csrf.disable())
+        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        
+        // Configurar el proveedor de autenticación
+        .authenticationProvider(authenticationProvider())
+        
+        // Configurar autorización
+        .authorizeHttpRequests(authz -> authz
+            .requestMatchers(
+                "/",
+                "/index",
+                "/login",
+                "/registro",
+                "/registrar",
+                "/error",
+                "/css/**",
+                "/js/**",
+                "/img/**",
+                "/webjars/**",
+                "/test/**",  // Endpoints de prueba
+                "/api/local-ai/**",  // ✅ NUEVO: Permitir endpoints de IA local
+                "/api/debug/**"      // ✅ NUEVO: Permitir endpoints de debug
+            ).permitAll()
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .requestMatchers("/usuario/**").hasAnyRole("USUARIO", "ADMIN", "MODERADOR")
+            .requestMatchers("/perfil/**").authenticated()
+            .requestMatchers("/dashboard/**").authenticated()
+            .anyRequest().authenticated()
+        )
             
             // Configurar login
             .formLogin(form -> form
@@ -122,4 +138,5 @@ public CorsConfigurationSource corsConfigurationSource() {
         
         return http.build();
     }
+    
 }

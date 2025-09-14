@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +24,7 @@ public class Usuario implements UserDetails {
     @SequenceGenerator(
         name = "usuario_seq",
         sequenceName = "usuario_sequence",
-        initialValue = 100,
+        initialValue = 1000000,
         allocationSize = 1
     )
     private Long id;
@@ -48,7 +46,7 @@ public class Usuario implements UserDetails {
     private Rol rol = Rol.USUARIO;
     
     @Column(name = "fecha_registro")
-    private LocalDateTime fechaRegistro = LocalDateTime.now(); // Valor por defecto aquí
+    private LocalDateTime fechaRegistro;
     
     @Column(name = "activo")
     private Boolean activo = true;
@@ -65,7 +63,7 @@ public class Usuario implements UserDetails {
         USUARIO, ADMIN, MODERADOR
     }
     
-    // Constructor vacío personalizado (reemplaza @NoArgsConstructor)
+    // Constructor vacío personalizado
     public Usuario() {
         this.fechaRegistro = LocalDateTime.now();
         this.activo = true;
@@ -73,9 +71,9 @@ public class Usuario implements UserDetails {
         this.arboles = new ArrayList<>();
     }
     
-    // Constructor completo personalizado (reemplaza @AllArgsConstructor)
+    // Constructor completo personalizado
     public Usuario(String nombre, String apellido, String email, String password, Rol rol) {
-        this();
+        this(); // Llama al constructor vacío para inicializar valores por defecto
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
@@ -83,7 +81,7 @@ public class Usuario implements UserDetails {
         this.rol = rol != null ? rol : Rol.USUARIO;
     }
     
-    // Métodos de utilidad
+    // Métodos de utilidad para manejar la relación con Arboles
     public void addArbol(Arbol arbol) {
         if (arboles == null) {
             arboles = new ArrayList<>();
@@ -99,7 +97,7 @@ public class Usuario implements UserDetails {
         }
     }
     
-    // Implementación de UserDetails
+    // Implementación completa de UserDetails
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
@@ -108,6 +106,11 @@ public class Usuario implements UserDetails {
     @Override
     public String getUsername() {
         return email;
+    }
+    
+    @Override
+    public String getPassword() {
+        return password;
     }
     
     @Override
@@ -130,12 +133,63 @@ public class Usuario implements UserDetails {
         return activo != null ? activo : false;
     }
     
-    // Métodos adicionales
+    // Métodos de utilidad adicionales
     public String getNombreCompleto() {
-        return (nombre != null ? nombre : "") + " " + (apellido != null ? apellido : "");
+        StringBuilder nombreCompleto = new StringBuilder();
+        if (nombre != null && !nombre.trim().isEmpty()) {
+            nombreCompleto.append(nombre.trim());
+        }
+        if (apellido != null && !apellido.trim().isEmpty()) {
+            if (nombreCompleto.length() > 0) {
+                nombreCompleto.append(" ");
+            }
+            nombreCompleto.append(apellido.trim());
+        }
+        return nombreCompleto.toString();
     }
     
     public Boolean isActivo() {
         return activo != null ? activo : false;
+    }
+    
+    // Método para verificar si es administrador
+    public boolean isAdmin() {
+        return Rol.ADMIN.equals(this.rol);
+    }
+    
+    // Método para verificar si es moderador
+    public boolean isModerador() {
+        return Rol.MODERADOR.equals(this.rol);
+    }
+    
+    // Inicialización antes de persistir
+    @PrePersist
+    protected void onCreate() {
+        if (fechaRegistro == null) {
+            fechaRegistro = LocalDateTime.now();
+        }
+        if (activo == null) {
+            activo = true;
+        }
+        if (rol == null) {
+            rol = Rol.USUARIO;
+        }
+        if (arboles == null) {
+            arboles = new ArrayList<>();
+        }
+    }
+    
+    // Método toString personalizado (override de Lombok si es necesario)
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", email='" + email + '\'' +
+                ", rol=" + rol +
+                ", activo=" + activo +
+                ", fechaRegistro=" + fechaRegistro +
+                '}';
     }
 }
