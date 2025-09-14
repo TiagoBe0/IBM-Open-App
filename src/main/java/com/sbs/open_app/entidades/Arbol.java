@@ -10,11 +10,14 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sbs.open_app.entidades.base.BaseEntity;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "arboles")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Data  // ← IMPORTANTE: Debe tener esta anotación
+@NoArgsConstructor
+@AllArgsConstructor
 public class Arbol extends BaseEntity {
     
     @ManyToOne(fetch = FetchType.LAZY)

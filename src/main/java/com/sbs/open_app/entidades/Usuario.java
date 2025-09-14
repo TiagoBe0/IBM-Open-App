@@ -1,28 +1,24 @@
-
 package com.sbs.open_app.entidades;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 @Entity
 @Table(name = "usuarios")
+@Data
+@EqualsAndHashCode(callSuper = false)
 public class Usuario implements UserDetails {
     
     @Id
@@ -30,10 +26,11 @@ public class Usuario implements UserDetails {
     @SequenceGenerator(
         name = "usuario_seq",
         sequenceName = "usuario_sequence",
-        initialValue = 1000000, // Valor inicial alto
+        initialValue = 100,
         allocationSize = 1
     )
     private Long id;
+    
     @Column(nullable = false)
     private String nombre;
     
@@ -51,7 +48,7 @@ public class Usuario implements UserDetails {
     private Rol rol = Rol.USUARIO;
     
     @Column(name = "fecha_registro")
-    private LocalDateTime fechaRegistro;
+    private LocalDateTime fechaRegistro = LocalDateTime.now(); // Valor por defecto aquí
     
     @Column(name = "activo")
     private Boolean activo = true;
@@ -59,48 +56,54 @@ public class Usuario implements UserDetails {
     @Column(name = "foto_perfil")
     private String fotoPerfil;
     
-    // Nueva relación con Arbol
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Arbol> arboles = new ArrayList<>();
     
-    // Métodos de utilidad
-    public void addArbol(Arbol arbol) {
-        arboles.add(arbol);
-        arbol.setUsuario(this);
-    }
-    
-    public void removeArbol(Arbol arbol) {
-        arboles.remove(arbol);
-        arbol.setUsuario(null);
-    }
     // Enum para roles
     public enum Rol {
         USUARIO, ADMIN, MODERADOR
     }
     
-    // Constructor vacío
+    // Constructor vacío personalizado (reemplaza @NoArgsConstructor)
     public Usuario() {
         this.fechaRegistro = LocalDateTime.now();
+        this.activo = true;
+        this.rol = Rol.USUARIO;
+        this.arboles = new ArrayList<>();
     }
     
-    // Constructor con parámetros
-    public Usuario(String nombre, String apellido, String email, String password) {
+    // Constructor completo personalizado (reemplaza @AllArgsConstructor)
+    public Usuario(String nombre, String apellido, String email, String password, Rol rol) {
+        this();
         this.nombre = nombre;
         this.apellido = apellido;
         this.email = email;
         this.password = password;
-        this.fechaRegistro = LocalDateTime.now();
-        this.activo = true;
-        this.rol = Rol.USUARIO;
+        this.rol = rol != null ? rol : Rol.USUARIO;
+    }
+    
+    // Métodos de utilidad
+    public void addArbol(Arbol arbol) {
+        if (arboles == null) {
+            arboles = new ArrayList<>();
+        }
+        arboles.add(arbol);
+        arbol.setUsuario(this);
+    }
+    
+    public void removeArbol(Arbol arbol) {
+        if (arboles != null) {
+            arboles.remove(arbol);
+            arbol.setUsuario(null);
+        }
     }
     
     // Implementación de UserDetails
-@Override
-public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
-}
-
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
+    }
     
     @Override
     public String getUsername() {
@@ -114,7 +117,7 @@ public Collection<? extends GrantedAuthority> getAuthorities() {
     
     @Override
     public boolean isAccountNonLocked() {
-        return activo;
+        return activo != null ? activo : false;
     }
     
     @Override
@@ -124,88 +127,15 @@ public Collection<? extends GrantedAuthority> getAuthorities() {
     
     @Override
     public boolean isEnabled() {
-        return activo;
+        return activo != null ? activo : false;
     }
     
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
-    public String getNombre() {
-        return nombre;
-    }
-    
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-    
-    public String getApellido() {
-        return apellido;
-    }
-    
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
-    
-    public String getEmail() {
-        return email;
-    }
-    
-    public void setEmail(String email) {
-        this.email = email;
-    }
-    
-    public String getPassword() {
-        return password;
-    }
-    
-    public void setPassword(String password) {
-        this.password = password;
-    }
-    
-    public Rol getRol() {
-        return rol;
-    }
-    
-    public void setRol(Rol rol) {
-        this.rol = rol;
-    }
-    
-    public LocalDateTime getFechaRegistro() {
-        return fechaRegistro;
-    }
-    
-    public void setFechaRegistro(LocalDateTime fechaRegistro) {
-        this.fechaRegistro = fechaRegistro;
-    }
-    
-    public Boolean getActivo() {
-        return activo;
-    }
-    
-    public void setActivo(Boolean activo) {
-        this.activo = activo;
-    }
-    
-    public String getFotoPerfil() {
-        return fotoPerfil;
-    }
-    
-    public void setFotoPerfil(String fotoPerfil) {
-        this.fotoPerfil = fotoPerfil;
-    }
-    
+    // Métodos adicionales
     public String getNombreCompleto() {
-        return nombre + " " + apellido;
+        return (nombre != null ? nombre : "") + " " + (apellido != null ? apellido : "");
     }
- 
-
-public Boolean isActivo() {
-    return activo != null ? activo : false;
-}
+    
+    public Boolean isActivo() {
+        return activo != null ? activo : false;
+    }
 }

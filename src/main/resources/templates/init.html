@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Sistema Árbol/Rama/Hoja</title>
     
-    <!-- CSS con rutas de Spring Boot -->
-    <link rel="stylesheet" th:href="@{/dashboard/css/main.css}">
-    <link rel="stylesheet" th:href="@{/dashboard/css/chat.css}">
-    <link rel="stylesheet" th:href="@{/dashboard/css/claude.css}">
-    <link rel="stylesheet" th:href="@{/dashboard/css/amigos.css}">
-    <link rel="stylesheet" th:href="@{/dashboard/css/mensajes.css}">
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/chat.css">
+    <link rel="stylesheet" href="css/claude.css">
+    <link rel="stylesheet" href="css/amigos.css">
+    <link rel="stylesheet" href="css/mensajes.css">
 </head>
 <body>
     <!-- Variables de Thymeleaf convertidas a JavaScript -->
@@ -21,15 +21,8 @@
             USUARIO_NOMBRE: /*[[${usuario.nombre}]]*/ 'Usuario',
             USUARIO_APELLIDO: /*[[${usuario.apellido}]]*/ '',
             USUARIO_USERNAME: /*[[${usuario.username}]]*/ 'usuario',
-            API_URL: /*[[@{/api}]]*/ '/api'
+            API_URL: 'http://localhost:8081/api'
         };
-        
-        // Configurar rutas base para componentes
-        window.DASHBOARD_CONFIG = {
-            COMPONENTS_BASE_URL: /*[[@{/dashboard/components}]]*/ '/dashboard/components'
-        };
-        
-        console.log('Usuario autenticado - ID:', window.APP_CONFIG.USUARIO_ID, 'Nombre:', window.APP_CONFIG.USUARIO_NOMBRE);
         /*]]>*/
     </script>
 
@@ -75,12 +68,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     
-    <!-- Scripts de la aplicación con rutas de Spring Boot -->
-    <script th:src="@{/dashboard/js/main.js}"></script>
-    <script th:src="@{/dashboard/js/arboles-ramas-hojas.js}"></script>
-    <script th:src="@{/dashboard/js/chat.js}"></script>
-    <script th:src="@{/dashboard/js/claude.js}"></script>
-    <script th:src="@{/dashboard/js/amigos.js}"></script>
-    <script th:src="@{/dashboard/js/mensajes.js}"></script>
+    <!-- Scripts de la aplicación -->
+    <script src="js/main.js"></script>
+    <script src="js/arboles-ramas-hojas.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/claude.js"></script>
+    <script src="js/amigos.js"></script>
+    <script src="js/mensajes.js"></script>
 </body>
 </html>

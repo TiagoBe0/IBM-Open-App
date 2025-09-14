@@ -1,0 +1,250 @@
+<!-- Sección Árboles -->
+<div class="content-section active" id="arboles-section">
+    <div class="toolbar">
+        <h2>Gestión de Árboles</h2>
+        <div class="search-box">
+            <input type="text" placeholder="Buscar árboles..." id="searchArboles">
+            <button class="btn btn-primary" onclick="searchArboles()">🔍</button>
+        </div>
+        <button class="btn btn-success" onclick="openModal('arbol')">➕ Nuevo Árbol</button>
+    </div>
+    <div id="arbolesTable">
+        <div class="loading">Cargando árboles...</div>
+    </div>
+</div>
+
+<!-- Sección Ramas -->
+<div class="content-section" id="ramas-section">
+    <div class="toolbar">
+        <h2>Gestión de Ramas</h2>
+        <div class="search-box">
+            <input type="text" placeholder="Buscar ramas..." id="searchRamas">
+            <button class="btn btn-primary" onclick="searchRamas()">🔍</button>
+        </div>
+        <button class="btn btn-success" onclick="openModal('rama')">➕ Nueva Rama</button>
+    </div>
+    <div id="ramasTable">
+        <div class="loading">Cargando ramas...</div>
+    </div>
+</div>
+
+<!-- Sección Hojas -->
+<div class="content-section" id="hojas-section">
+    <div class="toolbar">
+        <h2>Gestión de Hojas</h2>
+        <div class="search-box">
+            <input type="text" placeholder="Buscar hojas..." id="searchHojas">
+            <button class="btn btn-primary" onclick="searchHojas()">🔍</button>
+        </div>
+        <button class="btn btn-success" onclick="openModal('hoja')">➕ Nueva Hoja</button>
+    </div>
+    <div id="hojasTable">
+        <div class="loading">Cargando hojas...</div>
+    </div>
+</div>
+
+<!-- Vista Jerárquica -->
+<div class="content-section" id="tree-section">
+    <div class="toolbar">
+        <h2>Vista Jerárquica</h2>
+        <button class="btn btn-primary" onclick="loadTreeView()">🔄 Actualizar</button>
+    </div>
+    <div id="treeView" class="tree-view">
+        <div class="loading">Cargando vista jerárquica...</div>
+    </div>
+</div>
+
+<!-- Sección Amigos -->
+<div class="content-section" id="amigos-section">
+    <h2>Sistema de Amistades</h2>
+    
+    <!-- Sub-pestañas para amigos -->
+    <div class="tabs" style="margin: 20px 0;">
+        <button class="tab active" onclick="switchAmigosTab('lista')">👥 Mis Amigos</button>
+        <button class="tab" onclick="switchAmigosTab('solicitudes')">📩 Solicitudes</button>
+        <button class="tab" onclick="switchAmigosTab('buscar')">🔍 Buscar</button>
+        <button class="tab" onclick="switchAmigosTab('estadisticas')">📊 Estadísticas</button>
+    </div>
+    
+    <!-- Lista de Amigos -->
+    <div class="amigos-subsection active" id="lista-amigos">
+        <div class="toolbar">
+            <h3>Mis Amigos (<span id="totalAmigosActivos">0</span>)</h3>
+            <button class="btn btn-primary" onclick="loadAmigos()">🔄 Actualizar</button>
+        </div>
+        <div id="amigosLista">
+            <div class="loading">Cargando amigos...</div>
+        </div>
+    </div>
+    
+    <!-- Solicitudes de Amistad -->
+    <div class="amigos-subsection" id="solicitudes-amigos">
+        <div class="toolbar">
+            <h3>Gestión de Solicitudes</h3>
+        </div>
+        
+        <!-- Solicitudes Recibidas -->
+        <div style="margin-bottom: 30px;">
+            <h4>📥 Solicitudes Recibidas (<span id="totalSolicitudesRecibidas">0</span>)</h4>
+            <div id="solicitudesRecibidas">
+                <div class="loading">Cargando solicitudes recibidas...</div>
+            </div>
+        </div>
+        
+        <!-- Solicitudes Enviadas -->
+        <div>
+            <h4>📤 Solicitudes Enviadas (<span id="totalSolicitudesEnviadas">0</span>)</h4>
+            <div id="solicitudesEnviadas">
+                <div class="loading">Cargando solicitudes enviadas...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Buscar Usuarios -->
+    <div class="amigos-subsection" id="buscar-amigos">
+        <div class="toolbar">
+            <h3>Buscar Nuevos Amigos</h3>
+            <div class="search-box">
+                <input type="text" placeholder="Buscar por nombre, username o email..." 
+                       id="searchUsuarios" onkeypress="if(event.key==='Enter') buscarUsuarios()">
+                <button class="btn btn-primary" onclick="buscarUsuarios()">🔍 Buscar</button>
+            </div>
+        </div>
+        <div id="usuariosBusqueda">
+            <div class="empty-state">Ingresa un término de búsqueda para encontrar usuarios</div>
+        </div>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="amigos-subsection" id="estadisticas-amigos">
+        <h3>Estadísticas de Amistad</h3>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="statTotalAmigos">0</div>
+                <div class="label">Total Amigos</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="statSolicitudesRecibidas">0</div>
+                <div class="label">Solicitudes Recibidas</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="statSolicitudesEnviadas">0</div>
+                <div class="label">Solicitudes Enviadas</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección Mensajes -->
+<div class="content-section" id="mensajes-section">
+    <h2>Sistema de Mensajería</h2>
+    
+    <!-- Sub-pestañas para mensajes -->
+    <div class="tabs" style="margin: 20px 0;">
+        <button class="tab active" onclick="switchMensajesTab('conversaciones')">💬 Conversaciones</button>
+        <button class="tab" onclick="switchMensajesTab('chat')">📱 Chat</button>
+        <button class="tab" onclick="switchMensajesTab('buscar')">🔍 Buscar</button>
+        <button class="tab" onclick="switchMensajesTab('estadisticas')">📊 Estadísticas</button>
+    </div>
+    
+    <!-- Lista de Conversaciones -->
+    <div class="mensajes-subsection active" id="conversaciones-mensajes">
+        <div class="toolbar">
+            <h3>Mis Conversaciones</h3>
+            <button class="btn btn-primary" onclick="loadConversaciones()">🔄 Actualizar</button>
+        </div>
+        <div id="conversacionesLista">
+            <div class="loading">Cargando conversaciones...</div>
+        </div>
+    </div>
+    
+    <!-- Chat -->
+    <div class="mensajes-subsection" id="chat-mensajes">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-amigo-info">
+                    <div class="amigo-avatar" id="chatAmigoAvatar">A</div>
+                    <div>
+                        <h4 id="chatAmigoNombre">Selecciona un amigo</h4>
+                        <p id="chatAmigoEstado">Para comenzar a chatear</p>
+                    </div>
+                </div>
+                <div class="chat-actions">
+                    <button class="btn btn-warning" onclick="abrirSelectorAmigo()">👥 Cambiar Amigo</button>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessages">
+                <div class="empty-state">Selecciona un amigo para comenzar a chatear</div>
+            </div>
+            
+            <div class="chat-input-container" id="chatInputContainer" style="display: none;">
+                <form id="enviarMensajeForm" class="chat-input-form">
+                    <input type="hidden" id="chatDestinatarioId" name="destinatarioId">
+                    <div class="message-input-group">
+                        <textarea 
+                            id="messageTextarea" 
+                            name="contenido" 
+                            placeholder="Escribe tu mensaje aquí..." 
+                            rows="1" 
+                            maxlength="2000"
+                            required></textarea>
+                        <div class="input-actions">
+                            <button type="button" class="btn-emoji" onclick="toggleEmojis()">😊</button>
+                            <button type="submit" class="btn btn-success">📤</button>
+                        </div>
+                    </div>
+                    <div class="message-counter">
+                        <span id="charCounter">0/2000</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Buscar Mensajes -->
+    <div class="mensajes-subsection" id="buscar-mensajes">
+        <div class="toolbar">
+            <h3>Buscar en Mensajes</h3>
+            <div class="search-box">
+                <input type="text" placeholder="Buscar mensajes..." id="searchMensajes" 
+                       onkeypress="if(event.key==='Enter') buscarMensajes()">
+                <button class="btn btn-primary" onclick="buscarMensajes()">🔍 Buscar</button>
+            </div>
+        </div>
+        <div id="mensajesBusqueda">
+            <div class="empty-state">Ingresa un término para buscar en tus mensajes</div>
+        </div>
+    </div>
+    
+    <!-- Estadísticas -->
+    <div class="mensajes-subsection" id="estadisticas-mensajes">
+        <h3>Estadísticas de Mensajes</h3>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="statMensajesEnviados">0</div>
+                <div class="label">Mensajes Enviados</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="statMensajesRecibidos">0</div>
+                <div class="label">Mensajes Recibidos</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="statMensajesNoLeidos">0</div>
+                <div class="label">Sin Leer</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="statConversacionesActivas">0</div>
+                <div class="label">Conversaciones Activas</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Mi Perfil -->
+<div class="content-section" id="config-section">
+    <h2>Mi Perfil</h2>
+    <div class="user-profile">
+        <!-- Contenido se carga dinámicamente en main.js -->
+    </div>
+</div>
