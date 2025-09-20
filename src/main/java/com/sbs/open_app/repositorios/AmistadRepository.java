@@ -2,6 +2,7 @@ package com.sbs.open_app.repositorios;
 
 import com.sbs.open_app.entidades.Amistad;
 import com.sbs.open_app.entidades.Usuario;
+import java.time.LocalDateTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -69,4 +70,10 @@ public interface AmistadRepository extends JpaRepository<Amistad, Long> {
            "AND u.activo = true")
     List<Usuario> findPotentialFreinds(@Param("busqueda") String busqueda, 
                                       @Param("usuarioId") Long usuarioId);
+    
+    
+    @Query("SELECT COUNT(a) FROM Amistad a WHERE a.usuario.id = :usuarioId " +
+            "AND a.fechaSolicitud >= :fecha")
+     Long countSolicitudesSince(@Param("usuarioId") Long usuarioId, 
+                               @Param("fecha") LocalDateTime fecha);
 }

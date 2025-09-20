@@ -684,7 +684,7 @@
             <button class="tab" onclick="switchTab('ramas')">🌿 Ramas</button>
             <button class="tab" onclick="switchTab('hojas')">🍃 Hojas</button>
             <button class="tab" onclick="switchTab('tree')">📊 Vista Jerárquica</button>
-            <button class="tab" onclick="switchTab('ia')">🧠 Asistente IA</button>
+            <button class="tab" onclick="switchTab('ia')">🧠 DeepSeek Code</button>
             <button class="tab" onclick="switchTab('chat')">💬 Chat</button>
             <button class="tab" onclick="switchTab('amigos')">👥 Amigos</button>
             <button class="tab" onclick="switchTab('config')">⚙️ Mi Perfil</button>
@@ -1134,53 +1134,54 @@
             }
         }
 
-async function consultarIA() {
-    const prompt = document.getElementById('aiPrompt').value;
-    const analysisType = document.getElementById('aiAnalysisType').value;
-    
-    if (!prompt.trim()) {
-        showNotification('Por favor escribe una pregunta', 'error');
-        return;
-    }
+        async function consultarIA() {
+            const prompt = document.getElementById('aiPrompt').value;
+            const analysisType = document.getElementById('aiAnalysisType').value;
+            
+            if (!prompt.trim()) {
+                showNotification('Por favor escribe una pregunta', 'error');
+                return;
+            }
 
-    if (!isAIAvailable) {
-        showNotification('Asistente IA no disponible', 'error');
-        return;
-    }
+            if (!isAIAvailable) {
+                showNotification('Asistente IA no disponible', 'error');
+                return;
+            }
 
-    showAILoading();
-    
-    try {
-        // CORREGIDO: Usar la estructura que espera el backend
-        const requestData = {
-            mensaje: prompt,  // Cambiar 'prompt' por 'mensaje'
-            usuarioNombre: USUARIO_NOMBRE,
-            tipo: analysisType || 'general'
-        };
+            showAILoading();
+            
+            try {
+                const requestData = {
+                    prompt: prompt,
+                    analysisType: analysisType,
+                    includeData: true,
+                    userData: {
+                        arboles: allData.arboles,
+                        ramas: allData.ramas,
+                        hojas: allData.hojas,
+                        userId: USUARIO_ID
+                    }
+                };
 
-        const response = await fetch(`${LOCAL_AI_URL}/ask`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestData)  // Estructura simplificada
-        });
+                const response = await fetch(`${LOCAL_AI_URL}/ask`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestData)
+                });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+                if (!response.ok) throw new Error('Error en la consulta IA');
+                
+                const aiResponse = await response.json();
+                displayAIResponse(aiResponse);
+                saveToAIHistory(prompt, aiResponse);
+                updateStats();
+
+            } catch (error) {
+                console.error('❌ Error consultando IA:', error);
+                showNotification('Error al consultar la IA', 'error');
+                hideAILoading();
+            }
         }
-        
-        const aiResponse = await response.json();
-        console.log('Respuesta de IA recibida:', aiResponse); // Debug
-        
-        displayAIResponse(aiResponse);
-        saveToAIHistory(prompt, aiResponse);
-        updateStats();
-
-    } catch (error) {
-        console.error('Error consultando IA:', error);
-        showNotification('Error al consultar la IA: ' + error.message, 'error');
-        hideAILoading();
-    }
-}
 
         function showAILoading() {
             document.getElementById('aiResponse').innerHTML = `
@@ -1195,62 +1196,27 @@ async function consultarIA() {
             // Se oculta automáticamente al mostrar respuesta
         }
 
-function displayAIResponse(response) {
-    const responseDiv = document.getElementById('aiResponse');
-    const timestamp = new Date().toLocaleString();
-    
-    console.log('Mostrando respuesta IA:', response); // Debug
-    
-    // Verificar si la respuesta tiene el formato correcto
-    if (!response) {
-        responseDiv.innerHTML = `
-            <div style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px;">
-                Error: No se recibió respuesta de la IA
-            </div>
-        `;
-        return;
-    }
-    
-    // Obtener el contenido de la respuesta
-    let content = '';
-    if (response.success === false) {
-        // Error en la respuesta
-        content = `Error: ${response.error || 'Error desconocido'}`;
-        responseDiv.innerHTML = `
-            <div style="background: #f8d7da; color: #721c24; padding: 20px; border-radius: 10px;">
-                <h3>Error en la consulta</h3>
-                <p>${content}</p>
-                ${response.suggestion ? `<p><strong>Sugerencia:</strong> ${response.suggestion}</p>` : ''}
-            </div>
-        `;
-        return;
-    }
-    
-    // Respuesta exitosa
-    content = response.content || response.response || response.mensaje || 'Sin respuesta';
-    
-    responseDiv.innerHTML = `
-        <div style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
-            <h3>Respuesta del Asistente IA</h3>
-            <small>Fecha: ${timestamp}</small>
-            ${response.model ? `<small style="display: block;">Modelo: ${response.model}</small>` : ''}
-            ${response.processingTime ? `<small style="display: block;">Tiempo: ${response.processingTime}s</small>` : ''}
-        </div>
-        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #8e2de2;">
-            <pre style="white-space: pre-wrap; font-family: inherit; margin: 0; line-height: 1.6;">${content}</pre>
-        </div>
-        ${response.totalTokens ? `
-        <div style="margin-top: 15px; padding: 10px; background: #e8f5e8; border-radius: 8px; font-size: 0.9em;">
-            <strong>Información técnica:</strong>
-            <div>Tokens utilizados: ${response.totalTokens}</div>
-            ${response.inputTokens ? `<div>Tokens de entrada: ${response.inputTokens}</div>` : ''}
-            ${response.outputTokens ? `<div>Tokens de salida: ${response.outputTokens}</div>` : ''}
-        </div>` : ''}
-    `;
-    
-    // Hacer scroll hacia la respuesta
-    responseDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
+        function displayAIResponse(response) {
+            const responseDiv = document.getElementById('aiResponse');
+            const timestamp = new Date().toLocaleString();
+            
+            responseDiv.innerHTML = `
+                <div style="background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                    <h3>🤖 Respuesta del Asistente IA</h3>
+                    <small>📅 ${timestamp}</small>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #8e2de2;">
+                    <pre style="white-space: pre-wrap; font-family: inherit; margin: 0;">${response.response || response.content}</pre>
+                </div>
+                ${response.suggestions ? `
+                <div style="margin-top: 20px;">
+                    <h4>💡 Sugerencias:</h4>
+                    <ul>
+                        ${response.suggestions.map(s => `<li>${s}</li>`).join('')}
+                    </ul>
+                </div>` : ''}
+            `;
+        }
 
         function saveToAIHistory(prompt, response) {
             const historyItem = {

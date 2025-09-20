@@ -6,6 +6,7 @@ import com.sbs.open_app.entidades.Amistad;
 import com.sbs.open_app.entidades.Usuario;
 import com.sbs.open_app.repositorios.AmistadRepository;
 import com.sbs.open_app.repositorios.UsuarioRepositorio;
+import com.sbs.open_app.config.AmistadConfig;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,7 @@ public class AmistadService {
     
     private final AmistadRepository amistadRepository;
     private final UsuarioRepositorio usuarioRepository;
+    private final AmistadConfig amistadConfig;
     
     /**
      * Enviar solicitud de amistad
@@ -34,8 +36,12 @@ public class AmistadService {
         logger.info("Enviando solicitud de amistad de {} a {}", usuarioId, amigoId);
         
         // Validaciones básicas
+        if (usuarioId == null || amigoId == null) {
+            throw new IllegalArgumentException("Los IDs de usuario no pueden ser nulos");
+        }
+        
         if (usuarioId.equals(amigoId)) {
-            throw new IllegalArgumentException("No puedes enviarte solicitud a ti mismo");
+            throw new IllegalArgumentException("No puedes enviarte una solicitud de amistad a ti mismo");
         }
         
         // Verificar que los usuarios existen
@@ -81,10 +87,14 @@ public class AmistadService {
     }
     
     /**
-     * Aceptar solicitud de amistad
+     * Aceptar solicitud de amistad - CORREGIDO
      */
     public AmistadDTO aceptarSolicitud(Long usuarioId, Long solicitudId) {
         logger.info("Aceptando solicitud de amistad ID: {} por usuario: {}", solicitudId, usuarioId);
+        
+        if (usuarioId == null || solicitudId == null) {
+            throw new IllegalArgumentException("Los parámetros no pueden ser nulos");
+        }
         
         Amistad amistad = amistadRepository.findById(solicitudId)
             .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
@@ -109,10 +119,14 @@ public class AmistadService {
     }
     
     /**
-     * Rechazar solicitud de amistad
+     * Rechazar solicitud de amistad - CORREGIDO
      */
     public void rechazarSolicitud(Long usuarioId, Long solicitudId) {
         logger.info("Rechazando solicitud de amistad ID: {} por usuario: {}", solicitudId, usuarioId);
+        
+        if (usuarioId == null || solicitudId == null) {
+            throw new IllegalArgumentException("Los parámetros no pueden ser nulos");
+        }
         
         Amistad amistad = amistadRepository.findById(solicitudId)
             .orElseThrow(() -> new RuntimeException("Solicitud no encontrada"));
@@ -138,6 +152,10 @@ public class AmistadService {
      */
     public void eliminarAmistad(Long usuarioId, Long amigoId) {
         logger.info("Eliminando amistad entre {} y {}", usuarioId, amigoId);
+        
+        if (usuarioId == null || amigoId == null) {
+            throw new IllegalArgumentException("Los parámetros no pueden ser nulos");
+        }
         
         Amistad amistad = amistadRepository.findRelationBetweenUsers(usuarioId, amigoId)
             .orElseThrow(() -> new RuntimeException("No existe relación entre estos usuarios"));
@@ -215,7 +233,7 @@ public class AmistadService {
     }
     
     /**
-     * Verificar estado de relación entre dos usuarios
+     * Verificar estado de relación entre dos usuarios - CORREGIDO
      */
     @Transactional(readOnly = true)
     public EstadoRelacion verificarEstadoRelacion(Long usuarioId, Long amigoId) {
@@ -237,10 +255,12 @@ public class AmistadService {
     }
     
     /**
-     * Obtener estadísticas de amistad
+     * Obtener estadísticas de amistad - CORREGIDO
      */
     @Transactional(readOnly = true)
     public EstadisticasAmistad obtenerEstadisticas(Long usuarioId) {
+        logger.info("Obteniendo estadísticas para usuario: {}", usuarioId);
+        
         Long totalAmigos = amistadRepository.countActiveFreindsByUser(usuarioId);
         Long solicitudesRecibidas = (long) amistadRepository.findPendingRequestsReceived(usuarioId).size();
         Long solicitudesEnviadas = (long) amistadRepository.findPendingRequestsSent(usuarioId).size();
@@ -294,11 +314,13 @@ public class AmistadService {
         return dto;
     }
     
-    // DTOs internos
+    // Clases públicas estáticas - CORREGIDO
     public static class EstadoRelacion {
         private String estado;
         private boolean solicitudEnviada;
         private boolean solicitudRecibida;
+        
+        public EstadoRelacion() {}
         
         public EstadoRelacion(String estado, boolean solicitudEnviada, boolean solicitudRecibida) {
             this.estado = estado;
@@ -306,10 +328,15 @@ public class AmistadService {
             this.solicitudRecibida = solicitudRecibida;
         }
         
-        // Getters
+        // Getters y Setters
         public String getEstado() { return estado; }
+        public void setEstado(String estado) { this.estado = estado; }
+        
         public boolean isSolicitudEnviada() { return solicitudEnviada; }
+        public void setSolicitudEnviada(boolean solicitudEnviada) { this.solicitudEnviada = solicitudEnviada; }
+        
         public boolean isSolicitudRecibida() { return solicitudRecibida; }
+        public void setSolicitudRecibida(boolean solicitudRecibida) { this.solicitudRecibida = solicitudRecibida; }
     }
     
     public static class EstadisticasAmistad {
@@ -317,15 +344,22 @@ public class AmistadService {
         private Long solicitudesRecibidas;
         private Long solicitudesEnviadas;
         
+        public EstadisticasAmistad() {}
+        
         public EstadisticasAmistad(Long totalAmigos, Long solicitudesRecibidas, Long solicitudesEnviadas) {
             this.totalAmigos = totalAmigos;
             this.solicitudesRecibidas = solicitudesRecibidas;
             this.solicitudesEnviadas = solicitudesEnviadas;
         }
         
-        // Getters
+        // Getters y Setters
         public Long getTotalAmigos() { return totalAmigos; }
+        public void setTotalAmigos(Long totalAmigos) { this.totalAmigos = totalAmigos; }
+        
         public Long getSolicitudesRecibidas() { return solicitudesRecibidas; }
+        public void setSolicitudesRecibidas(Long solicitudesRecibidas) { this.solicitudesRecibidas = solicitudesRecibidas; }
+        
         public Long getSolicitudesEnviadas() { return solicitudesEnviadas; }
+        public void setSolicitudesEnviadas(Long solicitudesEnviadas) { this.solicitudesEnviadas = solicitudesEnviadas; }
     }
 }
