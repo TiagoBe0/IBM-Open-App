@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.sbs</groupId>
-	<artifactId>open-app</artifactId>
+	<artifactId>open-app-simaf</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>open-app</name>
 	<description>home</description>

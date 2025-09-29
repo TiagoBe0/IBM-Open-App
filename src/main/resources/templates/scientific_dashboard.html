@@ -711,64 +711,64 @@
                 
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Campo A: *</label>
+                        <label>Título/Nombre: *</label>
                         <input type="text" name="a" required>
                     </div>
                     <div class="form-group">
-                        <label>Campo B:</label>
+                        <label>Área/Campo:</label>
                         <input type="text" name="b">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Campo C:</label>
+                        <label>Descripción:</label>
                         <input type="text" name="c">
                     </div>
                     <div class="form-group">
-                        <label>Campo D:</label>
+                        <label>Autor/Responsable:</label>
                         <input type="text" name="d">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Campo E:</label>
+                        <label>Institución:</label>
                         <input type="text" name="e">
                     </div>
                     <div class="form-group">
-                        <label>Campo F:</label>
+                        <label>Palabras Clave:</label>
                         <input type="text" name="f">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Valor AF:</label>
+                        <label>Impacto:</label>
                         <input type="number" step="0.01" name="af" value="0">
                     </div>
                     <div class="form-group">
-                        <label>Valor BF:</label>
+                        <label>Presupuesto/Valor:</label>
                         <input type="number" step="0.01" name="bf" value="0">
                     </div>
                     <div class="form-group">
-                        <label>Valor CF:</label>
-                        <input type="number" step="0.01" name="cf" value="0">
+                        <label>Progreso (%):</label>
+                        <input type="number" step="0.01" name="cf" value="0" min="0" max="100">
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Flags:</label>
+                    <label>Estado:</label>
                     <div class="checkbox-group">
                         <label>
-                            <input type="checkbox" name="ba"> BA
+                            <input type="checkbox" name="ba"> Activo
                         </label>
                         <label>
-                            <input type="checkbox" name="bb"> BB
+                            <input type="checkbox" name="bb"> Publicado
                         </label>
                         <label>
-                            <input type="checkbox" name="bc"> BC
+                            <input type="checkbox" name="bc"> Revisado por pares
                         </label>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label>Calendario:</label>
+                    <label>Fecha:</label>
                     <input type="datetime-local" name="calendario">
                 </div>
                 <div class="form-group" id="parentSelect" style="display: none;">
@@ -872,7 +872,7 @@
 
         async function loadUsuarios() {
             try {
-                const response = await fetch(`${API_URL}/usuario`);
+                const response = await fetch(`${API_URL}/usuarios`);
                 if (response.ok) {
                     allData.usuarios = await response.json();
                 }
@@ -1163,9 +1163,9 @@
             data.cf = parseFloat(data.cf) || 0;
             
             const typeToEndpoint = {
-                'proyecto': 'arbol/registrar',
-                'publicacion': 'rama/registrar',
-                'investigacion': 'hoja/registrar'
+                'proyecto': 'arboles',
+                'publicacion': 'ramas',
+                'investigacion': 'hojas'
             };
             
             if (currentType === 'publicacion' && data.parentId) {
