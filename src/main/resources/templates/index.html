@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SiMAF - Laboratorio de Dinámica Molecular | UNCuyo</title>
+    <title>SiMAF - Laboratorio de Dinámica Molecular | UM</title>
     <style>
         * {
             margin: 0;
@@ -131,31 +131,37 @@
         }
 
         /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--secondary) 100%);
-            color: var(--white);
-            padding: 6rem 2rem 5rem;
-            position: relative;
-            overflow: hidden;
-        }
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--secondary) 100%);
+    color: var(--white);
+    padding: 6rem 2rem 5rem;
+    position: relative;
+    overflow: hidden;
+}
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><defs><pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/></pattern></defs><rect width="1200" height="600" fill="url(%23grid)"/></svg>');
-            opacity: 0.5;
-        }
+.hero::before {
+    content: '';
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 1600px;  /* Ajusta según el tamaño que quieras */
+    height: 1600px; /* Ajusta según el tamaño que quieras */
+    background-image: url('../static/img/logo-final.png');
+    background-repeat: no-repeat;
+    background-size: contain;  /* Importante: mantiene proporción */
+    background-position: center;
+    opacity: 0.15;  /* Más sutil como marca de agua */
+    pointer-events: none;  /* Para que no interfiera con clicks */
+}
 
-        .hero-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-            z-index: 1;
-        }
+.hero-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
 
         .university-badge {
             display: inline-block;
@@ -775,7 +781,7 @@
             <div class="logo-section">
                 <div class="logo-text">
                     <div class="logo-main">SiMAF</div>
-                    <div class="logo-sub">Universidad Nacional de Cuyo</div>
+                    <div class="logo-sub">Universidad de Mendoza</div>
                 </div>
             </div>
             <ul class="nav-links">
@@ -793,7 +799,7 @@
 
     <section class="hero">
         <div class="hero-content">
-            <div class="university-badge">Universidad Nacional de Cuyo - Mendoza, Argentina</div>
+            <div class="university-badge">Universidad de Mendoza - Mendoza, Argentina</div>
             <h1>SiMAF</h1>
             <p class="hero-subtitle">Laboratorio de Simulaciones en Materiales, Astrofísica y Física</p>
             <p class="hero-description">
@@ -895,7 +901,7 @@
             <div class="team-card">
                 <div class="team-photo">CR</div>
                 <div class="team-info">
-                    <div class="team-name">Dr. Carlos Javier Ruestes</div>
+                    <div class="team-name">Dr. Gonzalo Dos Santos</div>
                     <div class="team-role">Investigador Adjunto CONICET</div>
                     <div class="team-links">
                         <a href="#">Curriculum Vitae</a>
@@ -915,11 +921,33 @@
                 </div>
             </div>
             <div class="team-card">
-                <div class="team-photo">EM</div>
+                <div class="team-photo">GM</div>
                 <div class="team-info">
-                    <div class="team-name">Emmanuel Nicolás Millán</div>
-                    <div class="team-role">Investigador Asistente CONICET</div>
+                    <div class="team-name">Dr. Geraudys Mora Barzaga</div>
+                    <div class="team-role">Becario Postdoctoral CONICET</div>
                     <div class="team-links">
+                        <a href="#">Curriculum Vitae</a>
+                        <a href="#">Publicaciones</a>
+                    </div>
+                </div>
+            </div>
+                        <div class="team-card">
+                <div class="team-photo">FC</div>
+                <div class="team-info">
+                    <div class="team-name">Lic. Federico Andres Cartellone</div>
+                    <div class="team-role">Becario Doctoral CONICET</div>
+                    <div class="team-links">
+                        <a href="#">Curriculum Vitae</a>
+                        <a href="#">Publicaciones</a>
+                    </div>
+                </div>
+            </div>
+                        <div class="team-card">
+                <div class="team-photo">SB</div>
+                <div class="team-info">
+                    <div class="team-name">Lic. Santiago Bergamin Saua</div>
+                    <div class="team-role">Becario Doctoral CONICET</div>
+                    <div class="team-links">í
                         <a href="#">Curriculum Vitae</a>
                         <a href="#">Publicaciones</a>
                     </div>
@@ -967,8 +995,8 @@
             <div class="contact-card">
                 <h3>📍 Dirección</h3>
                 <p>
-                    Universidad Nacional de Cuyo<br>
-                    Facultad de Ciencias Exactas y Naturales<br>
+                    Universidad de Mendoza<br>
+                    Facultad de Ingeniería<br>
                     Mendoza, Argentina
                 </p>
             </div>
@@ -990,7 +1018,7 @@
     </section>
 
     <footer>
-        <p>&copy; 2025 SiMAF - Laboratorio de Simulaciones en Materiales, Astrofísica y Física | Universidad Nacional de Cuyo</p>
+        <p>&copy; 2025 SiMAF - Laboratorio de Simulaciones en Materiales, Astrofísica y Física | Universidad de Mendoza</p>
         <p style="margin-top: 0.5rem; opacity: 0.7;">Todos los derechos reservados</p>
     </footer>
 
