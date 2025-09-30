@@ -76,6 +76,12 @@ public CorsConfigurationSource corsConfigurationSource() {
             .requestMatchers(
                 "/",
                 "/index",
+                "index.html",
+                "diego_tramontina_publications.html",
+                "gera_mora_publications.html",
+                "gonzalo_dos_santos_publications.html",
+                "orlando_deluigi_publications.html",
+                "simaf_publications_bringa.html",
                 "/login",
                 "/registro",
                 "/registrar",
