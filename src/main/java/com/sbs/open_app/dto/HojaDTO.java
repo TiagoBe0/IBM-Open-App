@@ -20,6 +20,8 @@ public class HojaDTO {
     private boolean ba;
     private boolean bb;
     private boolean bc;
+    private Long documentoId;
+    private Long usuarioId;
     private Calendar calendario;
     
     private Long ramaId;

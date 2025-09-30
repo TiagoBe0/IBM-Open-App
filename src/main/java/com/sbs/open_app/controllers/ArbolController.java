@@ -1,6 +1,8 @@
 package com.sbs.open_app.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sbs.open_app.dto.ArbolDTO;
+import com.sbs.open_app.entidades.Arbol;
 import com.sbs.open_app.servicios.ArbolService;
 import com.sbs.open_app.servicios.FotoService;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import com.sbs.open_app.servicios.DocumentoService;
+import com.sbs.open_app.entidades.Documento;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +27,7 @@ import java.util.Map;
 public class ArbolController {
     
     private static final Logger logger = LoggerFactory.getLogger(ArbolController.class);
-    
+    private final DocumentoService documentoService;
     private final ArbolService arbolService;
     private final FotoService fotoService; // Añadir dependencia de FotoService
     
@@ -146,4 +151,66 @@ public class ArbolController {
         response.put("message", "El controlador de árboles está funcionando");
         return ResponseEntity.ok(response);
     }
+    
+    
+    
+    
+    
+@PostMapping(value = "/registrar-con-documento", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public ResponseEntity<?> crearConDocumento(
+        @RequestParam("arbol") String arbolJson,
+        @RequestParam(value = "documento", required = false) MultipartFile documento) {
+    
+    logger.info("=== PETICIÓN POST CON DOCUMENTO ===");
+    
+    try {
+        // Parsear JSON del árbol
+        ObjectMapper mapper = new ObjectMapper();
+        ArbolDTO arbolDTO = mapper.readValue(arbolJson, ArbolDTO.class);
+        
+        // Validaciones
+        if (arbolDTO.getUsuarioId() == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "usuarioId es obligatorio"));
+        }
+        
+        // Crear árbol
+        ArbolDTO nuevoArbol = arbolService.crear(arbolDTO);
+        
+        // Si hay documento, guardarlo
+        if (documento != null && !documento.isEmpty()) {
+            Documento doc = documentoService.guardarDocumento(documento);
+            
+            // Asociar documento al árbol
+            Arbol arbol = arbolService.obtenerEntidadPorId(nuevoArbol.getId());
+            arbol.setDocumento(doc);
+            arbolService.guardarEntidad(arbol);
+            
+            nuevoArbol.setDocumentoId(doc.getId());
+        }
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoArbol);
+        
+    } catch (Exception e) {
+        logger.error("Error: ", e);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(Map.of("error", e.getMessage()));
+    }
+}
+
+@GetMapping("/documento/{id}")
+public ResponseEntity<byte[]> descargarDocumento(@PathVariable Long id) {
+    try {
+        Documento documento = documentoService.obtenerDocumento(id);
+        
+        return ResponseEntity.ok()
+            .contentType(MediaType.APPLICATION_PDF)
+            .header(HttpHeaders.CONTENT_DISPOSITION, 
+                "attachment; filename=\"" + documento.getNombreArchivo() + "\"")
+            .body(documento.getDatos());
+            
+    } catch (Exception e) {
+        logger.error("Error descargando documento: ", e);
+        return ResponseEntity.notFound().build();
+    }
+}
 }

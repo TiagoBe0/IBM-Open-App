@@ -113,6 +113,9 @@ public class RamaService {
         dto.setBa(rama.isBa());
         dto.setBb(rama.isBb());
         dto.setBc(rama.isBc());
+            if (rama.getDocumento() != null) {
+        dto.setDocumentoId(rama.getDocumento().getId());
+    }
         dto.setCalendario(rama.getCalendario());
         dto.setArbolId(rama.getArbol() != null ? rama.getArbol().getId() : null);
         
@@ -153,4 +156,14 @@ public class RamaService {
         
         return rama;
     }
+    
+    
+public Rama obtenerEntidadPorId(Long id) {
+    return ramaRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Rama no encontrada"));
+}
+
+public void guardarEntidad(Rama rama) {
+    ramaRepository.save(rama);
+}
 }

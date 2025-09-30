@@ -23,6 +23,7 @@ public class ArbolDTO {
     private boolean ba;
     private boolean bb;
     private boolean bc;
+    private Long documentoId;
     private Calendar calendario;
     private Long usuarioId;
     private List<RamaDTO> ramas;

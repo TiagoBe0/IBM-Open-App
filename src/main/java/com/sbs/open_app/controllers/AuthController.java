@@ -145,7 +145,37 @@ public class AuthController {
             return "registro";
         }
     }
+   
     
+    
+/**
+ * Vista jerárquica de Arbol-Rama-Hoja
+ */
+@GetMapping("/vista-jerarquica")
+public String vistaJerarquica(Model model) {
+    System.out.println("📊 Accediendo a vista jerárquica");
+    
+    try {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        
+        if (auth != null && auth.getPrincipal() instanceof Usuario) {
+            Usuario usuario = (Usuario) auth.getPrincipal();
+            System.out.println("✅ Usuario autenticado: " + usuario.getEmail());
+            model.addAttribute("usuario", usuario);
+            model.addAttribute("usuarioId", usuario.getId());  // ← Agregar esto
+        } else {
+            System.err.println("❌ No se pudo obtener el usuario autenticado");
+            return "redirect:/login";
+        }
+        
+    } catch (Exception e) {
+        System.err.println("❌ Error al cargar vista jerárquica: " + e.getMessage());
+        e.printStackTrace();
+        return "redirect:/dashboard";
+    }
+    
+    return "jerarquia-documentos";
+}
     /**
      * Dashboard después del login
      */

@@ -152,7 +152,9 @@ public class HojaService {
         hoja.setBb(dto.isBb());
         hoja.setBc(dto.isBc());
         hoja.setCalendario(dto.getCalendario());
-        
+            if (hoja.getDocumento() != null) {
+        dto.setDocumentoId(hoja.getDocumento().getId());
+    }
         // MANEJO CORRECTO DE LA FOTO - Cargar desde BD
         if (dto.getFotoId() != null) {
             try {
@@ -167,4 +169,12 @@ public class HojaService {
         
         return hoja;
     }
+public Hoja obtenerEntidadPorId(Long id) {
+    return hojaRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Hoja no encontrada"));
+}
+
+public void guardarEntidad(Hoja hoja) {
+    hojaRepository.save(hoja);
+}
 }

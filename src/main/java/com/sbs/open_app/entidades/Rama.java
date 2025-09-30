@@ -31,5 +31,9 @@ public class Rama extends BaseEntity {
     @OneToMany(mappedBy = "rama", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Hoja> hojas = new ArrayList<>();
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "documento_id")
+    private Documento documento;
 }
 

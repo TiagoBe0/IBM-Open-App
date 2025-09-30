@@ -16,6 +16,8 @@ public class RamaDTO {
     private String e;
     private String f;
     private float af;
+    private Long documentoId;
+    private Long usuarioId;
     private float bf;
     private float cf;
     private boolean ba;

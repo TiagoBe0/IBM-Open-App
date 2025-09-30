@@ -537,6 +537,9 @@
             <button class="tab" onclick="switchTab('publicaciones')">📄 Publicaciones</button>
             <button class="tab" onclick="switchTab('investigaciones')">🧪 Investigaciones</button>
             <button class="tab" onclick="switchTab('tree')">📊 Vista Jerárquica</button>
+           <a href="/vista-jerarquica" class="btn btn-primary">
+            📊 Vista Jerárquica Completa
+            </a>
             <button class="tab" onclick="switchTab('colaboradores')">👥 Colaboradores</button>
             <button class="tab" onclick="switchTab('config')">⚙️ Mi Perfil</button>
         </div>
@@ -708,7 +711,10 @@
             </div>
             <form id="modalForm">
                 <input type="hidden" name="usuarioId" id="modalUsuarioId" th:value="${usuario.id}">
-                
+                <div class="form-group">
+                    <label>📄 Documento PDF (opcional):</label>
+                    <input type="file" name="documento" accept=".pdf" id="documentoInput">
+                </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Campo A: *</label>
@@ -919,6 +925,7 @@
                         </td>
                         <td>${formatDate(proyecto.calendario)}</td>
                         <td class="actions">
+                            ${proyecto.documentoId ? `<button class="btn btn-primary" onclick="descargarDocumento('arbol', ${proyecto.documentoId})" style="padding: 5px 10px;">📄 PDF</button>` : ''}
                             <button class="btn btn-warning" onclick="editRecord('proyecto', ${proyecto.id})" style="padding: 5px 10px;">✏️</button>
                             <button class="btn btn-danger" onclick="deleteRecord('arbol', ${proyecto.id})" style="padding: 5px 10px;">🗑️</button>
                         </td>
@@ -968,6 +975,7 @@
                         </td>
                         <td>${pub.arbolId}</td>
                         <td class="actions">
+                            ${pub.documentoId ? `<button class="btn btn-primary" onclick="descargarDocumento('rama', ${pub.documentoId})" style="padding: 5px 10px;">📄 PDF</button>` : ''}
                             <button class="btn btn-warning" onclick="editRecord('publicacion', ${pub.id})" style="padding: 5px 10px;">✏️</button>
                             <button class="btn btn-danger" onclick="deleteRecord('rama', ${pub.id})" style="padding: 5px 10px;">🗑️</button>
                         </td>
@@ -1017,6 +1025,7 @@
                         </td>
                         <td>${inv.ramaId}</td>
                         <td class="actions">
+                            ${inv.documentoId ? `<button class="btn btn-primary" onclick="descargarDocumento('hoja', ${inv.documentoId})" style="padding: 5px 10px;">📄 PDF</button>` : ''}
                             <button class="btn btn-warning" onclick="editRecord('investigacion', ${inv.id})" style="padding: 5px 10px;">✏️</button>
                             <button class="btn btn-danger" onclick="deleteRecord('hoja', ${inv.id})" style="padding: 5px 10px;">🗑️</button>
                         </td>
@@ -1148,25 +1157,77 @@
             currentEditId = null;
         }
 
-        document.getElementById('modalForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+document.getElementById('modalForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const documentoFile = document.getElementById('documentoInput')?.files[0];
+    const hasDocumento = documentoFile && documentoFile.size > 0;
+    
+    // Mapeo de tipos a nombres de parámetros
+    const typeToParamName = {
+        'proyecto': 'arbol',
+        'publicacion': 'rama',
+        'investigacion': 'hoja'
+    };
+    
+    const typeToEndpoint = {
+        'proyecto': hasDocumento ? 'arbol/registrar-con-documento' : 'arbol/registrar',
+        'publicacion': hasDocumento ? 'rama/registrar-con-documento' : 'rama/registrar',
+        'investigacion': hasDocumento ? 'hoja/registrar-con-documento' : 'hoja/registrar'
+    };
+    
+    try {
+        let response;
+        const endpoint = currentEditId ? 
+            `${API_URL}/${typeToEndpoint[currentType]}/${currentEditId}` : 
+            `${API_URL}/${typeToEndpoint[currentType]}`;
+        
+        const method = currentEditId ? 'PUT' : 'POST';
+        
+        if (hasDocumento && !currentEditId) {
+            const data = {
+                usuarioId: parseInt(formData.get('usuarioId')),
+                a: formData.get('a'),
+                b: formData.get('b'),
+                c: formData.get('c'),
+                d: formData.get('d'),
+                e: formData.get('e'),
+                f: formData.get('f'),
+                ba: formData.has('ba'),
+                bb: formData.has('bb'),
+                bc: formData.has('bc'),
+                af: parseFloat(formData.get('af')) || 0,
+                bf: parseFloat(formData.get('bf')) || 0,
+                cf: parseFloat(formData.get('cf')) || 0,
+                calendario: formData.get('calendario') || null
+            };
             
-            const formData = new FormData(e.target);
+            if (currentType === 'publicacion' && formData.get('parentId')) {
+                data.arbolId = parseInt(formData.get('parentId'));
+            } else if (currentType === 'investigacion' && formData.get('parentId')) {
+                data.ramaId = parseInt(formData.get('parentId'));
+            }
+            
+            const submitData = new FormData();
+            // Usar el nombre correcto del parámetro según el tipo
+            submitData.append(typeToParamName[currentType], JSON.stringify(data));
+            submitData.append('documento', documentoFile);
+            
+            response = await fetch(endpoint, {
+                method: 'POST',
+                body: submitData
+            });
+            
+        } else {
             const data = Object.fromEntries(formData.entries());
             
             data.ba = formData.has('ba');
             data.bb = formData.has('bb');
             data.bc = formData.has('bc');
-            
             data.af = parseFloat(data.af) || 0;
             data.bf = parseFloat(data.bf) || 0;
             data.cf = parseFloat(data.cf) || 0;
-            
-            const typeToEndpoint = {
-                'proyecto': 'arbol/registrar',
-                'publicacion': 'rama/registrar',
-                'investigacion': 'hoja/registrar'
-            };
             
             if (currentType === 'publicacion' && data.parentId) {
                 data.arbolId = parseInt(data.parentId);
@@ -1176,30 +1237,30 @@
                 delete data.parentId;
             }
             
-            try {
-                const endpoint = currentEditId ? 
-                    `${API_URL}/${typeToEndpoint[currentType]}/${currentEditId}` : 
-                    `${API_URL}/${typeToEndpoint[currentType]}`;
-                
-                const method = currentEditId ? 'PUT' : 'POST';
-                
-                const response = await fetch(endpoint, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                
-                if (!response.ok) throw new Error('Error al guardar');
-                
-                closeModal();
-                await loadAllData();
-                showNotification(`${currentType.charAt(0).toUpperCase() + currentType.slice(1)} ${currentEditId ? 'actualizado' : 'creado'} exitosamente`, 'success');
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showNotification('Error al guardar el registro', 'error');
-            }
-        });
+            response = await fetch(endpoint, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+        }
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || 'Error al guardar');
+        }
+        
+        closeModal();
+        await loadAllData();
+        showNotification(
+            `${currentType.charAt(0).toUpperCase() + currentType.slice(1)} ${currentEditId ? 'actualizado' : 'creado'} exitosamente`, 
+            'success'
+        );
+        
+    } catch (error) {
+        console.error('Error:', error);
+        showNotification('Error al guardar el registro: ' + error.message, 'error');
+    }
+});
 
         async function editRecord(type, id) {
             const typeToData = {
@@ -1384,7 +1445,14 @@
             );
             renderInvestigacionesTable(filtered);
         }
-
+function descargarDocumento(tipo, documentoId) {
+    const url = `${API_URL}/${tipo}/documento/${documentoId}`;
+    
+    // Abrir en nueva pestaña
+    window.open(url, '_blank');
+    
+    showNotification('Descargando documento...', 'info');
+}
         async function loadColaboradores() {
             console.log('👥 Cargando sistema de colaboradores...');
             

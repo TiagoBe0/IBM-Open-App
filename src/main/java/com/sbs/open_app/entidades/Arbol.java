@@ -32,4 +32,8 @@ public class Arbol extends BaseEntity {
     @OneToMany(mappedBy = "arbol", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Rama> ramas = new ArrayList<>();
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "documento_id")
+    private Documento documento;
 }

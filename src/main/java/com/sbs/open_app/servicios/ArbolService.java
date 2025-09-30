@@ -104,7 +104,14 @@ public class ArbolService {
             .collect(Collectors.toList());
     }
     
-    
+public Arbol obtenerEntidadPorId(Long id) {
+    return arbolRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Árbol no encontrado"));
+}
+
+public void guardarEntidad(Arbol arbol) {
+    arbolRepository.save(arbol);
+}
     public void eliminar(Long id) {
         logger.info("Eliminando árbol ID: {}", id);
         
@@ -137,7 +144,9 @@ public class ArbolService {
         dto.setBc(arbol.isBc());
         dto.setCalendario(arbol.getCalendario());
         dto.setUsuarioId(arbol.getUsuario() != null ? arbol.getUsuario().getId() : null);
-        
+         if (arbol.getDocumento() != null) {
+        dto.setDocumentoId(arbol.getDocumento().getId());
+    }
         // AGREGAR ESTA LÍNEA PARA MAPEAR fotoId
         dto.setFotoId(arbol.getFoto() != null ? arbol.getFoto().getId() : null);
         

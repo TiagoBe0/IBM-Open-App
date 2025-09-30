@@ -22,5 +22,9 @@ public class Hoja extends BaseEntity {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "foto_id")
     private Foto foto;
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "documento_id")
+    private Documento documento;
 
 }
