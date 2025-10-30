@@ -163,98 +163,6 @@
     z-index: 1;
 }
 
-        /* Tools Section */
-#tools {
-    background: var(--light-blue);
-    padding: 4rem 2rem;
-}
-
-.tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2.5rem;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.tool-card {
-    background: var(--white);
-    border-radius: 12px;
-    padding: 2.5rem;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-    transition: all 0.3s;
-    border: 2px solid transparent;
-    display: flex;
-    flex-direction: column;
-}
-
-.tool-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 35px rgba(26, 54, 93, 0.15);
-    border-color: var(--accent);
-}
-
-.tool-icon {
-    font-size: 3.5rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-}
-
-.tool-card h3 {
-    color: var(--primary-dark);
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    font-weight: 700;
-}
-
-.tool-card p {
-    color: var(--text-light);
-    line-height: 1.8;
-    margin-bottom: 1.5rem;
-    flex-grow: 1;
-}
-
-.tool-features {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.5rem;
-}
-
-.feature-tag {
-    background: var(--light-blue);
-    color: var(--primary);
-    padding: 0.4rem 0.9rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    border: 1px solid var(--accent);
-}
-
-.btn-tool {
-    background: var(--primary);
-    color: var(--white);
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    text-decoration: none;
-    text-align: center;
-    font-weight: 600;
-    transition: all 0.3s;
-    display: inline-block;
-}
-
-.btn-tool:hover {
-    background: var(--accent);
-    transform: translateX(5px);
-    box-shadow: 0 4px 15px rgba(66, 153, 225, 0.4);
-}
-
-@media (max-width: 768px) {
-    .tools-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
         .university-badge {
             display: inline-block;
             background: rgba(255, 255, 255, 0.15);
@@ -971,43 +879,7 @@
             </div>
         </div>
     </section>
-<!-- NUEVA SECCIÃ"N: TOOLS -->
-<section id="tools">
-    <div class="section-header">
-        <h2>Herramientas Computacionales</h2>
-        <div class="underline"></div>
-        <p>Plataformas interactivas para simulación y análisis</p>
-    </div>
-    <div class="tools-grid">
-        <div class="tool-card">
-            <div class="tool-icon">🔬</div>
-            <h3>Clustering & Nanoporos</h3>
-            <p>Pipeline completo para análisis de nanoporos mediante Alpha Shape y clustering jerárquico de estructuras atómicas.</p>
-            <div class="tool-features">
-                <span class="feature-tag">Alpha Shape</span>
-                <span class="feature-tag">Mean Shift</span>
-                <span class="feature-tag">LAMMPS</span>
-            </div>
-            <a href="http://192.168.220.66:8502/" target="_blank" class="btn-tool">
-                Acceder a la Herramienta →
-            </a>
-        </div>
-        
-        <div class="tool-card">
-            <div class="tool-icon">🧮</div>
-            <h3>Predict & Analysis</h3>
-            <p>Sistema de predicción y análisis avanzado para simulaciones de dinámica molecular y procesamiento de datos.</p>
-            <div class="tool-features">
-                <span class="feature-tag">Machine Learning</span>
-                <span class="feature-tag">Data Analysis</span>
-                <span class="feature-tag">Visualization</span>
-            </div>
-            <a href="http://192.168.220.66:8501/" target="_blank" class="btn-tool">
-                Acceder a la Herramienta →
-            </a>
-        </div>
-    </div>
-</section>
+
     <section id="equipo" class="team">
         <div class="section-header">
             <h2>Equipo de Investigación</h2>
@@ -1078,7 +950,7 @@
                     <div class="team-role">Becario Doctoral CONICET</div>
                     <div class="team-links">
                         <a href="#">Curriculum Vitae</a>
-                        <a href="#">Publicaciones</a>
+                        <a href="fede_cartellone_publications.html">Publicaciones</a>
                     </div>
                 </div>
             </div>
