@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${categoria.nombre} + ' - Foro Urantia'">Categoría - Foro Urantia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #dbeafe 0%, #ffffff 50%, #dbeafe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #3b82f6;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            color: #1e3a8a;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .header-icon {
+            font-size: 3em;
+        }
+
+        .header h1 {
+            color: #1e3a8a;
+            font-size: 2.2em;
+        }
+
+        .header p {
+            color: #64748b;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .toolbar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .temas-list {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .tema-item {
+            padding: 25px;
+            border-bottom: 1px solid #e5e7eb;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 20px;
+            align-items: center;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+
+        .tema-item:hover {
+            background: #f8fafc;
+        }
+
+        .tema-item:last-child {
+            border-bottom: none;
+        }
+
+        .tema-info h3 {
+            color: #1e3a8a;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .tema-info h3:hover {
+            color: #3b82f6;
+        }
+
+        .tema-meta {
+            display: flex;
+            gap: 20px;
+            color: #64748b;
+            font-size: 0.9em;
+        }
+
+        .tema-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .tema-stats {
+            display: flex;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-number {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #64748b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #1e3a8a;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            font-weight: 600;
+        }
+
+        .badge-fijado {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-cerrado {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/foro" class="back-link">← Volver al Foro</a>
+
+        <div class="header">
+            <div class="header-title">
+                <span class="header-icon" th:text="${categoria.icono}">📖</span>
+                <h1 th:text="${categoria.nombre}">Categoría</h1>
+            </div>
+            <p th:text="${categoria.descripcion}">Descripción de la categoría</p>
+        </div>
+
+        <div class="toolbar">
+            <h2 style="color: #1e3a8a; font-size: 1.3em;">
+                Temas (<span th:text="${#lists.size(temas)}">0</span>)
+            </h2>
+            <a th:href="@{/foro/nuevo-tema(categoriaId=${categoria.id})}" class="btn btn-primary">
+                ✍️ Nuevo Tema
+            </a>
+        </div>
+
+        <div class="temas-list" th:if="${not #lists.isEmpty(temas)}">
+            <div class="tema-item" th:each="tema : ${temas}"
+                 th:onclick="'window.location.href=\'/foro/tema/' + ${tema.id} + '\''">
+                <div class="tema-info">
+                    <h3>
+                        <span th:if="${tema.fijado}" class="badge badge-fijado">📌 Fijado</span>
+                        <span th:if="${tema.cerrado}" class="badge badge-cerrado">🔒 Cerrado</span>
+                        <span th:text="${tema.titulo}">Título del tema</span>
+                    </h3>
+                    <div class="tema-meta">
+                        <span>
+                            👤 <strong th:text="${tema.autor.nombre + ' ' + tema.autor.apellido}">Autor</strong>
+                        </span>
+                        <span>
+                            📅 <span th:text="${#temporals.format(tema.fechaCreacion, 'dd/MM/yyyy HH:mm')}">Fecha</span>
+                        </span>
+                        <span th:if="${tema.cantidadRespuestas > 0}">
+                            💬 Última actividad:
+                            <span th:text="${#temporals.format(tema.fechaUltimaActividad, 'dd/MM/yyyy HH:mm')}">Fecha</span>
+                        </span>
+                    </div>
+                </div>
+                <div class="tema-stats">
+                    <div class="stat">
+                        <div class="stat-number" th:text="${tema.vistas}">0</div>
+                        <div class="stat-label">vistas</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" th:text="${tema.cantidadRespuestas}">0</div>
+                        <div class="stat-label">respuestas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="temas-list" th:if="${#lists.isEmpty(temas)}">
+            <div class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <h3>No hay temas aún</h3>
+                <p>Sé el primero en iniciar una conversación en esta categoría</p>
+                <a th:href="@{/foro/nuevo-tema(categoriaId=${categoria.id})}" class="btn btn-primary" style="margin-top: 20px;">
+                    ✍️ Crear Primer Tema
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
