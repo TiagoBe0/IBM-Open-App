@@ -39,34 +39,46 @@ public class ForoServicio {
     public void inicializarCategoriasDefault() {
         if (categoriaRepositorio.count() == 0) {
             // Crear categorías basadas en las partes del Libro de Urantia
-            crearCategoria(new CategoriaForo(null, "El Universo Central y los Superuniversos",
+            crearCategoriaHelper("El Universo Central y los Superuniversos",
                 "Discusiones sobre cosmología, la Trinidad, y el universo central",
-                "🌌", "#3b82f6", 1, true, null, null));
+                "🌌", "#3b82f6", 1);
 
-            crearCategoria(new CategoriaForo(null, "El Universo Local",
+            crearCategoriaHelper("El Universo Local",
                 "Temas sobre nuestro universo local, Nebadón, y su creación",
-                "⭐", "#60a5fa", 2, true, null, null));
+                "⭐", "#60a5fa", 2);
 
-            crearCategoria(new CategoriaForo(null, "Historia de Urantia",
+            crearCategoriaHelper("Historia de Urantia",
                 "Discusiones sobre la historia geológica y evolutiva de nuestro planeta",
-                "🌍", "#1e3a8a", 3, true, null, null));
+                "🌍", "#1e3a8a", 3);
 
-            crearCategoria(new CategoriaForo(null, "La Vida y Enseñanzas de Jesús",
+            crearCategoriaHelper("La Vida y Enseñanzas de Jesús",
                 "Reflexiones sobre la cuarta parte del libro",
-                "✝️", "#2563eb", 4, true, null, null));
+                "✝️", "#2563eb", 4);
 
-            crearCategoria(new CategoriaForo(null, "Crecimiento Espiritual",
+            crearCategoriaHelper("Crecimiento Espiritual",
                 "Compartir experiencias personales y reflexiones espirituales",
-                "🙏", "#93c5fd", 5, true, null, null));
+                "🙏", "#93c5fd", 5);
 
-            crearCategoria(new CategoriaForo(null, "Organización y Eventos",
+            crearCategoriaHelper("Organización y Eventos",
                 "Anuncios, eventos, y organización de la comunidad",
-                "📅", "#dbeafe", 6, true, null, null));
+                "📅", "#dbeafe", 6);
 
-            crearCategoria(new CategoriaForo(null, "General",
+            crearCategoriaHelper("General",
                 "Otros temas y conversaciones generales",
-                "💬", "#94a3b8", 7, true, null, null));
+                "💬", "#94a3b8", 7);
         }
+    }
+
+    private void crearCategoriaHelper(String nombre, String descripcion, String icono, String color, int orden) {
+        CategoriaForo categoria = new CategoriaForo();
+        categoria.setNombre(nombre);
+        categoria.setDescripcion(descripcion);
+        categoria.setIcono(icono);
+        categoria.setColor(color);
+        categoria.setOrden(orden);
+        categoria.setActiva(true);
+        // fechaCreacion se establecerá automáticamente con el valor por defecto
+        crearCategoria(categoria);
     }
 
     // ===== TEMAS =====
