@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -79,13 +80,13 @@ public class ForoController {
     // Ver tema y sus respuestas
     @GetMapping("/tema/{id}")
     public String verTema(@PathVariable Long id, Model model) {
-        Optional<TemaForo> temaOpt = foroServicio.obtenerTemaPorId(id);
+        Optional<TemaForo> temaOpt = foroServicio.obtenerTemaPorIdConArchivos(id);
         if (temaOpt.isEmpty()) {
             return "redirect:/foro";
         }
 
         TemaForo tema = temaOpt.get();
-        List<RespuestaForo> respuestas = foroServicio.obtenerRespuestasPorTema(id);
+        List<RespuestaForo> respuestas = foroServicio.obtenerRespuestasPorTemaConArchivos(id);
 
         // Incrementar vistas
         foroServicio.incrementarVistasTema(id);
@@ -234,6 +235,7 @@ public class ForoController {
 
     // Obtener archivo por ID
     @GetMapping("/archivo/{id}")
+    @Transactional(readOnly = true)
     public ResponseEntity<byte[]> obtenerArchivo(@PathVariable Long id) {
         logger.info("Solicitando archivo ID: {}", id);
 

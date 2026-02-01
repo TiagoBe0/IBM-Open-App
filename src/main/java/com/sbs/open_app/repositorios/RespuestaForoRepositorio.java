@@ -4,6 +4,8 @@ import com.sbs.open_app.entidades.RespuestaForo;
 import com.sbs.open_app.entidades.TemaForo;
 import com.sbs.open_app.entidades.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
@@ -18,4 +20,8 @@ public interface RespuestaForoRepositorio extends JpaRepository<RespuestaForo, L
 
     // Contar respuestas por tema
     long countByTemaAndActivoTrue(TemaForo tema);
+
+    // Encontrar respuestas por tema con archivos eager fetched (para evitar problemas con LOBs en PostgreSQL)
+    @Query("SELECT r FROM RespuestaForo r LEFT JOIN FETCH r.archivos WHERE r.tema = :tema AND r.activo = true ORDER BY r.fechaCreacion ASC")
+    List<RespuestaForo> findByTemaWithArchivos(@Param("tema") TemaForo tema);
 }

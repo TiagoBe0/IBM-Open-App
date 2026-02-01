@@ -32,4 +32,8 @@ public interface TemaForoRepositorio extends JpaRepository<TemaForo, Long> {
 
     // Contar temas por categoría
     long countByCategoriaAndActivoTrue(CategoriaForo categoria);
+
+    // Encontrar tema por ID con archivos eager fetched (para evitar problemas con LOBs en PostgreSQL)
+    @Query("SELECT t FROM TemaForo t LEFT JOIN FETCH t.archivos WHERE t.id = :id")
+    Optional<TemaForo> findByIdWithArchivos(@Param("id") Long id);
 }

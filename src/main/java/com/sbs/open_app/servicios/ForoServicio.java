@@ -100,6 +100,11 @@ public class ForoServicio {
         return temaRepositorio.findById(id);
     }
 
+    @Transactional(readOnly = true)
+    public Optional<TemaForo> obtenerTemaPorIdConArchivos(Long id) {
+        return temaRepositorio.findByIdWithArchivos(id);
+    }
+
     @Transactional
     public TemaForo crearTema(TemaForo tema) {
         return temaRepositorio.save(tema);
@@ -142,6 +147,13 @@ public class ForoServicio {
         TemaForo tema = temaRepositorio.findById(temaId)
                 .orElseThrow(() -> new RuntimeException("Tema no encontrado"));
         return respuestaRepositorio.findByTemaAndActivoTrueOrderByFechaCreacionAsc(tema);
+    }
+
+    @Transactional(readOnly = true)
+    public List<RespuestaForo> obtenerRespuestasPorTemaConArchivos(Long temaId) {
+        TemaForo tema = temaRepositorio.findById(temaId)
+                .orElseThrow(() -> new RuntimeException("Tema no encontrado"));
+        return respuestaRepositorio.findByTemaWithArchivos(tema);
     }
 
     @Transactional
