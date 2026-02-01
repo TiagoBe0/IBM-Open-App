@@ -481,7 +481,303 @@
             color: #b71c1c;
         }
 
+        /* Estilos del perfil estilo red social */
+        .profile-banner {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            border-radius: 20px 20px 0 0;
+            overflow: hidden;
+            margin-bottom: -120px;
+        }
+
+        .banner-gradient {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            position: relative;
+        }
+
+        .banner-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255,255,255,0.2) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255,255,255,0.15) 0%, transparent 50%);
+        }
+
+        .btn-logout {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-header {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 0 0 20px 20px;
+            padding: 130px 40px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .profile-avatar-container {
+            position: absolute;
+            top: -80px;
+            left: 40px;
+        }
+
+        .profile-avatar {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: 6px solid white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5em;
+            font-weight: bold;
+            color: white;
+            position: relative;
+        }
+
+        .edit-avatar-btn {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-avatar-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .profile-info {
+            margin-left: 0;
+        }
+
+        .profile-name-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+
+        .profile-name {
+            font-size: 2em;
+            color: #1a237e;
+            margin: 0;
+            font-weight: 700;
+        }
+
+        .verified-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .profile-username {
+            color: #666;
+            font-size: 1.1em;
+            margin: 5px 0 15px;
+        }
+
+        .profile-bio {
+            color: #37474f;
+            font-size: 1em;
+            line-height: 1.6;
+            margin: 15px 0;
+            max-width: 700px;
+        }
+
+        .profile-meta {
+            display: flex;
+            gap: 25px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #546e7a;
+            font-size: 0.95em;
+        }
+
+        .meta-item svg {
+            opacity: 0.7;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 30px;
+            margin: 25px 0;
+            padding: 20px 0;
+            border-top: 1px solid #e0e0e0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .stat-divider {
+            width: 1px;
+            background: #e0e0e0;
+        }
+
+        .profile-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary-action {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary-action {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary-action:hover {
+            background: #f5f7ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
         @media (max-width: 768px) {
+            .profile-banner {
+                height: 200px;
+                margin-bottom: -80px;
+            }
+
+            .profile-header {
+                padding: 100px 20px 20px;
+            }
+
+            .profile-avatar-container {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            .profile-avatar {
+                width: 120px;
+                height: 120px;
+                font-size: 2.5em;
+            }
+
+            .profile-info {
+                text-align: center;
+            }
+
+            .profile-name {
+                font-size: 1.5em;
+            }
+
+            .profile-meta {
+                justify-content: center;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .profile-stats {
+                justify-content: space-around;
+                gap: 15px;
+            }
+
+            .stat-divider {
+                display: none;
+            }
+
+            .profile-actions {
+                justify-content: center;
+            }
+
             .user-info {
                 flex-direction: column;
                 align-items: stretch;
@@ -517,44 +813,112 @@
     </script>
 
     <div class="container">
-        <div class="header">
-            <h1>📚 Sistema de Gestión de Investigación Científica</h1>
-            <p style="color: #546e7a; margin-top: 10px;">Organiza tus proyectos, publicaciones y datos de investigación</p>
-            
-            <div class="user-info">
-                <div>
-                    <strong>👤 Investigador:</strong>
-                    <span th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Usuario</span>
-                    <span th:text="'(@' + ${usuario.username} + ')'">@username</span>
-                    <span th:text="'[ID: ' + ${usuario.id} + ']'">[ID: 1]</span>
-                </div>
-                
-                <div>
-                    <a href="/logout" class="btn btn-danger">🚪 Cerrar Sesión</a>
-                </div>
-            </div>
+        <!-- Banner de Perfil -->
+        <div class="profile-banner">
+            <div class="banner-gradient"></div>
+            <button class="btn-logout" onclick="window.location.href='/logout'">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+                Salir
+            </button>
         </div>
 
-        <div class="stats" id="stats">
-            <div class="stat-card">
-                <div class="number" id="totalProyectos">0</div>
-                <div class="label">Proyectos</div>
+        <!-- Perfil del Usuario -->
+        <div class="profile-header">
+            <div class="profile-avatar-container">
+                <div class="profile-avatar">
+                    <span th:text="${usuario.nombre.substring(0,1) + usuario.apellido.substring(0,1)}">UN</span>
+                </div>
+                <button class="edit-avatar-btn" title="Cambiar foto">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                        <circle cx="12" cy="13" r="4"></circle>
+                    </svg>
+                </button>
             </div>
-            <div class="stat-card">
-                <div class="number" id="totalPublicaciones">0</div>
-                <div class="label">Publicaciones</div>
-            </div>
-            <div class="stat-card">
-                <div class="number" id="totalInvestigaciones">0</div>
-                <div class="label">Investigaciones</div>
-            </div>
-            <div class="stat-card">
-                <div class="number" id="totalColaboradores">0</div>
-                <div class="label">Colaboradores</div>
-            </div>
-            <div class="stat-card" onclick="window.location.href='/foro'" style="cursor: pointer;">
-                <div class="number">💬</div>
-                <div class="label">Foro Comunitario</div>
+
+            <div class="profile-info">
+                <div class="profile-name-section">
+                    <h1 class="profile-name" th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Usuario</h1>
+                    <span class="verified-badge" title="Usuario Verificado">✓</span>
+                </div>
+                <p class="profile-username" th:text="'@' + ${usuario.username}">@username</p>
+                <p class="profile-bio">
+                    🔬 Investigador apasionado por la ciencia y la innovación |
+                    📊 Gestión de proyectos científicos |
+                    🌟 Miembro de la Comunidad Urantia
+                </p>
+
+                <div class="profile-meta">
+                    <div class="meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        <span th:text="${usuario.email}">email@example.com</span>
+                    </div>
+                    <div class="meta-item">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        <span>Miembro desde 2024</span>
+                    </div>
+                </div>
+
+                <!-- Estadísticas del perfil -->
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalProyectos">0</div>
+                        <div class="stat-label">Proyectos</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalPublicaciones">0</div>
+                        <div class="stat-label">Publicaciones</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalInvestigaciones">0</div>
+                        <div class="stat-label">Investigaciones</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalColaboradores">0</div>
+                        <div class="stat-label">Colaboradores</div>
+                    </div>
+                </div>
+
+                <!-- Botones de acción del perfil -->
+                <div class="profile-actions">
+                    <button class="btn-action btn-primary-action" onclick="switchTab('config')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                        Editar Perfil
+                    </button>
+                    <button class="btn-action btn-secondary-action" onclick="window.location.href='/foro'">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        Ir al Foro
+                    </button>
+                    <button class="btn-action btn-secondary-action" onclick="switchTab('colaboradores')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Colaboradores
+                    </button>
+                </div>
             </div>
         </div>
 
