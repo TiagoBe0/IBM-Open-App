@@ -15,9 +15,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -241,6 +245,14 @@ public class LectorLibroService {
      */
     @Transactional
     public ComentarioLibroDTO guardarComentario(Long usuarioId, ComentarioLibroDTO dto) {
+        return guardarComentario(usuarioId, dto, null);
+    }
+
+    /**
+     * Guarda un comentario con imagen opcional
+     */
+    @Transactional
+    public ComentarioLibroDTO guardarComentario(Long usuarioId, ComentarioLibroDTO dto, MultipartFile imagen) {
         Usuario usuario = usuarioRepositorio.findById(usuarioId)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -251,6 +263,11 @@ public class LectorLibroService {
         comentario.setNumeroParrafo(dto.getNumeroParrafo());
         comentario.setContenido(dto.getContenido());
         comentario.setEsPublico(dto.getEsPublico() != null ? dto.getEsPublico() : true);
+        comentario.setLikes(0);
+
+        if (imagen != null && !imagen.isEmpty()) {
+            comentario.setImagenUrl(guardarImagenComentario(imagen));
+        }
 
         ComentarioLibro guardado = comentarioRepositorio.save(comentario);
         return convertirADTO(guardado);
@@ -321,6 +338,20 @@ public class LectorLibroService {
     }
 
     /**
+     * Incrementa likes de un comentario
+     */
+    @Transactional
+    public ComentarioLibroDTO incrementarLike(Long comentarioId) {
+        ComentarioLibro comentario = comentarioRepositorio.findById(comentarioId)
+                .orElseThrow(() -> new RuntimeException("Comentario no encontrado"));
+
+        int likesActuales = comentario.getLikes() != null ? comentario.getLikes() : 0;
+        comentario.setLikes(likesActuales + 1);
+        ComentarioLibro actualizado = comentarioRepositorio.save(comentario);
+        return convertirADTO(actualizado);
+    }
+
+    /**
      * Convierte una entidad a DTO
      */
     private ComentarioLibroDTO convertirADTO(ComentarioLibro comentario) {
@@ -333,9 +364,37 @@ public class LectorLibroService {
         dto.setNumeroSeccion(comentario.getNumeroSeccion());
         dto.setNumeroParrafo(comentario.getNumeroParrafo());
         dto.setContenido(comentario.getContenido());
+        dto.setImagenUrl(comentario.getImagenUrl());
+        dto.setLikes(comentario.getLikes());
         dto.setFechaCreacion(comentario.getFechaCreacion());
         dto.setFechaModificacion(comentario.getFechaModificacion());
         dto.setEsPublico(comentario.getEsPublico());
         return dto;
+    }
+
+    private String guardarImagenComentario(MultipartFile imagen) {
+        try {
+            String nombreOriginal = imagen.getOriginalFilename();
+            String extension = "";
+            if (nombreOriginal != null && nombreOriginal.contains(".")) {
+                extension = nombreOriginal.substring(nombreOriginal.lastIndexOf(".")).toLowerCase();
+            }
+
+            List<String> extensionesPermitidas = Arrays.asList(".png", ".jpg", ".jpeg", ".gif", ".webp");
+            if (!extension.isEmpty() && !extensionesPermitidas.contains(extension)) {
+                throw new RuntimeException("Formato de imagen no soportado");
+            }
+
+            String nombreArchivo = UUID.randomUUID() + (extension.isEmpty() ? ".png" : extension);
+            Path directorio = Paths.get("uploads", "comentarios-libro");
+            Files.createDirectories(directorio);
+
+            Path destino = directorio.resolve(nombreArchivo);
+            Files.copy(imagen.getInputStream(), destino);
+
+            return "/api/lector/comentario/imagen/" + nombreArchivo;
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar la imagen: " + e.getMessage());
+        }
     }
 }

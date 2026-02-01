@@ -18,6 +18,8 @@ public class ComentarioLibroDTO {
     private Integer numeroDocumento;
     private Integer numeroSeccion;
     private String contenido;
+    private String imagenUrl;
+    private Integer likes;
     private LocalDateTime fechaCreacion;
     private LocalDateTime fechaModificacion;
     private Boolean esPublico;

@@ -34,6 +34,12 @@ public class ComentarioLibro {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String contenido;
 
+    @Column(name = "imagen_url", length = 512)
+    private String imagenUrl;
+
+    @Column(name = "likes")
+    private Integer likes = 0;
+
     @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
 
