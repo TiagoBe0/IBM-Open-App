@@ -62,18 +62,25 @@ public class LectorLibroService {
         List<Map<String, Object>> secciones = null;
         List<String> parrafos = null;
 
+        Integer documentoNumeroActual = null;
+        Integer seccionNumeroActual = null;
+
         for (String linea : lineas) {
             // Detectar inicio de documento (ej: "DOCUMENTO 0")
             if (linea.trim().matches("(?i)^DOCUMENTO\\s+\\d+.*")) {
+                // Guardar sección anterior si existe
+                if (seccionActual != null && parrafos != null && !parrafos.isEmpty()) {
+                    seccionActual.put("parrafos", parrafos);
+                    secciones.add(seccionActual);
+                }
+
+                // Guardar documento anterior si existe
                 if (documentoActual != null) {
-                    if (seccionActual != null && parrafos != null) {
-                        seccionActual.put("parrafos", parrafos);
-                        secciones.add(seccionActual);
-                    }
                     documentoActual.put("secciones", secciones);
                     documentos.add(documentoActual);
                 }
 
+                // Crear nuevo documento
                 documentoActual = new HashMap<>();
                 String[] partes = linea.trim().split("\\s+", 2);
                 int numDoc = Integer.parseInt(partes[1].replaceAll("[^0-9]", ""));
@@ -82,39 +89,48 @@ public class LectorLibroService {
                 secciones = new ArrayList<>();
                 seccionActual = null;
                 parrafos = null;
+                documentoNumeroActual = numDoc;
+                seccionNumeroActual = null;
             }
             // Detectar referencia de párrafo (ej: "0:0.1")
             else if (PATTERN_REFERENCIA.matcher(linea.trim()).matches()) {
-                if (seccionActual != null && parrafos != null) {
-                    seccionActual.put("parrafos", parrafos);
-                    secciones.add(seccionActual);
-                }
-
                 Matcher matcher = PATTERN_REFERENCIA.matcher(linea.trim());
                 if (matcher.find()) {
                     int doc = Integer.parseInt(matcher.group(1));
                     int sec = Integer.parseInt(matcher.group(2));
                     int par = Integer.parseInt(matcher.group(3));
 
-                    seccionActual = new HashMap<>();
-                    seccionActual.put("documento", doc);
-                    seccionActual.put("seccion", sec);
-                    seccionActual.put("referencia", linea.trim());
-                    parrafos = new ArrayList<>();
+                    // Verificar si cambió la sección (D:S)
+                    if (seccionNumeroActual == null || seccionNumeroActual != sec) {
+                        // Guardar sección anterior si existe
+                        if (seccionActual != null && parrafos != null && !parrafos.isEmpty()) {
+                            seccionActual.put("parrafos", parrafos);
+                            secciones.add(seccionActual);
+                        }
+
+                        // Crear nueva sección
+                        seccionActual = new HashMap<>();
+                        seccionActual.put("documento", doc);
+                        seccionActual.put("seccion", sec);
+                        seccionActual.put("referencia", doc + ":" + sec);
+                        parrafos = new ArrayList<>();
+                        seccionNumeroActual = sec;
+                    }
+                    // Si es la misma sección, solo se agregará el texto al párrafo actual
                 }
             }
             // Es contenido de párrafo
-            else if (!linea.trim().isEmpty() && seccionActual != null) {
+            else if (!linea.trim().isEmpty() && parrafos != null) {
                 parrafos.add(linea.trim());
             }
         }
 
-        // Agregar el último documento
+        // Agregar la última sección y documento
+        if (seccionActual != null && parrafos != null && !parrafos.isEmpty()) {
+            seccionActual.put("parrafos", parrafos);
+            secciones.add(seccionActual);
+        }
         if (documentoActual != null) {
-            if (seccionActual != null && parrafos != null) {
-                seccionActual.put("parrafos", parrafos);
-                secciones.add(seccionActual);
-            }
             documentoActual.put("secciones", secciones);
             documentos.add(documentoActual);
         }
