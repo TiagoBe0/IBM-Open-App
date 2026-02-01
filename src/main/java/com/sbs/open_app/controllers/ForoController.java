@@ -3,12 +3,20 @@ package com.sbs.open_app.controllers;
 import com.sbs.open_app.entidades.*;
 import com.sbs.open_app.servicios.ForoServicio;
 import com.sbs.open_app.servicios.UsuarioServicio;
+import com.sbs.open_app.servicios.ArchivoForoServicio;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -19,8 +27,11 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ForoController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ForoController.class);
+
     private final ForoServicio foroServicio;
     private final UsuarioServicio usuarioServicio;
+    private final ArchivoForoServicio archivoServicio;
 
     // Obtener usuario autenticado
     private Usuario getUsuarioAutenticado() {
@@ -106,6 +117,7 @@ public class ForoController {
             @RequestParam String titulo,
             @RequestParam String contenido,
             @RequestParam Long categoriaId,
+            @RequestParam(value = "archivos", required = false) MultipartFile[] archivos,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -125,10 +137,26 @@ public class ForoController {
 
             TemaForo temaCreado = foroServicio.crearTema(tema);
 
+            // Guardar archivos adjuntos si los hay
+            if (archivos != null && archivos.length > 0) {
+                for (MultipartFile archivo : archivos) {
+                    if (!archivo.isEmpty()) {
+                        try {
+                            archivoServicio.guardarArchivo(archivo, usuario, temaCreado, null);
+                            logger.info("Archivo guardado: {}", archivo.getOriginalFilename());
+                        } catch (Exception e) {
+                            logger.error("Error al guardar archivo: {}", e.getMessage());
+                            // Continuar con los demás archivos
+                        }
+                    }
+                }
+            }
+
             redirectAttributes.addFlashAttribute("success", "Tema creado exitosamente");
             return "redirect:/foro/tema/" + temaCreado.getId();
 
         } catch (Exception e) {
+            logger.error("Error al crear tema: ", e);
             redirectAttributes.addFlashAttribute("error", "Error al crear el tema: " + e.getMessage());
             return "redirect:/foro/nuevo-tema?categoriaId=" + categoriaId;
         }
@@ -139,6 +167,7 @@ public class ForoController {
     public String crearRespuesta(
             @PathVariable Long temaId,
             @RequestParam String contenido,
+            @RequestParam(value = "archivos", required = false) MultipartFile[] archivos,
             RedirectAttributes redirectAttributes) {
 
         try {
@@ -162,12 +191,28 @@ public class ForoController {
             respuesta.setTema(tema);
             respuesta.setAutor(usuario);
 
-            foroServicio.crearRespuesta(respuesta);
+            RespuestaForo respuestaCreada = foroServicio.crearRespuesta(respuesta);
+
+            // Guardar archivos adjuntos si los hay
+            if (archivos != null && archivos.length > 0) {
+                for (MultipartFile archivo : archivos) {
+                    if (!archivo.isEmpty()) {
+                        try {
+                            archivoServicio.guardarArchivo(archivo, usuario, tema, respuestaCreada);
+                            logger.info("Archivo guardado en respuesta: {}", archivo.getOriginalFilename());
+                        } catch (Exception e) {
+                            logger.error("Error al guardar archivo en respuesta: {}", e.getMessage());
+                            // Continuar con los demás archivos
+                        }
+                    }
+                }
+            }
 
             redirectAttributes.addFlashAttribute("success", "Respuesta publicada exitosamente");
             return "redirect:/foro/tema/" + temaId;
 
         } catch (Exception e) {
+            logger.error("Error al crear respuesta: ", e);
             redirectAttributes.addFlashAttribute("error", "Error al publicar respuesta: " + e.getMessage());
             return "redirect:/foro/tema/" + temaId;
         }
@@ -183,5 +228,43 @@ public class ForoController {
         model.addAttribute("usuario", getUsuarioAutenticado());
 
         return "foro/busqueda";
+    }
+
+    // ===== ARCHIVOS =====
+
+    // Obtener archivo por ID
+    @GetMapping("/archivo/{id}")
+    public ResponseEntity<byte[]> obtenerArchivo(@PathVariable Long id) {
+        logger.info("Solicitando archivo ID: {}", id);
+
+        try {
+            Optional<ArchivoForo> archivoOpt = archivoServicio.obtenerPorId(id);
+
+            if (archivoOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            ArchivoForo archivo = archivoOpt.get();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.parseMediaType(archivo.getMimeType()));
+            headers.setContentLength(archivo.getContenido().length);
+
+            // Para PDFs y otros archivos, sugerir descarga
+            if (archivo.esPDF()) {
+                headers.setContentDispositionFormData("attachment", archivo.getNombreOriginal());
+            }
+
+            // Para imágenes, mostrar inline
+            if (archivo.esImagen()) {
+                headers.setCacheControl("max-age=3600"); // Cache por 1 hora
+            }
+
+            return new ResponseEntity<>(archivo.getContenido(), headers, HttpStatus.OK);
+
+        } catch (Exception e) {
+            logger.error("Error obteniendo archivo: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

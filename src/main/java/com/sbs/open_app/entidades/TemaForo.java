@@ -59,9 +59,23 @@ public class TemaForo {
     @OrderBy("fechaCreacion ASC")
     private List<RespuestaForo> respuestas = new ArrayList<>();
 
+    @OneToMany(mappedBy = "tema", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("fechaSubida ASC")
+    private List<ArchivoForo> archivos = new ArrayList<>();
+
     // Método para obtener cantidad de respuestas
     public int getCantidadRespuestas() {
         return respuestas != null ? respuestas.size() : 0;
+    }
+
+    // Método para obtener cantidad de archivos
+    public int getCantidadArchivos() {
+        return archivos != null ? archivos.size() : 0;
+    }
+
+    // Método para verificar si tiene archivos adjuntos
+    public boolean tieneArchivos() {
+        return archivos != null && !archivos.isEmpty();
     }
 
     // Método para incrementar vistas

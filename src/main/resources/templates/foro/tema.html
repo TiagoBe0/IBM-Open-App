@@ -310,6 +310,28 @@
             <div class="post-content" th:text="${tema.contenido}">
                 Contenido del tema
             </div>
+
+            <!-- Archivos adjuntos del tema -->
+            <div th:if="${tema.tieneArchivos()}" style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #e5e7eb;">
+                <h4 style="color: #1e3a8a; margin-bottom: 15px; font-size: 1em;">📎 Archivos Adjuntos:</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px;">
+                    <div th:each="archivo : ${tema.archivos}" style="border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden; cursor: pointer;"
+                         th:onclick="'window.open(\'/foro/archivo/' + ${archivo.id} + '\', \'_blank\')'">
+                        <!-- Vista previa para imágenes -->
+                        <div th:if="${archivo.esImagen()}" style="height: 150px; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                            <img th:src="@{/foro/archivo/{id}(id=${archivo.id})}" style="max-width: 100%; max-height: 100%; object-fit: contain;" th:alt="${archivo.nombreOriginal}">
+                        </div>
+                        <!-- Icono para PDFs -->
+                        <div th:if="${archivo.esPDF()}" style="height: 150px; background: #fee2e2; display: flex; align-items: center; justify-content: center;">
+                            <span style="font-size: 4em;">📄</span>
+                        </div>
+                        <div style="padding: 10px; background: white;">
+                            <div style="font-size: 0.9em; font-weight: 600; color: #1e3a8a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" th:text="${archivo.nombreOriginal}">nombre.jpg</div>
+                            <div style="font-size: 0.8em; color: #64748b;" th:text="${archivo.tamanioFormateado}">123 KB</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="respuestas-section">
@@ -331,6 +353,27 @@
                         </div>
                     </div>
                     <div class="post-content" th:text="${respuesta.contenido}">Contenido de la respuesta</div>
+
+                    <!-- Archivos adjuntos de la respuesta -->
+                    <div th:if="${respuesta.tieneArchivos()}" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #f1f5f9;">
+                        <div style="font-size: 0.9em; font-weight: 600; color: #1e3a8a; margin-bottom: 10px;">📎 Archivos adjuntos:</div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+                            <div th:each="archivo : ${respuesta.archivos}" style="border: 2px solid #e5e7eb; border-radius: 6px; overflow: hidden; cursor: pointer; font-size: 0.9em;"
+                                 th:onclick="'window.open(\'/foro/archivo/' + ${archivo.id} + '\', \'_blank\')'">
+                                <div th:if="${archivo.esImagen()}" style="height: 100px; background: #f8fafc; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    <img th:src="@{/foro/archivo/{id}(id=${archivo.id})}" style="max-width: 100%; max-height: 100%; object-fit: contain;" th:alt="${archivo.nombreOriginal}">
+                                </div>
+                                <div th:if="${archivo.esPDF()}" style="height: 100px; background: #fee2e2; display: flex; align-items: center; justify-content: center;">
+                                    <span style="font-size: 2.5em;">📄</span>
+                                </div>
+                                <div style="padding: 8px; background: white;">
+                                    <div style="font-size: 0.85em; font-weight: 600; color: #1e3a8a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" th:text="${archivo.nombreOriginal}">nombre.jpg</div>
+                                    <div style="font-size: 0.75em; color: #64748b;" th:text="${archivo.tamanioFormateado}">123 KB</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div th:if="${respuesta.editado}" class="fecha-edicion">
                         ✏️ Editado el <span th:text="${#temporals.format(respuesta.fechaEdicion, 'dd/MM/yyyy HH:mm')}">fecha</span>
                     </div>
@@ -347,11 +390,22 @@
         <!-- Formulario de respuesta -->
         <div th:if="${!tema.cerrado}" class="respuesta-form">
             <h3>📝 Escribe tu respuesta</h3>
-            <form th:action="@{/foro/tema/{id}/responder(id=${tema.id})}" method="post">
+            <form th:action="@{/foro/tema/{id}/responder(id=${tema.id})}" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="contenido">Tu respuesta:</label>
                     <textarea id="contenido" name="contenido" required
                               placeholder="Comparte tus reflexiones y aporta a la conversación..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="archivos-respuesta">📎 Archivos Adjuntos (opcional):</label>
+                    <input type="file"
+                           id="archivos-respuesta"
+                           name="archivos"
+                           multiple
+                           accept="image/*,.pdf"
+                           style="width: 100%; padding: 10px; border: 2px dashed #3b82f6; border-radius: 8px; background: #f8fafc; cursor: pointer;">
+                    <div style="color: #64748b; font-size: 0.9em; margin-top: 5px;">Imágenes (JPG, PNG, GIF) y PDFs. Máximo 10MB por archivo.</div>
+                    <div id="preview-archivos-respuesta" style="margin-top: 10px;"></div>
                 </div>
                 <button type="submit" class="btn btn-primary">
                     💬 Publicar Respuesta
@@ -365,5 +419,41 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Vista previa de archivos en respuestas
+        const inputArchivosRespuesta = document.getElementById('archivos-respuesta');
+        if (inputArchivosRespuesta) {
+            inputArchivosRespuesta.addEventListener('change', function(e) {
+                const preview = document.getElementById('preview-archivos-respuesta');
+                preview.innerHTML = '';
+
+                if (this.files.length > 0) {
+                    const lista = document.createElement('div');
+                    lista.style.cssText = 'display: flex; flex-direction: column; gap: 8px; margin-top: 10px;';
+
+                    Array.from(this.files).forEach((file) => {
+                        const item = document.createElement('div');
+                        item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 8px; background: #f1f5f9; border-radius: 6px;';
+
+                        const icono = file.type.startsWith('image/') ? '🖼️' : '📄';
+                        const tamanio = (file.size / 1024).toFixed(2);
+
+                        item.innerHTML = `
+                            <span style="font-size: 1.5em;">${icono}</span>
+                            <div style="flex: 1;">
+                                <div style="font-weight: 600; color: #1e3a8a;">${file.name}</div>
+                                <div style="font-size: 0.85em; color: #64748b;">${tamanio} KB</div>
+                            </div>
+                        `;
+
+                        lista.appendChild(item);
+                    });
+
+                    preview.appendChild(lista);
+                }
+            });
+        }
+    </script>
 </body>
 </html>

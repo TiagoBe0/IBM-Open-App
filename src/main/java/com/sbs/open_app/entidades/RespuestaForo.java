@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "respuestas_foro")
@@ -47,9 +49,23 @@ public class RespuestaForo {
     @JoinColumn(name = "respuesta_padre_id")
     private RespuestaForo respuestaPadre;
 
+    @OneToMany(mappedBy = "respuesta", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("fechaSubida ASC")
+    private List<ArchivoForo> archivos = new ArrayList<>();
+
     // Método para marcar como editado
     public void marcarComoEditado() {
         this.editado = true;
         this.fechaEdicion = LocalDateTime.now();
+    }
+
+    // Método para obtener cantidad de archivos
+    public int getCantidadArchivos() {
+        return archivos != null ? archivos.size() : 0;
+    }
+
+    // Método para verificar si tiene archivos adjuntos
+    public boolean tieneArchivos() {
+        return archivos != null && !archivos.isEmpty();
     }
 }

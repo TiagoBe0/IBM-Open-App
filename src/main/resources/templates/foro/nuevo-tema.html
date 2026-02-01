@@ -213,7 +213,7 @@
         </div>
 
         <div class="form-container">
-            <form action="/foro/crear-tema" method="post">
+            <form action="/foro/crear-tema" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="categoriaId">Categoría: *</label>
                     <select id="categoriaId" name="categoriaId" required>
@@ -248,6 +248,18 @@
                     <div class="form-hint">Explica tu tema en detalle. Puedes compartir reflexiones, hacer preguntas o iniciar una discusión</div>
                 </div>
 
+                <div class="form-group">
+                    <label for="archivos">📎 Archivos Adjuntos (opcional):</label>
+                    <input type="file"
+                           id="archivos"
+                           name="archivos"
+                           multiple
+                           accept="image/*,.pdf"
+                           style="padding: 10px; border: 2px dashed #3b82f6; border-radius: 8px; background: #f8fafc;">
+                    <div class="form-hint">Puedes adjuntar imágenes (JPG, PNG, GIF) y archivos PDF. Máximo 10MB por archivo.</div>
+                    <div id="preview-archivos" style="margin-top: 10px;"></div>
+                </div>
+
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
                         📤 Publicar Tema
@@ -259,5 +271,38 @@
             </form>
         </div>
     </div>
+
+    <script>
+        // Vista previa de archivos seleccionados
+        document.getElementById('archivos').addEventListener('change', function(e) {
+            const preview = document.getElementById('preview-archivos');
+            preview.innerHTML = '';
+
+            if (this.files.length > 0) {
+                const lista = document.createElement('div');
+                lista.style.cssText = 'display: flex; flex-direction: column; gap: 8px; margin-top: 10px;';
+
+                Array.from(this.files).forEach((file, index) => {
+                    const item = document.createElement('div');
+                    item.style.cssText = 'display: flex; align-items: center; gap: 10px; padding: 8px; background: #f1f5f9; border-radius: 6px;';
+
+                    const icono = file.type.startsWith('image/') ? '🖼️' : '📄';
+                    const tamanio = (file.size / 1024).toFixed(2);
+
+                    item.innerHTML = `
+                        <span style="font-size: 1.5em;">${icono}</span>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #1e3a8a;">${file.name}</div>
+                            <div style="font-size: 0.85em; color: #64748b;">${tamanio} KB</div>
+                        </div>
+                    `;
+
+                    lista.appendChild(item);
+                });
+
+                preview.appendChild(lista);
+            }
+        });
+    </script>
 </body>
 </html>
