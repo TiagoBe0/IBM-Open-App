@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sistema de Gestión de Investigación Científica</title>
+    <title>Comunidad Urantia - Panel de Control</title>
     <style>
         * {
             margin: 0;
@@ -13,10 +13,30 @@
 
         body {
             font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #0a1929 0%, #1a2942 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #3b82f6 100%);
             min-height: 100vh;
             padding: 20px;
             color: #e0e0e0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: moveStars 60s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes moveStars {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
         }
 
         .container {
@@ -31,18 +51,20 @@
             padding: 30px;
             margin-bottom: 30px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-top: 4px solid #1565c0;
+            border-top: 4px solid #3b82f6;
+            position: relative;
+            z-index: 1;
         }
 
         .header h1 {
-            color: #1a237e;
+            color: #1e3a8a;
             font-size: 2.5em;
             margin-bottom: 10px;
             font-weight: 600;
         }
 
         .user-info {
-            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             color: white;
             padding: 15px 20px;
             border-radius: 10px;
@@ -79,18 +101,18 @@
             left: 0;
             right: 0;
             height: 4px;
-            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(21, 101, 192, 0.3);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.3);
         }
 
         .stat-card .number {
             font-size: 2.5em;
             font-weight: bold;
-            color: #1565c0;
+            color: #2563eb;
         }
 
         .stat-card .label {
@@ -125,9 +147,9 @@
         }
 
         .tab.active {
-            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
             color: white;
-            box-shadow: 0 5px 15px rgba(21, 101, 192, 0.4);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.4);
         }
 
         .content-section {
@@ -159,7 +181,7 @@
         }
 
         .toolbar h2 {
-            color: #1a237e;
+            color: #1e3a8a;
             font-weight: 600;
         }
 
@@ -179,7 +201,7 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
         }
 
         .btn-success {

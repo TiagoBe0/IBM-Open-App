@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Usuario</title>
+    <title>Registro - Comunidad Urantia</title>
     <style>
         :root {
-            --primary-color: #4e73df;
-            --secondary-color: #6f42c1;
+            --primary-color: #1e3a8a;
+            --secondary-color: #3b82f6;
             --success-color: #1cc88a;
             --danger-color: #e74a3b;
             --warning-color: #f6c23e;
-            --light-color: #f8f9fc;
-            --dark-color: #5a5c69;
-            --gray-color: #b7b9cc;
+            --light-color: #dbeafe;
+            --dark-color: #1e293b;
+            --gray-color: #94a3b8;
         }
         
         * {
@@ -24,12 +24,31 @@
         }
         
         body {
-            background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+            background: linear-gradient(135deg, #dbeafe 0%, #ffffff 50%, #dbeafe 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background-image: radial-gradient(circle, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            animation: movePattern 80s linear infinite;
+        }
+
+        @keyframes movePattern {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(40px, 40px); }
         }
         
         .container {
@@ -37,9 +56,11 @@
             max-width: 800px;
             background: white;
             border-radius: 15px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 5px 25px rgba(30, 58, 138, 0.15);
             overflow: hidden;
             display: flex;
+            position: relative;
+            z-index: 1;
         }
         
         .left-panel {
@@ -219,16 +240,16 @@
 <body>
     <div class="container">
         <div class="left-panel">
-            <div class="icon">👤</div>
-            <h2>Únete a nuestra comunidad</h2>
-            <p>Regístrate para acceder a contenido exclusivo, conectar con otros usuarios y personalizar tu experiencia.</p>
-            <p>¡Sube una foto para que otros te conozcan mejor!</p>
+            <div class="icon">🔵</div>
+            <h2>Únete a la Comunidad Urantia</h2>
+            <p>Regístrate para conectar con otros lectores, compartir reflexiones y participar en nuestro foro de discusión espiritual.</p>
+            <p>Juntos exploramos las enseñanzas del Libro de Urantia</p>
         </div>
         
         <div class="right-panel">
             <div class="form-header">
                 <h1>Crear Cuenta</h1>
-                <p>Completa tus datos para registrarte</p>
+                <p>Completa tus datos para unirte a nuestra comunidad</p>
             </div>
             
             <div id="alertSuccess" class="alert alert-success">
