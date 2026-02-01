@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lector del Libro de Urantia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #f8f9fa;
+            color: #2c3e50;
+            line-height: 1.8;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn-light {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn-light:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            display: grid;
+            grid-template-columns: 250px 1fr 300px;
+            gap: 30px;
+        }
+
+        /* Sidebar Navegación */
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .nav-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .nav-item:hover {
+            background: #f8f9ff;
+            color: #667eea;
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 500;
+        }
+
+        /* Área de lectura */
+        .reading-area {
+            background: white;
+            border-radius: 15px;
+            padding: 50px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            min-height: 80vh;
+        }
+
+        .reading-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .reading-header h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .reading-header .reference {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            font-style: italic;
+        }
+
+        .parrafo {
+            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .parrafo:hover {
+            background: #f8f9ff;
+        }
+
+        .parrafo-numero {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-right: 10px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .parrafo-texto {
+            display: inline;
+            font-size: 1.1em;
+            line-height: 1.9;
+        }
+
+        .parrafo-acciones {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .parrafo:hover .parrafo-acciones {
+            opacity: 1;
+        }
+
+        .btn-icon {
+            background: #667eea;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .btn-icon:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .comentarios-count {
+            background: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+
+        /* Sidebar de comentarios */
+        .comments-sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .comments-sidebar h3 {
+            color: #667eea;
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .comment-item {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.9em;
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .comment-author {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .comment-date {
+            font-size: 0.8em;
+            color: #95a5a6;
+        }
+
+        .comment-reference {
+            font-size: 0.8em;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+
+        .comment-text {
+            color: #2c3e50;
+            line-height: 1.5;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .comment-actions button {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-size: 0.85em;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+
+        .comment-actions button:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h3 {
+            color: #2c3e50;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #95a5a6;
+        }
+
+        .close-modal:hover {
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.95em;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-cancel {
+            background: #e0e0e0;
+            color: #2c3e50;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .btn-cancel:hover {
+            background: #d0d0d0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #95a5a6;
+            font-size: 1.1em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #95a5a6;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar, .comments-sidebar {
+                position: relative;
+                top: 0;
+                max-height: none;
+            }
+
+            .reading-area {
+                padding: 30px 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .reading-area {
+                padding: 20px 15px;
+            }
+
+            .parrafo {
+                padding: 15px;
+            }
+
+            .parrafo-texto {
+                font-size: 1em;
+            }
+        }
+
+        /* Scrollbar personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const USUARIO_AUTENTICADO = /*[[${usuario != null}]]*/ false;
+        const USUARIO_ID = /*[[${usuario?.id}]]*/ null;
+        const USUARIO_NOMBRE = /*[[${usuario?.nombre}]]*/ '';
+        const API_URL = '/api/lector';
+        /*]]>*/
+    </script>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>📖 El Libro de Urantia</h1>
+            <div class="header-actions">
+                <a href="/dashboard" class="btn btn-light">← Volver al Dashboard</a>
+                <span th:if="${usuario != null}" class="btn btn-light" th:text="'👤 ' + ${usuario.nombre}">Usuario</span>
+                <a th:if="${usuario == null}" href="/login" class="btn btn-primary">Iniciar Sesión</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Sidebar de navegación -->
+        <div class="sidebar">
+            <h3>📑 Navegación</h3>
+            <div id="navigation">
+                <div class="loading">Cargando índice...</div>
+            </div>
+        </div>
+
+        <!-- Área de lectura -->
+        <div class="reading-area">
+            <div id="reading-content">
+                <div class="loading">
+                    <p>Cargando contenido del libro...</p>
+                    <p style="margin-top: 20px; font-size: 0.9em;">Por favor, asegúrate de que el archivo <strong>libro.txt</strong> está en la carpeta <strong>src/main/resources/</strong></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar de comentarios -->
+        <div class="comments-sidebar">
+            <h3>💬 Comentarios</h3>
+            <div id="comments-area">
+                <div class="empty-state">
+                    Selecciona un párrafo para ver sus comentarios
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar comentario -->
+    <div class="modal" id="commentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Agregar Comentario</h3>
+                <button class="close-modal" onclick="closeCommentModal()">×</button>
+            </div>
+            <form id="commentForm">
+                <div class="form-group">
+                    <label>Referencia:</label>
+                    <input type="text" id="commentReference" readonly style="background: #f8f9fa; border: 2px solid #e0e0e0; padding: 10px; border-radius: 8px; width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label>Tu comentario:</label>
+                    <textarea id="commentText" placeholder="Escribe tu comentario aquí..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="commentPublic" checked>
+                        Hacer público (visible para todos)
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeCommentModal()">Cancelar</button>
+                    <button type="submit" class="btn-submit">Guardar Comentario</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/lector.js"></script>
+</body>
+</html>

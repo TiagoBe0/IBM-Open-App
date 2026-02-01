@@ -92,7 +92,11 @@ public CorsConfigurationSource corsConfigurationSource() {
                 "/webjars/**",
                 "/test/**",  // Endpoints de prueba
                 "/api/local-ai/**",  // ✅ NUEVO: Permitir endpoints de IA local
-                "/api/debug/**"      // ✅ NUEVO: Permitir endpoints de debug
+                "/api/debug/**",      // ✅ NUEVO: Permitir endpoints de debug
+                "/lector",           // ✅ NUEVO: Permitir acceso al lector de libros
+                "/api/lector/libro", // ✅ NUEVO: Permitir leer el libro completo
+                "/api/lector/seccion/**", // ✅ NUEVO: Permitir leer secciones
+                "/api/lector/comentarios/**" // ✅ NUEVO: Permitir ver comentarios
             ).permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/usuario/**").hasAnyRole("USUARIO", "ADMIN", "MODERADOR")
