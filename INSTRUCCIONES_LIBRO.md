@@ -64,6 +64,16 @@ cp *.html /home/user/IBM-Open-App/src/main/resources/templates/libro/
 cp ub.css /home/user/IBM-Open-App/src/main/resources/static/css/
 ```
 
+## Script de Importación (recomendado)
+
+También puedes usar el script incluido en el repositorio:
+
+```bash
+./scripts/import_libro_html.sh /ruta/a/los/html /ruta/a/ub.css
+```
+
+- El segundo parámetro (CSS) es opcional. Si existe un `ub.css` en la carpeta de origen, el script lo copiará automáticamente.
+
 ## Formato de los Archivos HTML
 
 Cada documento debe tener este formato básico:
@@ -118,4 +128,3 @@ Después de copiar los archivos:
 **Nota:** Si no tienes los archivos HTML, puedes descargarlos desde:
 - [Urantia Foundation](https://www.urantia.org/es)
 - O desde el repositorio oficial del libro en español
-

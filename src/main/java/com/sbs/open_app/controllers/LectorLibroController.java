@@ -4,16 +4,21 @@ import com.sbs.open_app.dto.ComentarioLibroDTO;
 import com.sbs.open_app.servicios.LectorLibroService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -93,6 +98,42 @@ public class LectorLibroController {
             return ResponseEntity.ok(guardado);
         } catch (Exception e) {
             log.error("Error al guardar comentario", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al guardar el comentario: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * API: Guarda un comentario con imagen opcional
+     */
+    @PostMapping(value = "/api/lector/comentario", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ResponseBody
+    public ResponseEntity<?> guardarComentarioConImagen(
+            @RequestParam Integer numeroDocumento,
+            @RequestParam Integer numeroSeccion,
+            @RequestParam Integer numeroParrafo,
+            @RequestParam String contenido,
+            @RequestParam(required = false) Boolean esPublico,
+            @RequestPart(required = false) MultipartFile imagen) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Debes iniciar sesión para comentar"));
+            }
+
+            ComentarioLibroDTO dto = new ComentarioLibroDTO();
+            dto.setNumeroDocumento(numeroDocumento);
+            dto.setNumeroSeccion(numeroSeccion);
+            dto.setNumeroParrafo(numeroParrafo);
+            dto.setContenido(contenido);
+            dto.setEsPublico(esPublico != null ? esPublico : true);
+
+            Long usuarioId = ((com.sbs.open_app.entidades.Usuario) auth.getPrincipal()).getId();
+            ComentarioLibroDTO guardado = lectorService.guardarComentario(usuarioId, dto, imagen);
+            return ResponseEntity.ok(guardado);
+        } catch (Exception e) {
+            log.error("Error al guardar comentario con imagen", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error al guardar el comentario: " + e.getMessage()));
         }
@@ -210,5 +251,55 @@ public class LectorLibroController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Error al actualizar comentario: " + e.getMessage()));
         }
+    }
+
+    /**
+     * API: Incrementa un like en un comentario
+     */
+    @PostMapping("/api/lector/comentario/{id}/like")
+    @ResponseBody
+    public ResponseEntity<?> darLike(@PathVariable Long id) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated() || auth.getName().equals("anonymousUser")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Debes iniciar sesión para dar like"));
+            }
+
+            ComentarioLibroDTO actualizado = lectorService.incrementarLike(id);
+            return ResponseEntity.ok(actualizado);
+        } catch (Exception e) {
+            log.error("Error al dar like", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error al dar like: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * API: Obtiene una imagen asociada a comentarios
+     */
+    @GetMapping("/api/lector/comentario/imagen/{nombreArchivo}")
+    @ResponseBody
+    public ResponseEntity<Resource> obtenerImagenComentario(@PathVariable String nombreArchivo) {
+        Path ruta = Paths.get("uploads", "comentarios-libro", nombreArchivo);
+        Resource recurso = new FileSystemResource(ruta);
+
+        if (!recurso.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        MediaType mediaType = MediaType.APPLICATION_OCTET_STREAM;
+        try {
+            String tipo = java.nio.file.Files.probeContentType(ruta);
+            if (tipo != null) {
+                mediaType = MediaType.parseMediaType(tipo);
+            }
+        } catch (IOException ignored) {
+            log.warn("No se pudo detectar el tipo de contenido para {}", nombreArchivo);
+        }
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .body(recurso);
     }
 }
