@@ -34,7 +34,7 @@ public class LectorLibroService {
     @Autowired
     private UsuarioRepositorio usuarioRepositorio;
 
-    private static final Pattern PATTERN_REFERENCIA = Pattern.compile("(\\d+):(\\d+)\\.(\\d+)");
+    private static final Pattern PATTERN_REFERENCIA = Pattern.compile("(\\d+):(\\d+)\\.(\\d+)(?:\\s*\\(\\d+\\.\\d+\\))?");
     private static final Pattern PATTERN_DOCUMENTO = Pattern.compile("(\\d+)-Documento(\\d{3})\\.html");
 
     /**
@@ -133,15 +133,18 @@ public class LectorLibroService {
     private List<Map<String, Object>> parsearSecciones(Document doc, int numeroDoc) {
         Map<Integer, Map<String, Object>> seccionesMap = new TreeMap<>();
 
-        // Buscar todos los párrafos con clase "ctr" o "par" que contienen referencias
-        Elements parrafos = doc.select("p.ctr, p.par, p");
+        // Buscar todos los párrafos que contienen referencias
+        Elements parrafos = doc.select("p");
 
         for (Element parrafo : parrafos) {
-            // Buscar span con clase "pr" que contiene la referencia (D:S.P)
-            Element spanRef = parrafo.selectFirst("span.pr, span.pnr");
+            // Buscar small tag que contiene la referencia (D:S.P) o span con clase "pr"
+            Element refElement = parrafo.selectFirst("small");
+            if (refElement == null) {
+                refElement = parrafo.selectFirst("span.pr, span.pnr");
+            }
 
-            if (spanRef != null) {
-                String refTexto = spanRef.text().trim();
+            if (refElement != null) {
+                String refTexto = refElement.text().trim();
                 Matcher matcher = PATTERN_REFERENCIA.matcher(refTexto);
 
                 if (matcher.find()) {
