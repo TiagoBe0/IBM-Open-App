@@ -116,6 +116,31 @@
             border-bottom: 2px solid #f0f0f0;
         }
 
+        .quick-index {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .quick-index button {
+            background: #f3f5ff;
+            border: 1px solid #e2e6f1;
+            color: #2c3e50;
+            padding: 8px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.85em;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .quick-index button:hover {
+            background: #667eea;
+            border-color: #667eea;
+            color: #fff;
+        }
+
         .nav-item {
             padding: 10px;
             margin: 5px 0;
@@ -579,6 +604,12 @@
         <!-- Sidebar de navegación -->
         <div class="sidebar">
             <h3>📑 Navegación</h3>
+            <div class="quick-index">
+                <button onclick="irAParte(1)">Parte I · Doc 1-31</button>
+                <button onclick="irAParte(2)">Parte II · Doc 32-56</button>
+                <button onclick="irAParte(3)">Parte III · Doc 57-119</button>
+                <button onclick="irAParte(4)">Parte IV · Doc 120-196</button>
+            </div>
             <div id="navigation">
                 <div class="loading">Cargando índice...</div>
             </div>

@@ -84,6 +84,35 @@ function renderizarNavegacion() {
     navDiv.innerHTML = html;
 }
 
+function irAParte(parte) {
+    if (!libroCompleto || !libroCompleto.documentos) {
+        showNotification('El libro aún está cargando', 'info');
+        return;
+    }
+
+    const rangos = {
+        1: { inicio: 1, fin: 31 },
+        2: { inicio: 32, fin: 56 },
+        3: { inicio: 57, fin: 119 },
+        4: { inicio: 120, fin: 196 }
+    };
+
+    const rango = rangos[parte];
+    if (!rango) return;
+
+    const documento = libroCompleto.documentos.find(doc =>
+        doc.numero >= rango.inicio && doc.numero <= rango.fin && doc.secciones && doc.secciones.length > 0
+    );
+
+    if (!documento) {
+        showNotification('No se encontró un documento para esta parte', 'error');
+        return;
+    }
+
+    const primeraSeccion = documento.secciones[0];
+    cargarSeccion(primeraSeccion.documento, primeraSeccion.seccion);
+}
+
 /**
  * Carga una sección específica
  */
