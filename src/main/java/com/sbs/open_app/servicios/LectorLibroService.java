@@ -145,18 +145,18 @@ public class LectorLibroService {
                 Matcher matcher = PATTERN_REFERENCIA.matcher(refTexto);
 
                 if (matcher.find()) {
-                    int doc = Integer.parseInt(matcher.group(1));
+                    int docNumRef = Integer.parseInt(matcher.group(1));
                     int sec = Integer.parseInt(matcher.group(2));
                     int par = Integer.parseInt(matcher.group(3));
 
                     // Verificar que el documento coincide
-                    if (doc == numeroDoc) {
+                    if (docNumRef == numeroDoc) {
                         // Obtener o crear sección
                         Map<String, Object> seccion = seccionesMap.computeIfAbsent(sec, k -> {
                             Map<String, Object> nuevaSeccion = new HashMap<>();
-                            nuevaSeccion.put("documento", doc);
+                            nuevaSeccion.put("documento", docNumRef);
                             nuevaSeccion.put("seccion", sec);
-                            nuevaSeccion.put("referencia", doc + ":" + sec);
+                            nuevaSeccion.put("referencia", docNumRef + ":" + sec);
                             nuevaSeccion.put("parrafos", new ArrayList<String>());
                             return nuevaSeccion;
                         });
