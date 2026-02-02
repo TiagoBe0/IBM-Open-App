@@ -202,7 +202,7 @@ public String vistaJerarquica(Model model) {
             return "redirect:/login";
         }
 
-        return "dashboard-nuevo";
+        return "dashboard";
     }
         @GetMapping("/registro-arbol")
     public String registroArbol(Model model) {

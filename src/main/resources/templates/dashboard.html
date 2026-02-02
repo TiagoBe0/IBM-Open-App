@@ -481,6 +481,156 @@
             color: #b71c1c;
         }
 
+        /* Estilos para Proyectos y Tareas */
+        .proyecto-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .proyecto-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .proyecto-header {
+            border-left: 4px solid #007bff;
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+
+        .proyecto-header h4 {
+            color: #1e3a8a;
+            margin-bottom: 5px;
+        }
+
+        .proyecto-info {}
+
+        .proyecto-descripcion {
+            color: #546e7a;
+            font-size: 0.95em;
+        }
+
+        .proyecto-badges {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .proyecto-meta {
+            color: #78909c;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .proyecto-meta i {
+            margin-right: 5px;
+        }
+
+        .proyecto-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .tareas-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .tareas-column {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+        }
+
+        .column-title {
+            color: #1e3a8a;
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3b82f6;
+        }
+
+        .tarea-card {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .tarea-card:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .tarea-card.completada {
+            opacity: 0.7;
+        }
+
+        .tarea-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .tarea-header h6 {
+            color: #1e3a8a;
+            margin: 0;
+        }
+
+        .tarea-descripcion {
+            color: #546e7a;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .tarea-meta {
+            font-size: 0.85em;
+            color: #78909c;
+            margin-bottom: 10px;
+        }
+
+        .tarea-meta span {
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .tarea-meta i {
+            margin-right: 3px;
+        }
+
+        .tarea-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: flex-end;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #78909c;
+        }
+
+        .empty-state i {
+            color: #b0bec5;
+            margin-bottom: 20px;
+        }
+
+        .badge-success { background-color: #10b981; }
+        .badge-primary { background-color: #3b82f6; }
+        .badge-warning { background-color: #f59e0b; }
+        .badge-danger { background-color: #ef4444; }
+        .badge-secondary { background-color: #6b7280; }
+        .badge-info { background-color: #06b6d4; }
+
         @media (max-width: 768px) {
             .user-info {
                 flex-direction: column;
@@ -500,6 +650,10 @@
             .tabs {
                 flex-direction: column;
             }
+
+            .tareas-board {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -518,17 +672,17 @@
 
     <div class="container">
         <div class="header">
-            <h1>📚 Sistema de Gestión de Investigación Científica</h1>
-            <p style="color: #546e7a; margin-top: 10px;">Organiza tus proyectos, publicaciones y datos de investigación</p>
+            <h1>📊 Dashboard de Proyectos y Tareas</h1>
+            <p style="color: #546e7a; margin-top: 10px;">Gestiona tus proyectos, tareas y colabora con la comunidad</p>
             
             <div class="user-info">
                 <div>
-                    <strong>👤 Investigador:</strong>
+                    <strong>👤 Usuario:</strong>
                     <span th:text="${usuario.nombre + ' ' + usuario.apellido}">Nombre Usuario</span>
                     <span th:text="'(@' + ${usuario.username} + ')'">@username</span>
                     <span th:text="'[ID: ' + ${usuario.id} + ']'">[ID: 1]</span>
                 </div>
-                
+
                 <div>
                     <a href="/logout" class="btn btn-danger">🚪 Cerrar Sesión</a>
                 </div>
@@ -538,19 +692,19 @@
         <div class="stats" id="stats">
             <div class="stat-card">
                 <div class="number" id="totalProyectos">0</div>
-                <div class="label">Proyectos</div>
+                <div class="label">Total Proyectos</div>
             </div>
             <div class="stat-card">
-                <div class="number" id="totalPublicaciones">0</div>
-                <div class="label">Publicaciones</div>
+                <div class="number" id="totalTareas">0</div>
+                <div class="label">Total Tareas</div>
             </div>
             <div class="stat-card">
-                <div class="number" id="totalInvestigaciones">0</div>
-                <div class="label">Investigaciones</div>
+                <div class="number" id="tareasCompletadas">0</div>
+                <div class="label">Tareas Completadas</div>
             </div>
             <div class="stat-card">
-                <div class="number" id="totalColaboradores">0</div>
-                <div class="label">Colaboradores</div>
+                <div class="number" id="tareasPendientes">0</div>
+                <div class="label">Tareas Pendientes</div>
             </div>
             <div class="stat-card" onclick="window.location.href='/foro'" style="cursor: pointer;">
                 <div class="number">💬</div>
@@ -559,75 +713,36 @@
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('proyectos')">🔬 Proyectos</button>
-            <button class="tab" onclick="switchTab('publicaciones')">📄 Publicaciones</button>
-            <button class="tab" onclick="switchTab('investigaciones')">🧪 Investigaciones</button>
-            <button class="tab" onclick="switchTab('tree')">📊 Vista Jerárquica</button>
+            <button class="tab active" onclick="switchTab('proyectos')">📁 Mis Proyectos</button>
+            <button class="tab" onclick="switchTab('tareas')">✅ Tareas</button>
             <a href="/foro" class="tab" style="text-decoration: none;">💬 Foro de la Comunidad</a>
-           <a href="/vista-jerarquica" class="btn btn-primary">
-            📊 Vista Jerárquica Completa
-            </a>
             <button class="tab" onclick="switchTab('colaboradores')">👥 Colaboradores</button>
             <button class="tab" onclick="switchTab('config')">⚙️ Mi Perfil</button>
         </div>
 
         <div class="content-section active" id="proyectos-section">
             <div class="toolbar">
-                <h2>Gestión de Proyectos de Investigación</h2>
-                <div class="search-box">
-                    <input type="text" placeholder="Buscar proyectos..." id="searchProyectos">
-                    <button class="btn btn-primary" onclick="searchProyectos()">🔍</button>
-                </div>
+                <h2>📁 Mis Proyectos</h2>
                 <div>
-                    <button class="btn btn-success" onclick="openModal('proyecto')">➕ Nuevo Proyecto</button>
+                    <button class="btn btn-success" id="btnNuevoProyecto">➕ Nuevo Proyecto</button>
                 </div>
             </div>
-            <div id="proyectosTable">
+            <div id="proyectosContainer">
                 <div class="loading">Cargando proyectos...</div>
             </div>
         </div>
 
-        <div class="content-section" id="publicaciones-section">
+        <div class="content-section" id="tareas-section">
             <div class="toolbar">
-                <h2>Gestión de Publicaciones</h2>
-                <div class="search-box">
-                    <input type="text" placeholder="Buscar publicaciones..." id="searchPublicaciones">
-                    <button class="btn btn-primary" onclick="searchPublicaciones()">🔍</button>
-                </div>
+                <h2>✅ Tareas del Proyecto</h2>
                 <div>
-                    <button class="btn btn-success" onclick="openModal('publicacion')">➕ Nueva Publicación</button>
+                    <button class="btn btn-success" id="btnNuevaTarea">➕ Nueva Tarea</button>
                 </div>
             </div>
-            <div id="publicacionesTable">
-                <div class="loading">Cargando publicaciones...</div>
-            </div>
-        </div>
-
-        <div class="content-section" id="investigaciones-section">
-            <div class="toolbar">
-                <h2>Gestión de Investigaciones</h2>
-                <div class="search-box">
-                    <input type="text" placeholder="Buscar investigaciones..." id="searchInvestigaciones">
-                    <button class="btn btn-primary" onclick="searchInvestigaciones()">🔍</button>
+            <div id="tareasContainer">
+                <div class="empty-state">
+                    <p>Selecciona un proyecto en la pestaña "Mis Proyectos" para ver sus tareas</p>
                 </div>
-                <div>
-                    <button class="btn btn-success" onclick="openModal('investigacion')">➕ Nueva Investigación</button>
-                </div>
-            </div>
-            <div id="investigacionesTable">
-                <div class="loading">Cargando investigaciones...</div>
-            </div>
-        </div>
-
-        <div class="content-section" id="tree-section">
-            <div class="toolbar">
-                <h2>Vista Jerárquica</h2>
-                <div>
-                    <button class="btn btn-primary" onclick="loadTreeView()">🔄 Actualizar</button>
-                </div>
-            </div>
-            <div id="treeView" class="tree-view">
-                <div class="loading">Cargando vista jerárquica...</div>
             </div>
         </div>
 
@@ -813,6 +928,127 @@
                 <div class="actions">
                     <button type="submit" class="btn btn-success">💾 Guardar</button>
                     <button type="button" class="btn btn-danger" onclick="closeModal()">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modales para Proyectos y Tareas -->
+    <div class="modal" id="modalProyecto" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 id="modalProyectoTitle">Nuevo Proyecto</h2>
+                <button class="close-btn" onclick="document.getElementById('modalProyecto').style.display='none'">×</button>
+            </div>
+            <form id="formProyecto">
+                <input type="hidden" id="proyectoId">
+                <div class="form-group">
+                    <label>Nombre del Proyecto: *</label>
+                    <input type="text" id="proyectoNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción:</label>
+                    <textarea id="proyectoDescripcion" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha de Inicio:</label>
+                        <input type="date" id="proyectoFechaInicio">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha de Fin:</label>
+                        <input type="date" id="proyectoFechaFin">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Estado:</label>
+                        <select id="proyectoEstado">
+                            <option value="En progreso">En progreso</option>
+                            <option value="Completado">Completado</option>
+                            <option value="Pausado">Pausado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Prioridad:</label>
+                        <select id="proyectoPrioridad">
+                            <option value="Baja">Baja</option>
+                            <option value="Media" selected>Media</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Color:</label>
+                    <input type="color" id="proyectoColor" value="#007bff" style="width: 100px; height: 40px;">
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-success" id="btnGuardarProyecto">💾 Guardar</button>
+                    <button type="button" class="btn btn-danger" onclick="document.getElementById('modalProyecto').style.display='none'">❌ Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="modalTarea" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 id="modalTareaTitle">Nueva Tarea</h2>
+                <button class="close-btn" onclick="document.getElementById('modalTarea').style.display='none'">×</button>
+            </div>
+            <form id="formTarea">
+                <input type="hidden" id="tareaId">
+                <div class="form-group">
+                    <label>Título de la Tarea: *</label>
+                    <input type="text" id="tareaTitulo" required>
+                </div>
+                <div class="form-group">
+                    <label>Descripción:</label>
+                    <textarea id="tareaDescripcion" rows="3" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;"></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Fecha de Vencimiento:</label>
+                        <input type="date" id="tareaFechaVencimiento">
+                    </div>
+                    <div class="form-group">
+                        <label>Asignado a:</label>
+                        <input type="text" id="tareaAsignadoA" placeholder="Nombre">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Estado:</label>
+                        <select id="tareaEstado">
+                            <option value="Pendiente" selected>Pendiente</option>
+                            <option value="En progreso">En progreso</option>
+                            <option value="Completada">Completada</option>
+                            <option value="Cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Prioridad:</label>
+                        <select id="tareaPrioridad">
+                            <option value="Baja">Baja</option>
+                            <option value="Media" selected>Media</option>
+                            <option value="Alta">Alta</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Etiquetas (separadas por comas):</label>
+                    <input type="text" id="tareaEtiquetas" placeholder="desarrollo, urgente, bug">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="tareaCompletada">
+                        Completada
+                    </label>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-success" id="btnGuardarTarea">💾 Guardar</button>
+                    <button type="button" class="btn btn-danger" onclick="document.getElementById('modalTarea').style.display='none'">❌ Cancelar</button>
                 </div>
             </form>
         </div>
@@ -1520,6 +1756,63 @@ function descargarDocumento(tipo, documentoId) {
         function enviarSolicitudColaboracion(userId) {
             showNotification('Solicitud enviada (demo)', 'success');
         }
+    </script>
+
+    <!-- Script para Proyectos y Tareas -->
+    <script src="/dashboard/js/proyectos-tareas.js"></script>
+    <script>
+        // Inicializar módulo de Proyectos y Tareas cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar módulo con el ID del usuario
+            if (typeof ProyectosTareas !== 'undefined') {
+                ProyectosTareas.init(USUARIO_ID);
+                console.log('✅ Módulo Proyectos y Tareas inicializado');
+            }
+
+            // Agregar manejadores para mostrar modales
+            const btnNuevoProyecto = document.getElementById('btnNuevoProyecto');
+            if (btnNuevoProyecto) {
+                btnNuevoProyecto.addEventListener('click', function() {
+                    document.getElementById('modalProyecto').style.display = 'flex';
+                });
+            }
+
+            const btnNuevaTarea = document.getElementById('btnNuevaTarea');
+            if (btnNuevaTarea) {
+                btnNuevaTarea.addEventListener('click', function() {
+                    if (ProyectosTareas.proyectoSeleccionado) {
+                        document.getElementById('modalTarea').style.display = 'flex';
+                    } else {
+                        alert('Por favor, selecciona un proyecto primero desde la pestaña "Mis Proyectos"');
+                    }
+                });
+            }
+        });
+
+        // Adaptar función switchTab para incluir tareas
+        const originalSwitchTab = switchTab;
+        switchTab = function(tabName) {
+            // Si no existe la función original, implementar una básica
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            const targetSection = document.getElementById(tabName + '-section');
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            const activeTab = document.querySelector(`[onclick="switchTab('${tabName}')"]`);
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+        };
     </script>
 </body>
 </html>
