@@ -807,8 +807,8 @@
         const USUARIO_APELLIDO = /*[[${usuario.apellido}]]*/ '';
         const USUARIO_USERNAME = /*[[${usuario.username}]]*/ 'usuario';
         const API_URL = '/api';
-        
-        console.log('Dashboard científico cargado para:', USUARIO_NOMBRE, '(ID:', USUARIO_ID, ')');
+
+        console.log('Dashboard de proyectos cargado para:', USUARIO_NOMBRE, '(ID:', USUARIO_ID, ')');
         /*]]>*/
     </script>
 
@@ -847,8 +847,8 @@
                 </div>
                 <p class="profile-username" th:text="'@' + ${usuario.username}">@username</p>
                 <p class="profile-bio">
-                    🔬 Investigador apasionado por la ciencia y la innovación |
-                    📊 Gestión de proyectos científicos |
+                    💼 Gestión eficiente de proyectos y tareas |
+                    ✅ Organización y productividad |
                     🌟 Miembro de la Comunidad Urantia
                 </p>
 
@@ -880,12 +880,12 @@
                     <div class="stat-divider"></div>
                     <div class="stat-item">
                         <div class="stat-value" id="totalPublicaciones">0</div>
-                        <div class="stat-label">Publicaciones</div>
+                        <div class="stat-label">Tareas</div>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat-item">
                         <div class="stat-value" id="totalInvestigaciones">0</div>
-                        <div class="stat-label">Investigaciones</div>
+                        <div class="stat-label">Subtareas</div>
                     </div>
                     <div class="stat-divider"></div>
                     <div class="stat-item">
@@ -930,9 +930,9 @@
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="switchTab('proyectos')">🔬 Proyectos</button>
-            <button class="tab" onclick="switchTab('publicaciones')">📄 Publicaciones</button>
-            <button class="tab" onclick="switchTab('investigaciones')">🧪 Investigaciones</button>
+            <button class="tab active" onclick="switchTab('proyectos')">📋 Proyectos</button>
+            <button class="tab" onclick="switchTab('publicaciones')">✅ Tareas</button>
+            <button class="tab" onclick="switchTab('investigaciones')">📝 Subtareas</button>
             <button class="tab" onclick="switchTab('tree')">📊 Vista Jerárquica</button>
             <a href="/foro" class="tab" style="text-decoration: none;">💬 Foro de la Comunidad</a>
            <a href="/vista-jerarquica" class="btn btn-primary">
@@ -944,7 +944,7 @@
 
         <div class="content-section active" id="proyectos-section">
             <div class="toolbar">
-                <h2>Gestión de Proyectos de Investigación</h2>
+                <h2>📋 Gestión de Proyectos</h2>
                 <div class="search-box">
                     <input type="text" placeholder="Buscar proyectos..." id="searchProyectos">
                     <button class="btn btn-primary" onclick="searchProyectos()">🔍</button>
@@ -960,33 +960,33 @@
 
         <div class="content-section" id="publicaciones-section">
             <div class="toolbar">
-                <h2>Gestión de Publicaciones</h2>
+                <h2>✅ Gestión de Tareas</h2>
                 <div class="search-box">
-                    <input type="text" placeholder="Buscar publicaciones..." id="searchPublicaciones">
+                    <input type="text" placeholder="Buscar tareas..." id="searchPublicaciones">
                     <button class="btn btn-primary" onclick="searchPublicaciones()">🔍</button>
                 </div>
                 <div>
-                    <button class="btn btn-success" onclick="openModal('publicacion')">➕ Nueva Publicación</button>
+                    <button class="btn btn-success" onclick="openModal('publicacion')">➕ Nueva Tarea</button>
                 </div>
             </div>
             <div id="publicacionesTable">
-                <div class="loading">Cargando publicaciones...</div>
+                <div class="loading">Cargando tareas...</div>
             </div>
         </div>
 
         <div class="content-section" id="investigaciones-section">
             <div class="toolbar">
-                <h2>Gestión de Investigaciones</h2>
+                <h2>📝 Gestión de Subtareas</h2>
                 <div class="search-box">
-                    <input type="text" placeholder="Buscar investigaciones..." id="searchInvestigaciones">
+                    <input type="text" placeholder="Buscar subtareas..." id="searchInvestigaciones">
                     <button class="btn btn-primary" onclick="searchInvestigaciones()">🔍</button>
                 </div>
                 <div>
-                    <button class="btn btn-success" onclick="openModal('investigacion')">➕ Nueva Investigación</button>
+                    <button class="btn btn-success" onclick="openModal('investigacion')">➕ Nueva Subtarea</button>
                 </div>
             </div>
             <div id="investigacionesTable">
-                <div class="loading">Cargando investigaciones...</div>
+                <div class="loading">Cargando subtareas...</div>
             </div>
         </div>
 
@@ -1080,11 +1080,11 @@
                         <input type="text" id="statProyectos" readonly style="background: #f0f0f0;" value="0">
                     </div>
                     <div class="form-group">
-                        <label>Total de Publicaciones:</label>
+                        <label>Total de Tareas:</label>
                         <input type="text" id="statPublicaciones" readonly style="background: #f0f0f0;" value="0">
                     </div>
                     <div class="form-group">
-                        <label>Total de Investigaciones:</label>
+                        <label>Total de Subtareas:</label>
                         <input type="text" id="statInvestigaciones" readonly style="background: #f0f0f0;" value="0">
                     </div>
                 </div>
@@ -1200,7 +1200,7 @@
         };
 
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('🚀 Dashboard científico cargado para:', USUARIO_NOMBRE, '(ID:', USUARIO_ID, ')');
+            console.log('🚀 Dashboard de proyectos cargado para:', USUARIO_NOMBRE, '(ID:', USUARIO_ID, ')');
             initializeDashboard();
         });
 
@@ -1252,7 +1252,7 @@
                 renderPublicacionesTable(allData.publicaciones);
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('publicacionesTable').innerHTML = '<div class="empty-state">No se pudieron cargar las publicaciones</div>';
+                document.getElementById('publicacionesTable').innerHTML = '<div class="empty-state">No se pudieron cargar las tareas</div>';
             }
         }
 
@@ -1270,7 +1270,7 @@
                 renderInvestigacionesTable(allData.investigaciones);
             } catch (error) {
                 console.error('Error:', error);
-                document.getElementById('investigacionesTable').innerHTML = '<div class="empty-state">No se pudieron cargar las investigaciones</div>';
+                document.getElementById('investigacionesTable').innerHTML = '<div class="empty-state">No se pudieron cargar las subtareas</div>';
             }
         }
 
@@ -1337,7 +1337,7 @@
 
         function renderPublicacionesTable(publicaciones) {
             if (!publicaciones || publicaciones.length === 0) {
-                document.getElementById('publicacionesTable').innerHTML = '<div class="empty-state">No hay publicaciones disponibles</div>';
+                document.getElementById('publicacionesTable').innerHTML = '<div class="empty-state">No hay tareas disponibles</div>';
                 return;
             }
 
@@ -1346,10 +1346,10 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Título</th>
-                            <th>Área</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
                             <th>Descripción</th>
-                            <th>Valores</th>
+                            <th>Métricas</th>
                             <th>Estado</th>
                             <th>Proyecto ID</th>
                             <th>Acciones</th>
@@ -1365,11 +1365,11 @@
                         <td><strong>${pub.a || '-'}</strong></td>
                         <td>${pub.b || '-'}</td>
                         <td>${pub.c || '-'}</td>
-                        <td>Impacto: ${pub.af || 0}, Valor: ${pub.bf || 0}, Progreso: ${pub.cf || 0}%</td>
+                        <td>Prioridad: ${pub.af || 0}, Esfuerzo: ${pub.bf || 0}, Progreso: ${pub.cf || 0}%</td>
                         <td>
-                            <span class="badge badge-${pub.ba}">Activo</span>
-                            <span class="badge badge-${pub.bb}">Publicado</span>
-                            <span class="badge badge-${pub.bc}">Revisado</span>
+                            <span class="badge badge-${pub.ba}">Activa</span>
+                            <span class="badge badge-${pub.bb}">Completada</span>
+                            <span class="badge badge-${pub.bc}">Revisada</span>
                         </td>
                         <td>${pub.arbolId}</td>
                         <td class="actions">
@@ -1387,7 +1387,7 @@
 
         function renderInvestigacionesTable(investigaciones) {
             if (!investigaciones || investigaciones.length === 0) {
-                document.getElementById('investigacionesTable').innerHTML = '<div class="empty-state">No hay investigaciones disponibles</div>';
+                document.getElementById('investigacionesTable').innerHTML = '<div class="empty-state">No hay subtareas disponibles</div>';
                 return;
             }
 
@@ -1396,12 +1396,12 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Título</th>
-                            <th>Área</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
                             <th>Descripción</th>
-                            <th>Valores</th>
+                            <th>Métricas</th>
                             <th>Estado</th>
-                            <th>Publicación ID</th>
+                            <th>Tarea ID</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
@@ -1415,11 +1415,11 @@
                         <td><strong>${inv.a || '-'}</strong></td>
                         <td>${inv.b || '-'}</td>
                         <td>${inv.c || '-'}</td>
-                        <td>Impacto: ${inv.af || 0}, Valor: ${inv.bf || 0}, Progreso: ${inv.cf || 0}%</td>
+                        <td>Prioridad: ${inv.af || 0}, Esfuerzo: ${inv.bf || 0}, Progreso: ${inv.cf || 0}%</td>
                         <td>
-                            <span class="badge badge-${inv.ba}">Activo</span>
-                            <span class="badge badge-${inv.bb}">Publicado</span>
-                            <span class="badge badge-${inv.bc}">Revisado</span>
+                            <span class="badge badge-${inv.ba}">Activa</span>
+                            <span class="badge badge-${inv.bb}">Completada</span>
+                            <span class="badge badge-${inv.bc}">Revisada</span>
                         </td>
                         <td>${inv.ramaId}</td>
                         <td class="actions">
@@ -1445,43 +1445,43 @@
                     html += `
                         <div class="tree-item">
                             <div class="tree-header">
-                                <div class="tree-title">🔬 ${proyecto.a || 'Proyecto'} (ID: ${proyecto.id})</div>
+                                <div class="tree-title">📋 ${proyecto.a || 'Proyecto'} (ID: ${proyecto.id})</div>
                             </div>
                             <div class="tree-details">
-                                <div><strong>Área:</strong> ${proyecto.b || '-'}</div>
+                                <div><strong>Categoría:</strong> ${proyecto.b || '-'}</div>
                                 <div><strong>Descripción:</strong> ${proyecto.c || '-'}</div>
-                                <div><strong>Valores:</strong> Impacto:${proyecto.af}, Valor:${proyecto.bf}, Progreso:${proyecto.cf}%</div>
-                                <div><strong>Estado:</strong> Activo:${proyecto.ba}, Publicado:${proyecto.bb}, Revisado:${proyecto.bc}</div>
+                                <div><strong>Métricas:</strong> Prioridad:${proyecto.af}, Esfuerzo:${proyecto.bf}, Progreso:${proyecto.cf}%</div>
+                                <div><strong>Estado:</strong> Activo:${proyecto.ba}, Completado:${proyecto.bb}, Revisado:${proyecto.bc}</div>
                             </div>
                         </div>
                     `;
-                    
+
                     const proyectoPublicaciones = allData.publicaciones.filter(p => p.arbolId === proyecto.id);
                     for (const publicacion of proyectoPublicaciones) {
                         html += `
                             <div class="tree-item publication">
                                 <div class="tree-header">
-                                    <div class="tree-title">📄 ${publicacion.a || 'Publicación'} (ID: ${publicacion.id})</div>
+                                    <div class="tree-title">✅ ${publicacion.a || 'Tarea'} (ID: ${publicacion.id})</div>
                                 </div>
                                 <div class="tree-details">
-                                    <div><strong>Área:</strong> ${publicacion.b || '-'}</div>
+                                    <div><strong>Categoría:</strong> ${publicacion.b || '-'}</div>
                                     <div><strong>Descripción:</strong> ${publicacion.c || '-'}</div>
-                                    <div><strong>Valores:</strong> Impacto:${publicacion.af}, Valor:${publicacion.bf}, Progreso:${publicacion.cf}%</div>
+                                    <div><strong>Métricas:</strong> Prioridad:${publicacion.af}, Esfuerzo:${publicacion.bf}, Progreso:${publicacion.cf}%</div>
                                 </div>
                             </div>
                         `;
-                        
+
                         const publicacionInvestigaciones = allData.investigaciones.filter(i => i.ramaId === publicacion.id);
                         for (const investigacion of publicacionInvestigaciones) {
                             html += `
                                 <div class="tree-item research">
                                     <div class="tree-header">
-                                        <div class="tree-title">🧪 ${investigacion.a || 'Investigación'} (ID: ${investigacion.id})</div>
+                                        <div class="tree-title">📝 ${investigacion.a || 'Subtarea'} (ID: ${investigacion.id})</div>
                                     </div>
                                     <div class="tree-details">
-                                        <div><strong>Área:</strong> ${investigacion.b || '-'}</div>
+                                        <div><strong>Categoría:</strong> ${investigacion.b || '-'}</div>
                                         <div><strong>Descripción:</strong> ${investigacion.c || '-'}</div>
-                                        <div><strong>Valores:</strong> Impacto:${investigacion.af}, Valor:${investigacion.bf}, Progreso:${investigacion.cf}%</div>
+                                        <div><strong>Métricas:</strong> Prioridad:${investigacion.af}, Esfuerzo:${investigacion.bf}, Progreso:${investigacion.cf}%</div>
                                     </div>
                                 </div>
                             `;
@@ -1520,8 +1520,8 @@
             
             const typeNames = {
                 'proyecto': 'Proyecto',
-                'publicacion': 'Publicación',
-                'investigacion': 'Investigación'
+                'publicacion': 'Tarea',
+                'investigacion': 'Subtarea'
             };
             
             document.getElementById('modalTitle').textContent = `Nuevo ${typeNames[type]}`;
@@ -1539,9 +1539,9 @@
                     allData.proyectos.map(p => `<option value="${p.id}">${p.a || 'Proyecto'} (ID: ${p.id})</option>`).join('');
             } else if (type === 'investigacion') {
                 parentSelect.style.display = 'block';
-                parentLabel.textContent = 'Seleccionar Publicación:';
-                parentId.innerHTML = '<option value="">Seleccione una publicación...</option>' +
-                    allData.publicaciones.map(p => `<option value="${p.id}">${p.a || 'Publicación'} (ID: ${p.id})</option>`).join('');
+                parentLabel.textContent = 'Seleccionar Tarea:';
+                parentId.innerHTML = '<option value="">Seleccione una tarea...</option>' +
+                    allData.publicaciones.map(p => `<option value="${p.id}">${p.a || 'Tarea'} (ID: ${p.id})</option>`).join('');
             } else {
                 parentSelect.style.display = 'none';
             }
