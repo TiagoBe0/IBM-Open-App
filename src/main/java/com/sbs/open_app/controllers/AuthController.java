@@ -181,11 +181,11 @@ public String vistaJerarquica(Model model) {
      */
     @GetMapping("/dashboard")
     public String dashboard(Model model) {
-        System.out.println("📍 Accediendo al dashboard");
-        
+        System.out.println("📍 Accediendo al dashboard de proyectos");
+
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            
+
             if (auth != null && auth.getPrincipal() instanceof Usuario) {
                 Usuario usuario = (Usuario) auth.getPrincipal();
                 System.out.println("✅ Usuario autenticado: " + usuario.getEmail());
@@ -195,14 +195,14 @@ public String vistaJerarquica(Model model) {
                 System.err.println("❌ No se pudo obtener el usuario autenticado");
                 return "redirect:/login";
             }
-            
+
         } catch (Exception e) {
             System.err.println("❌ Error al cargar dashboard: " + e.getMessage());
             e.printStackTrace();
             return "redirect:/login";
         }
-        
-        return "dashboard";
+
+        return "dashboard-nuevo";
     }
         @GetMapping("/registro-arbol")
     public String registroArbol(Model model) {
