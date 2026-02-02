@@ -53,7 +53,10 @@ public class Usuario implements UserDetails {
     
     @Column(name = "foto_perfil")
     private String fotoPerfil;
-    
+
+    @Column(name = "banner_url")
+    private String bannerUrl;
+
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Arbol> arboles = new ArrayList<>();

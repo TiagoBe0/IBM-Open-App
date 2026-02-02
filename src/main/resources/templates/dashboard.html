@@ -535,6 +535,35 @@
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
         }
 
+        .btn-change-banner {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .btn-change-banner:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: scale(1.1);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-avatar.has-image span {
+            display: none;
+        }
+
         .profile-header {
             background: rgba(255, 255, 255, 0.98);
             border-radius: 0 0 20px 20px;
@@ -814,8 +843,8 @@
 
     <div class="container">
         <!-- Banner de Perfil -->
-        <div class="profile-banner">
-            <div class="banner-gradient"></div>
+        <div class="profile-banner" id="profileBanner">
+            <div class="banner-gradient" id="bannerGradient" th:style="${usuario.bannerUrl != null} ? 'background-image: url(\'' + ${usuario.bannerUrl} + '\'); background-size: cover; background-position: center;' : ''"></div>
             <button class="btn-logout" onclick="window.location.href='/logout'">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -824,21 +853,31 @@
                 </svg>
                 Salir
             </button>
+            <button class="btn-change-banner" onclick="document.getElementById('bannerInput').click()" title="Cambiar banner">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                    <circle cx="12" cy="13" r="4"></circle>
+                </svg>
+            </button>
         </div>
+        <input type="file" id="bannerInput" accept="image/*" style="display: none;" onchange="cambiarBanner(event)">
 
         <!-- Perfil del Usuario -->
         <div class="profile-header">
             <div class="profile-avatar-container">
-                <div class="profile-avatar">
-                    <span th:text="${usuario.nombre.substring(0,1) + usuario.apellido.substring(0,1)}">UN</span>
+                <div class="profile-avatar" id="profileAvatar"
+                     th:style="${usuario.fotoPerfil != null} ? 'background-image: url(\'' + ${usuario.fotoPerfil} + '\'); background-size: cover; background-position: center;' : ''"
+                     th:classappend="${usuario.fotoPerfil != null} ? 'has-image' : ''">
+                    <span th:if="${usuario.fotoPerfil == null}" th:text="${usuario.nombre.substring(0,1) + usuario.apellido.substring(0,1)}">UN</span>
                 </div>
-                <button class="edit-avatar-btn" title="Cambiar foto">
+                <button class="edit-avatar-btn" onclick="document.getElementById('avatarInput').click()" title="Cambiar foto">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                         <circle cx="12" cy="13" r="4"></circle>
                     </svg>
                 </button>
             </div>
+            <input type="file" id="avatarInput" accept="image/*" style="display: none;" onchange="cambiarAvatar(event)">
 
             <div class="profile-info">
                 <div class="profile-name-section">
@@ -1890,6 +1929,108 @@ function descargarDocumento(tipo, documentoId) {
 
         function enviarSolicitudColaboracion(userId) {
             showNotification('Solicitud enviada (demo)', 'success');
+        }
+
+        // Funciones para cambiar avatar y banner
+        async function cambiarAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validar que sea una imagen
+            if (!file.type.startsWith('image/')) {
+                showNotification('Por favor selecciona un archivo de imagen', 'error');
+                return;
+            }
+
+            // Validar tamaño (5MB máximo)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('La imagen es demasiado grande. Máximo 5MB', 'error');
+                return;
+            }
+
+            try {
+                showNotification('Subiendo avatar...', 'info');
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`${API_URL}/usuario/${USUARIO_ID}/avatar`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al subir el avatar');
+                }
+
+                const result = await response.json();
+
+                // Actualizar la imagen del avatar
+                const avatarElement = document.getElementById('profileAvatar');
+                avatarElement.style.backgroundImage = `url('${result.fotoUrl}')`;
+                avatarElement.style.backgroundSize = 'cover';
+                avatarElement.style.backgroundPosition = 'center';
+                avatarElement.classList.add('has-image');
+
+                // Ocultar las iniciales
+                const iniciales = avatarElement.querySelector('span');
+                if (iniciales) {
+                    iniciales.style.display = 'none';
+                }
+
+                showNotification('Avatar actualizado exitosamente', 'success');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error al actualizar el avatar', 'error');
+            }
+        }
+
+        async function cambiarBanner(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Validar que sea una imagen
+            if (!file.type.startsWith('image/')) {
+                showNotification('Por favor selecciona un archivo de imagen', 'error');
+                return;
+            }
+
+            // Validar tamaño (5MB máximo)
+            if (file.size > 5 * 1024 * 1024) {
+                showNotification('La imagen es demasiado grande. Máximo 5MB', 'error');
+                return;
+            }
+
+            try {
+                showNotification('Subiendo banner...', 'info');
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(`${API_URL}/usuario/${USUARIO_ID}/banner`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al subir el banner');
+                }
+
+                const result = await response.json();
+
+                // Actualizar la imagen del banner
+                const bannerElement = document.getElementById('bannerGradient');
+                bannerElement.style.backgroundImage = `url('${result.bannerUrl}')`;
+                bannerElement.style.backgroundSize = 'cover';
+                bannerElement.style.backgroundPosition = 'center';
+
+                showNotification('Banner actualizado exitosamente', 'success');
+
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('Error al actualizar el banner', 'error');
+            }
         }
     </script>
 </body>

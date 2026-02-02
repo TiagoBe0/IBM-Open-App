@@ -97,7 +97,9 @@ public CorsConfigurationSource corsConfigurationSource() {
                 "/api/lector/libro", // ✅ NUEVO: Permitir leer el libro completo
                 "/api/lector/seccion/**", // ✅ NUEVO: Permitir leer secciones
                 "/api/lector/comentarios/**", // ✅ NUEVO: Permitir ver comentarios
-                "/api/lector/comentario/imagen/**" // ✅ NUEVO: Permitir ver imágenes de comentarios
+                "/api/lector/comentario/imagen/**", // ✅ NUEVO: Permitir ver imágenes de comentarios
+                "/api/foto/**",          // ✅ NUEVO: Permitir acceso a fotos de perfil y banners
+                "/api/usuario/*/perfil"  // ✅ NUEVO: Permitir ver perfil de usuarios
             ).permitAll()
             .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/usuario/**").hasAnyRole("USUARIO", "ADMIN", "MODERADOR")
