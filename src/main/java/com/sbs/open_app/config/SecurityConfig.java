@@ -4,122 +4,58 @@ import com.sbs.open_app.servicios.UsuarioServicio;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    
+
     private final UsuarioServicio usuarioServicio;
     private final PasswordEncoder passwordEncoder;
-    
-    // Inyección por constructor para evitar circular dependencies
+
     public SecurityConfig(UsuarioServicio usuarioServicio, PasswordEncoder passwordEncoder) {
         this.usuarioServicio = usuarioServicio;
         this.passwordEncoder = passwordEncoder;
     }
-    
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(usuarioServicio);
-        authProvider.setPasswordEncoder(passwordEncoder);
-        return authProvider;
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(usuarioServicio);
+        provider.setPasswordEncoder(passwordEncoder);
+        return provider;
     }
-    @Bean
-public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration configuration = new CorsConfiguration();
-    configuration.addAllowedOriginPattern("*");
-    configuration.addAllowedMethod("*");
-    configuration.addAllowedHeader("*");
-    configuration.setAllowCredentials(true);
-    
-    // Configuración específica para endpoints de IA
-    CorsConfiguration aiConfiguration = new CorsConfiguration();
-    aiConfiguration.addAllowedOriginPattern("*");
-    aiConfiguration.addAllowedMethod("*");
-    aiConfiguration.addAllowedHeader("*");
-    aiConfiguration.setAllowCredentials(true);
-    aiConfiguration.setMaxAge(3600L);
-
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", configuration);
-    source.registerCorsConfiguration("/api/local-ai/**", aiConfiguration); // ✅ Específico para IA
-    
-    return source;
-}
-
-
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        // Deshabilitar CSRF temporalmente para pruebas
-        .csrf(csrf -> csrf.disable())
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        
-        // Configurar el proveedor de autenticación
-        .authenticationProvider(authenticationProvider())
-        
-        // Configurar autorización
-        .authorizeHttpRequests(authz -> authz
-            .requestMatchers(
-                "/",
-                "/index",
-                "index.html",
-                "diego_tramontina_publications.html",
-                "gera_mora_publications.html",
-                "gonzalo_dos_santos_publications.html",
-                "orlando_deluigi_publications.html",
-                "simaf_publications_bringa.html",
-                "/login",
-                "/registro",
-                "/registrar",
-                "/error",
-                "/css/**",
-                "/js/**",
-                "/img/**",
-                "/webjars/**",
-                "/test/**",  // Endpoints de prueba
-                "/api/local-ai/**",  // ✅ NUEVO: Permitir endpoints de IA local
-                "/api/debug/**",      // ✅ NUEVO: Permitir endpoints de debug
-                "/lector",           // ✅ NUEVO: Permitir acceso al lector de libros
-                "/api/lector/libro", // ✅ NUEVO: Permitir leer el libro completo
-                "/api/lector/seccion/**", // ✅ NUEVO: Permitir leer secciones
-                "/api/lector/comentarios/**", // ✅ NUEVO: Permitir ver comentarios
-                "/api/lector/comentario/imagen/**", // ✅ NUEVO: Permitir ver imágenes de comentarios
-                "/api/foto/**",          // ✅ NUEVO: Permitir acceso a fotos de perfil y banners
-                "/api/usuario/*/perfil"  // ✅ NUEVO: Permitir ver perfil de usuarios
-            ).permitAll()
-            .requestMatchers("/admin/**").hasRole("ADMIN")
-            .requestMatchers("/usuario/**").hasAnyRole("USUARIO", "ADMIN", "MODERADOR")
-            .requestMatchers("/perfil/**").authenticated()
-            .requestMatchers("/dashboard/**").authenticated()
-            .anyRequest().authenticated()
-        )
-            
-            // Configurar login
+        http
+            .csrf(csrf -> csrf.disable())
+            .authenticationProvider(authenticationProvider())
+            .authorizeHttpRequests(authz -> authz
+                // Rutas públicas: calendario y booking de pacientes
+                .requestMatchers(
+                    "/", "/turnos", "/turnos/**",
+                    "/api/turnos/**",
+                    "/css/**", "/js/**", "/img/**", "/webjars/**",
+                    "/error", "/login"
+                ).permitAll()
+                // Panel del médico: requiere ADMIN
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/dashboard", true)
+                .defaultSuccessUrl("/admin/panel", true)
                 .failureUrl("/login?error=true")
                 .usernameParameter("email")
                 .passwordParameter("password")
                 .permitAll()
             )
-            
-            // Configurar logout
             .logout(logout -> logout
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                 .logoutSuccessUrl("/login?logout=true")
@@ -127,29 +63,8 @@ public CorsConfigurationSource corsConfigurationSource() {
                 .deleteCookies("JSESSIONID")
                 .permitAll()
             )
-            
-            // Configurar remember me
-            .rememberMe(remember -> remember
-                .key("uniqueAndSecret")
-                .tokenValiditySeconds(86400)
-                .userDetailsService(usuarioServicio)
-            )
-            
-            // Configurar manejo de excepciones
-            .exceptionHandling(exceptions -> exceptions
-                .accessDeniedPage("/error")
-            )
-            
-            // Configurar sesiones
-            .sessionManagement(session -> session
-                .maximumSessions(1)
-                .expiredUrl("/login?expired=true")
-            );
-        
-        // Permitir frames para H2 Console
-        http.headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
-        
+            .exceptionHandling(ex -> ex.accessDeniedPage("/error"));
+
         return http.build();
     }
-    
 }

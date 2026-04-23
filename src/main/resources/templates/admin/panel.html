@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Panel de administración</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
+
+        header { background: #1e293b; color: #fff; padding: 1rem 2rem; display: flex; align-items: center; gap: 1.5rem; }
+        header h1 { font-size: 1.1rem; font-weight: 700; flex: 1; }
+        header nav a {
+            color: #cbd5e1; text-decoration: none; font-size: .85rem; margin-left: 1.2rem;
+            transition: color .15s;
+        }
+        header nav a:hover, header nav a.active { color: #fff; }
+        .logout-btn {
+            background: rgba(255,255,255,.1); color: #fff; border: none; border-radius: 6px;
+            padding: .4rem .8rem; font-size: .8rem; cursor: pointer; text-decoration: none;
+        }
+        .logout-btn:hover { background: rgba(255,255,255,.2); }
+
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1rem; }
+
+        .alert-ok { background: #d1fae5; border-left: 4px solid #10b981; color: #065f46; padding: .8rem 1.1rem; border-radius: 6px; margin-bottom: 1rem; font-size: .9rem; }
+
+        .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: #fff; border-radius: 12px; padding: 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,.05); text-align: center; }
+        .stat-card .num { font-size: 2rem; font-weight: 800; color: #1a56db; }
+        .stat-card .label { font-size: .8rem; color: #64748b; margin-top: .2rem; }
+
+        .section-title { font-size: 1rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem; }
+
+        table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.05); }
+        thead tr { background: #1e293b; color: #fff; }
+        th { padding: .75rem 1rem; text-align: left; font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+        td { padding: .75rem 1rem; font-size: .88rem; border-bottom: 1px solid #f1f5f9; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #f8fafc; }
+
+        .badge { display: inline-block; padding: .2rem .65rem; border-radius: 20px; font-size: .72rem; font-weight: 700; }
+        .badge-RESERVADO { background: #dbeafe; color: #1e40af; }
+        .badge-COMPLETADO { background: #d1fae5; color: #065f46; }
+        .badge-CANCELADO { background: #f1f5f9; color: #475569; }
+        .badge-AUSENTE { background: #fee2e2; color: #991b1b; }
+
+        .actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+        .btn-action {
+            border: none; border-radius: 5px; padding: .3rem .65rem; font-size: .75rem;
+            font-weight: 700; cursor: pointer; transition: opacity .15s;
+        }
+        .btn-action:hover { opacity: .8; }
+        .btn-completar { background: #d1fae5; color: #065f46; }
+        .btn-cancelar { background: #fee2e2; color: #991b1b; }
+        .btn-eliminar { background: #f1f5f9; color: #475569; }
+
+        .empty-state { text-align: center; padding: 3rem; color: #94a3b8; }
+
+        .quick-links { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .quick-link {
+            background: #fff; border-radius: 10px; padding: .8rem 1.2rem;
+            text-decoration: none; color: #1e3a8a; font-weight: 700; font-size: .9rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.05); border: 2px solid transparent;
+            transition: border-color .15s;
+        }
+        .quick-link:hover { border-color: #1a56db; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⚕️ Panel del médico</h1>
+    <nav>
+        <a href="/admin/panel" class="active">Turnos</a>
+        <a href="/admin/disponibilidad">Disponibilidad</a>
+        <a href="/turnos" target="_blank">Ver como paciente</a>
+    </nav>
+    <a href="/logout" class="logout-btn">Cerrar sesión</a>
+</header>
+
+<div class="container">
+
+    <div th:if="${exito}" class="alert-ok" th:text="${exito}"></div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="num" th:text="${turnos.?[estado.name() == 'RESERVADO'].size()}">0</div>
+            <div class="label">Reservados</div>
+        </div>
+        <div class="stat-card">
+            <div class="num" th:text="${turnos.?[fecha.isEqual(hoy)].size()}">0</div>
+            <div class="label">Hoy</div>
+        </div>
+        <div class="stat-card">
+            <div class="num" th:text="${turnos.size()}">0</div>
+            <div class="label">Total próximos</div>
+        </div>
+    </div>
+
+    <div class="quick-links">
+        <a href="/admin/disponibilidad" class="quick-link">🗓️ Gestionar horarios</a>
+        <a href="/turnos" class="quick-link" target="_blank">🔗 Link para pacientes</a>
+    </div>
+
+    <div class="section-title">Próximos turnos</div>
+
+    <div th:if="${turnos.isEmpty()}" class="empty-state">
+        No hay turnos próximos registrados.
+    </div>
+
+    <table th:unless="${turnos.isEmpty()}">
+        <thead>
+            <tr>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Paciente</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="t : ${turnos}">
+                <td th:text="${#temporals.format(t.fecha, 'dd/MM/yyyy')}">28/04/2025</td>
+                <td th:text="${#temporals.format(t.hora, 'HH:mm')} + ' hs'">10:00 hs</td>
+                <td th:text="${t.nombrePaciente}">María González</td>
+                <td th:text="${t.emailPaciente}">m@email.com</td>
+                <td th:text="${t.telefonoPaciente ?: '-'}">-</td>
+                <td><span th:class="'badge badge-' + ${t.estado}" th:text="${t.estado}">RESERVADO</span></td>
+                <td>
+                    <div class="actions">
+                        <form th:action="'/admin/turnos/' + ${t.id} + '/estado'" method="post" style="display:inline">
+                            <input type="hidden" name="estado" value="COMPLETADO"/>
+                            <button type="submit" class="btn-action btn-completar"
+                                th:if="${t.estado.name() == 'RESERVADO'}">✓ Completar</button>
+                        </form>
+                        <form th:action="'/admin/turnos/' + ${t.id} + '/estado'" method="post" style="display:inline">
+                            <input type="hidden" name="estado" value="CANCELADO"/>
+                            <button type="submit" class="btn-action btn-cancelar"
+                                th:if="${t.estado.name() == 'RESERVADO'}">✗ Cancelar</button>
+                        </form>
+                        <form th:action="'/admin/turnos/' + ${t.id} + '/eliminar'" method="post" style="display:inline">
+                            <button type="submit" class="btn-action btn-eliminar"
+                                onclick="return confirm('¿Eliminar este turno definitivamente?')">🗑</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

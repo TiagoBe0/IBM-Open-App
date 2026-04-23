@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mis turnos</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
+
+        header { background: linear-gradient(135deg, #1a56db, #0e3fa3); color: #fff; padding: 1.2rem 2rem; display: flex; align-items: center; gap: 1rem; }
+        header a { color: #fff; opacity: .8; text-decoration: none; font-size: .85rem; }
+        header h1 { font-size: 1.2rem; font-weight: 700; }
+
+        .container { max-width: 700px; margin: 2rem auto; padding: 0 1rem; }
+
+        .search-card { background: #fff; border-radius: 14px; padding: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,.06); margin-bottom: 1.5rem; }
+        .search-card h2 { font-size: 1rem; font-weight: 700; color: #1e3a8a; margin-bottom: 1rem; }
+        .search-row { display: flex; gap: .8rem; }
+        .search-row input { flex: 1; padding: .65rem .9rem; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: .95rem; }
+        .search-row input:focus { outline: none; border-color: #1a56db; }
+        .btn-search { padding: .65rem 1.2rem; background: #1a56db; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: .9rem; }
+        .btn-search:hover { background: #0e3fa3; }
+
+        .turno-card {
+            background: #fff; border-radius: 12px; padding: 1.2rem 1.4rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,.05); margin-bottom: 1rem;
+            border-left: 5px solid #bfdbfe;
+        }
+        .turno-card.RESERVADO { border-left-color: #1a56db; }
+        .turno-card.COMPLETADO { border-left-color: #10b981; }
+        .turno-card.CANCELADO { border-left-color: #94a3b8; opacity: .7; }
+        .turno-card.AUSENTE { border-left-color: #ef4444; }
+
+        .turno-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: .6rem; }
+        .turno-fecha { font-weight: 700; color: #1e3a8a; font-size: 1rem; }
+        .badge {
+            display: inline-block; padding: .2rem .7rem; border-radius: 20px;
+            font-size: .75rem; font-weight: 700; letter-spacing: .03em;
+        }
+        .badge-RESERVADO { background: #dbeafe; color: #1e40af; }
+        .badge-COMPLETADO { background: #d1fae5; color: #065f46; }
+        .badge-CANCELADO { background: #f1f5f9; color: #475569; }
+        .badge-AUSENTE { background: #fee2e2; color: #991b1b; }
+
+        .turno-detail { font-size: .88rem; color: #64748b; }
+        .turno-detail strong { color: #374151; }
+
+        .cancel-form { margin-top: .8rem; }
+        .btn-cancel {
+            background: none; border: 1px solid #ef4444; color: #ef4444;
+            border-radius: 6px; padding: .35rem .8rem; font-size: .8rem; font-weight: 600;
+            cursor: pointer; transition: all .15s;
+        }
+        .btn-cancel:hover { background: #ef4444; color: #fff; }
+
+        .empty-state { text-align: center; padding: 3rem 1rem; color: #94a3b8; }
+        .empty-state .icon { font-size: 2.5rem; margin-bottom: .8rem; }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="/turnos">← Volver al calendario</a>
+    <h1 style="margin-left:.5rem;">Mis turnos</h1>
+</header>
+
+<div class="container">
+
+    <div class="search-card">
+        <h2>Buscar mis turnos por email</h2>
+        <form method="get" action="/turnos/mis-turnos">
+            <div class="search-row">
+                <input type="email" name="email" placeholder="tu@email.com"
+                       th:value="${email}" required/>
+                <button type="submit" class="btn-search">Buscar</button>
+            </div>
+        </form>
+    </div>
+
+    <div th:if="${turnos != null}">
+        <div th:if="${turnos.isEmpty()}" class="empty-state">
+            <div class="icon">📭</div>
+            <p>No se encontraron turnos para <strong th:text="${email}">ese email</strong>.</p>
+        </div>
+
+        <div th:each="t : ${turnos}" th:class="'turno-card ' + ${t.estado}">
+            <div class="turno-header">
+                <span class="turno-fecha"
+                    th:text="${#temporals.format(t.fecha, 'EEEE dd/MM/yyyy', new java.util.Locale('es','AR')) + ' — ' + #temporals.format(t.hora, 'HH:mm') + ' hs'}">
+                    Lunes 28/04/2025 — 10:00 hs
+                </span>
+                <span th:class="'badge badge-' + ${t.estado}" th:text="${t.estado}">RESERVADO</span>
+            </div>
+            <div class="turno-detail">
+                <span th:if="${t.motivo != null and !t.motivo.isEmpty()}">
+                    <strong>Motivo:</strong> <span th:text="${t.motivo}"></span>
+                </span>
+            </div>
+            <div class="cancel-form" th:if="${t.estado.name() == 'RESERVADO'}">
+                <form th:action="'/turnos/cancelar/' + ${t.id}" method="post">
+                    <input type="hidden" name="email" th:value="${email}"/>
+                    <button type="submit" class="btn-cancel"
+                        onclick="return confirm('¿Confirmar cancelación del turno?')">
+                        Cancelar turno
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
