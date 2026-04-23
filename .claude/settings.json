@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Bash(lsof -ti:8081)"
+      "Bash(lsof -ti:8081)",
+      "Bash(PGPASSWORD=risq194201 psql -h localhost -U admin_openapp -d openappv1 -c \"SELECT rol, COUNT\\(*\\) FROM usuarios GROUP BY rol;\")",
+      "Bash(psql -h localhost -U admin_openapp -d openappv1 -c ' *)",
+      "Bash(PGPASSWORD=risq194201 psql -h localhost -U admin_openapp -d openappv1 -c \"\\\\d usuarios\")"
     ]
   }
 }
