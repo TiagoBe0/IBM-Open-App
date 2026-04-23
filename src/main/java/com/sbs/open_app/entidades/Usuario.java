@@ -31,12 +31,13 @@ public class Usuario implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    // Nullable: pacientes con Google login no tienen password local
+    @Column
     private String password;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Rol rol = Rol.ADMIN;
+    private Rol rol = Rol.PACIENTE;
 
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
@@ -44,27 +45,27 @@ public class Usuario implements UserDetails {
     @Column(name = "activo")
     private Boolean activo = true;
 
+    // Identificador único de Google (sub)
+    @Column(name = "google_id", unique = true)
+    private String googleId;
+
+    // Foto de perfil de Google
+    @Column(name = "foto_url")
+    private String fotoUrl;
+
     public enum Rol {
-        ADMIN
+        ADMIN, PACIENTE
     }
 
     public Usuario() {
         this.fechaRegistro = LocalDateTime.now();
         this.activo = true;
-        this.rol = Rol.ADMIN;
-    }
-
-    public Usuario(String nombre, String apellido, String email, String password) {
-        this();
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.email = email;
-        this.password = password;
+        this.rol = Rol.PACIENTE;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.name()));
     }
 
     @Override
@@ -90,13 +91,19 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() { return activo != null && activo; }
 
     public String getNombreCompleto() {
-        return (nombre != null ? nombre.trim() : "") + " " + (apellido != null ? apellido.trim() : "");
+        String n = nombre != null ? nombre.trim() : "";
+        String a = apellido != null ? apellido.trim() : "";
+        return (n + " " + a).trim();
+    }
+
+    public boolean esAdmin() {
+        return Rol.ADMIN.equals(rol);
     }
 
     @PrePersist
     protected void onCreate() {
         if (fechaRegistro == null) fechaRegistro = LocalDateTime.now();
         if (activo == null) activo = true;
-        if (rol == null) rol = Rol.ADMIN;
+        if (rol == null) rol = Rol.PACIENTE;
     }
 }

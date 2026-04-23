@@ -83,6 +83,17 @@
             color: #6b7280; font-size: .85rem; text-decoration: none;
         }
         .btn-back:hover { color: #1a56db; }
+
+        /* Chip usuario Google */
+        .google-chip {
+            display: flex; align-items: center; gap: .7rem;
+            background: #f0fdf4; border: 1.5px solid #86efac;
+            border-radius: 10px; padding: .7rem 1rem; margin-bottom: 1.3rem;
+        }
+        .google-chip img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
+        .google-chip .chip-text strong { display: block; font-size: .9rem; color: #15803d; }
+        .google-chip .chip-text small { font-size: .78rem; color: #16a34a; }
+        input[readonly] { background: #f9fafb; color: #6b7280; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -110,15 +121,28 @@
                 <input type="hidden" name="fecha" th:value="${fecha}"/>
                 <input type="hidden" name="hora" th:value="${hora}"/>
 
+                <!-- Chip cuando el paciente está autenticado con Google -->
+                <div class="google-chip" th:if="${nombreLogueado != null}">
+                    <img th:if="${fotoLogueado != null}" th:src="${fotoLogueado}" alt="foto"/>
+                    <div class="chip-text">
+                        <strong th:text="${nombreLogueado}">María González</strong>
+                        <small>✔ Conectado con Google — tus datos se completaron automáticamente</small>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="nombre">Nombre completo <span class="required">*</span></label>
                     <input type="text" id="nombre" name="nombrePaciente"
+                           th:value="${nombreLogueado}"
+                           th:readonly="${nombreLogueado != null}"
                            placeholder="Ej: María González" required maxlength="100"/>
                 </div>
 
                 <div class="form-group">
                     <label for="email">Email <span class="required">*</span></label>
                     <input type="email" id="email" name="emailPaciente"
+                           th:value="${emailLogueado}"
+                           th:readonly="${emailLogueado != null}"
                            placeholder="tu@email.com" required maxlength="150"/>
                 </div>
 

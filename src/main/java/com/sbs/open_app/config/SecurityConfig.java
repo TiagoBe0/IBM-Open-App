@@ -1,5 +1,6 @@
 package com.sbs.open_app.config;
 
+import com.sbs.open_app.servicios.CustomOAuth2UserService;
 import com.sbs.open_app.servicios.UsuarioServicio;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,10 +17,17 @@ public class SecurityConfig {
 
     private final UsuarioServicio usuarioServicio;
     private final PasswordEncoder passwordEncoder;
+    private final CustomOAuth2UserService oAuth2UserService;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
-    public SecurityConfig(UsuarioServicio usuarioServicio, PasswordEncoder passwordEncoder) {
+    public SecurityConfig(UsuarioServicio usuarioServicio,
+                          PasswordEncoder passwordEncoder,
+                          CustomOAuth2UserService oAuth2UserService,
+                          OAuth2SuccessHandler oAuth2SuccessHandler) {
         this.usuarioServicio = usuarioServicio;
         this.passwordEncoder = passwordEncoder;
+        this.oAuth2UserService = oAuth2UserService;
+        this.oAuth2SuccessHandler = oAuth2SuccessHandler;
     }
 
     @Bean
@@ -36,17 +44,16 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authenticationProvider(authenticationProvider())
             .authorizeHttpRequests(authz -> authz
-                // Rutas públicas: calendario y booking de pacientes
                 .requestMatchers(
                     "/", "/turnos", "/turnos/**",
                     "/api/turnos/**",
                     "/css/**", "/js/**", "/img/**", "/webjars/**",
                     "/error", "/login"
                 ).permitAll()
-                // Panel del médico: requiere ADMIN
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
+            // Login clásico (médico con email/contraseña)
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
@@ -55,6 +62,13 @@ public class SecurityConfig {
                 .usernameParameter("email")
                 .passwordParameter("password")
                 .permitAll()
+            )
+            // Login con Google (pacientes)
+            .oauth2Login(oauth2 -> oauth2
+                .loginPage("/login")
+                .userInfoEndpoint(ui -> ui.userService(oAuth2UserService))
+                .successHandler(oAuth2SuccessHandler)
+                .failureUrl("/login?error=true")
             )
             .logout(logout -> logout
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

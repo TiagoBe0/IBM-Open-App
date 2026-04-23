@@ -26,18 +26,23 @@
         header .logo { font-size: 2rem; }
         header h1 { font-size: 1.4rem; font-weight: 700; }
         header p { font-size: .85rem; opacity: .85; }
+        .header-right { margin-left: auto; display: flex; align-items: center; gap: .8rem; }
         .nav-link {
-            margin-left: auto;
-            color: #fff;
-            text-decoration: none;
-            font-size: .85rem;
-            opacity: .85;
-            border: 1px solid rgba(255,255,255,.4);
-            padding: .4rem .9rem;
-            border-radius: 20px;
-            transition: opacity .2s;
+            color: #fff; text-decoration: none; font-size: .85rem; opacity: .85;
+            border: 1px solid rgba(255,255,255,.4); padding: .4rem .9rem;
+            border-radius: 20px; transition: opacity .2s; white-space: nowrap;
         }
         .nav-link:hover { opacity: 1; }
+        .user-chip {
+            display: flex; align-items: center; gap: .5rem;
+            background: rgba(255,255,255,.15); border-radius: 20px;
+            padding: .3rem .8rem .3rem .3rem;
+        }
+        .user-chip img {
+            width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+            border: 2px solid rgba(255,255,255,.5);
+        }
+        .user-chip span { font-size: .82rem; color: #fff; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .container { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
 
@@ -202,7 +207,16 @@
         <h1>Reserva tu turno</h1>
         <p>Seleccioná un día y horario disponible</p>
     </div>
-    <a href="/turnos/mis-turnos" class="nav-link">Ver mis turnos</a>
+    <div class="header-right">
+        <!-- Usuario logueado con Google -->
+        <div class="user-chip" th:if="${nombreLogueado != null}">
+            <img th:if="${fotoLogueado != null}" th:src="${fotoLogueado}" alt="foto"/>
+            <span th:text="${nombreLogueado}">Usuario</span>
+        </div>
+        <a href="/turnos/mis-turnos" class="nav-link">Mis turnos</a>
+        <a th:if="${nombreLogueado != null}" href="/logout" class="nav-link">Salir</a>
+        <a th:if="${nombreLogueado == null}" href="/login" class="nav-link">Iniciar sesión</a>
+    </div>
 </header>
 
 <div class="container">
