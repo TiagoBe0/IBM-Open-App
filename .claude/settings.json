@@ -6,7 +6,8 @@
       "Bash(psql -h localhost -U admin_openapp -d openappv1 -c ' *)",
       "Bash(PGPASSWORD=risq194201 psql -h localhost -U admin_openapp -d openappv1 -c \"\\\\d usuarios\")",
       "Bash(xargs ls *)",
-      "Bash(PGPASSWORD=risq194201 psql -h localhost -U admin_openapp -d openappv1 -c \"ALTER TABLE usuarios ALTER COLUMN password DROP NOT NULL;\")"
+      "Bash(PGPASSWORD=risq194201 psql -h localhost -U admin_openapp -d openappv1 -c \"ALTER TABLE usuarios ALTER COLUMN password DROP NOT NULL;\")",
+      "Bash(PGPASSWORD=risq194201 psql -h localhost -U admin_openapp -d openappv1 -c \"\\\\ds\")"
     ]
   }
 }

@@ -14,7 +14,8 @@ public class AuthController {
             @RequestParam(required = false) String logout,
             Model model) {
 
-        if (error != null) model.addAttribute("error", "Email o contraseña incorrectos.");
+        if (error != null) model.addAttribute("error",
+                "Hubo un problema al iniciar sesión. Si usaste Google, verificá que tu cuenta esté activa e intentá de nuevo.");
         if (logout != null) model.addAttribute("mensaje", "Sesión cerrada correctamente.");
         return "login";
     }
