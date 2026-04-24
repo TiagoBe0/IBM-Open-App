@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Turnos del día</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f8; color: #1a202c; min-height: 100vh; }
+        header { background: #1e293b; color: #fff; padding: 1rem 2rem; display: flex; align-items: center; gap: 1rem; }
+        header a { color: #cbd5e1; text-decoration: none; font-size: .85rem; }
+        header h1 { font-size: 1.1rem; font-weight: 700; flex: 1; }
+        .container { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .date-title { font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-bottom: 1.5rem; }
+
+        .turno-card { background: #fff; border-radius: 12px; padding: 1.2rem 1.4rem; box-shadow: 0 2px 8px rgba(0,0,0,.05); margin-bottom: 1rem; border-left: 5px solid #bfdbfe; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+        .turno-card.RESERVADO { border-left-color: #1a56db; }
+        .turno-card.COMPLETADO { border-left-color: #10b981; }
+        .turno-card.CANCELADO { border-left-color: #94a3b8; opacity: .7; }
+        .turno-card.AUSENTE { border-left-color: #ef4444; }
+
+        .hora { font-size: 1.3rem; font-weight: 800; color: #1a56db; min-width: 70px; }
+        .info { flex: 1; }
+        .info strong { display: block; font-size: .95rem; }
+        .info span { font-size: .82rem; color: #64748b; }
+        .badge { display: inline-block; padding: .2rem .65rem; border-radius: 20px; font-size: .72rem; font-weight: 700; }
+        .badge-RESERVADO { background: #dbeafe; color: #1e40af; }
+        .badge-COMPLETADO { background: #d1fae5; color: #065f46; }
+        .badge-CANCELADO { background: #f1f5f9; color: #475569; }
+        .badge-AUSENTE { background: #fee2e2; color: #991b1b; }
+        .actions { display: flex; gap: .4rem; }
+        .btn-action { border: none; border-radius: 5px; padding: .35rem .7rem; font-size: .78rem; font-weight: 700; cursor: pointer; }
+        .btn-completar { background: #d1fae5; color: #065f46; }
+        .btn-cancelar { background: #fee2e2; color: #991b1b; }
+        .btn-ausente { background: #fef3c7; color: #92400e; }
+        .btn-action:hover { opacity: .8; }
+        .empty { text-align: center; padding: 3rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="/admin/panel">← Volver al panel</a>
+    <h1 style="margin-left:.5rem;">Turnos del día</h1>
+</header>
+<div class="container">
+    <div class="date-title" th:text="'Turnos del ' + ${#temporals.format(fecha,'EEEE dd/MM/yyyy', new java.util.Locale('es','AR'))}">Turnos del lunes 28/04/2025</div>
+
+    <div th:if="${turnos.isEmpty()}" class="empty">No hay turnos para este día.</div>
+
+    <div th:each="t : ${turnos}" th:class="'turno-card ' + ${t.estado}">
+        <div class="hora" th:text="${#temporals.format(t.hora,'HH:mm')}">10:00</div>
+        <div class="info">
+            <strong th:text="${t.nombrePaciente}">María González</strong>
+            <span th:text="${t.emailPaciente} + (${t.telefonoPaciente} != null ? ' · ' + ${t.telefonoPaciente} : '')">m@email.com</span>
+            <span th:if="${t.motivo != null and !t.motivo.isEmpty()}" th:text="' · ' + ${t.motivo}"></span>
+        </div>
+        <span th:class="'badge badge-' + ${t.estado}" th:text="${t.estado}">RESERVADO</span>
+        <div class="actions" th:if="${t.estado.name() == 'RESERVADO'}">
+            <form th:action="'/admin/turnos/' + ${t.id} + '/estado'" method="post">
+                <input type="hidden" name="estado" value="COMPLETADO"/>
+                <button type="submit" class="btn-action btn-completar">Completado</button>
+            </form>
+            <form th:action="'/admin/turnos/' + ${t.id} + '/estado'" method="post">
+                <input type="hidden" name="estado" value="AUSENTE"/>
+                <button type="submit" class="btn-action btn-ausente">Ausente</button>
+            </form>
+            <form th:action="'/admin/turnos/' + ${t.id} + '/estado'" method="post">
+                <input type="hidden" name="estado" value="CANCELADO"/>
+                <button type="submit" class="btn-action btn-cancelar">Cancelar</button>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
