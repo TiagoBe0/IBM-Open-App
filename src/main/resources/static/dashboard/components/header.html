@@ -1,0 +1,35 @@
+<!-- Encabezado -->
+<div class="header">
+    <h1>🌳 Sistema de Gestión Árbol-Rama-Hoja</h1>
+    <p>Dashboard interactivo para gestionar la estructura jerárquica de datos</p>
+    
+    <!-- Información del usuario actual -->
+    <div class="user-info">
+        <div>
+            <strong>👤 Usuario activo:</strong>
+            <span id="userName">Cargando...</span>
+            <span id="userUsername">@usuario</span>
+            <span id="userId">[ID: 0]</span>
+        </div>
+        <div>
+            <a href="/logout" class="btn btn-danger">
+                🚪 Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+// Poblar información del usuario cuando se carga el componente
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.APP_CONFIG) {
+        const userName = document.getElementById('userName');
+        const userUsername = document.getElementById('userUsername');
+        const userId = document.getElementById('userId');
+        
+        if (userName) userName.textContent = `${window.APP_CONFIG.USUARIO_NOMBRE} ${window.APP_CONFIG.USUARIO_APELLIDO}`;
+        if (userUsername) userUsername.textContent = `(@${window.APP_CONFIG.USUARIO_USERNAME})`;
+        if (userId) userId.textContent = `[ID: ${window.APP_CONFIG.USUARIO_ID}]`;
+    }
+});
+</script>

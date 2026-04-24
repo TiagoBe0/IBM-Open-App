@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Publicaciones - SiMAF | Universidad de Mendoza</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-dark: #0a1929;
+            --primary: #1a365d;
+            --secondary: #2c5282;
+            --accent: #4299e1;
+            --light-blue: #ebf8ff;
+            --text-dark: #1a202c;
+            --text-light: #718096;
+            --white: #ffffff;
+            --success: #48bb78;
+            --warning: #ed8936;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+            background: #f7fafc;
+        }
+
+        header {
+            background: var(--primary-dark);
+            color: var(--white);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        nav {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-main {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .logo-sub {
+            font-size: 0.75rem;
+            opacity: 0.9;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .hero-small {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--secondary) 100%);
+            color: var(--white);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .hero-small h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .hero-small p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            border-left: 4px solid var(--accent);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .filters {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+
+        .filter-group input,
+        .filter-group select {
+            padding: 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn-filter {
+            padding: 0.8rem 1.5rem;
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            background: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .publications-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .publication-card {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .publication-card:hover {
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+            border-left-color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .publication-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .publication-title {
+            color: var(--primary);
+            font-size: 1.15rem;
+            font-weight: 600;
+            line-height: 1.5;
+            flex: 1;
+        }
+
+        .availability-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-available {
+            background: rgba(72, 187, 120, 0.15);
+            color: var(--success);
+        }
+
+        .badge-unavailable {
+            background: rgba(237, 137, 54, 0.15);
+            color: var(--warning);
+        }
+
+        .publication-authors {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            font-style: italic;
+        }
+
+        .publication-meta {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .publication-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .publication-link:hover {
+            color: var(--primary);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-light);
+        }
+
+        footer {
+            background: #0a0e1a;
+            color: var(--white);
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+
+        footer p {
+            opacity: 0.8;
+            font-size: 0.95rem;
+        }
+
+        @media (max-width: 768px) {
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .publication-header {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo-section">
+                <div class="logo-text">
+                    <div class="logo-main">SiMAF</div>
+                    <div class="logo-sub">Universidad de Mendoza</div>
+                </div>
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Inicio</a></li>
+                <li><a href="#" style="color: var(--accent);">Publicaciones</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero-small">
+        <h1>Publicaciones Científicas</h1>
+        <p>Producción académica del Laboratorio SiMAF</p>
+    </section>
+
+    <div class="container">
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-number" id="totalPubs">138</div>
+                <div class="stat-label">Total de Publicaciones</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="availablePubs">125</div>
+                <div class="stat-label">Disponibles en Línea</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">2012-2025</div>
+                <div class="stat-label">Período de Publicación</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="filteredCount">138</div>
+                <div class="stat-label">Resultados Mostrados</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>Buscar por título o autor</label>
+                    <input type="text" id="searchInput" placeholder="Ej: molecular dynamics, Bringa, tantalum...">
+                </div>
+                <div class="filter-group">
+                    <label>Año</label>
+                    <select id="yearFilter">
+                        <option value="">Todos los años</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Disponibilidad</label>
+                    <select id="availabilityFilter">
+                        <option value="">Todas</option>
+                        <option value="available">Disponibles</option>
+                        <option value="unavailable">No disponibles</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="publicationsList" class="publications-list"></div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 SiMAF - Laboratorio de Simulaciones en Materiales, Astrofísica y Física | Universidad de Mendoza</p>
+        <p style="margin-top: 0.5rem; opacity: 0.7;">Todos los derechos reservados</p>
+    </footer>
+
+    <script>
+        const publications = [
+            {
+                title: "Temperature effects on the strength of a nanocrystalline refractory high entropy alloy",
+                authors: "FR Roco, O Deluigi, M Opazo, N Amigo, J Rojas-Nunez, FJ Valencia, DR Tramontina, EM Bringa",
+                journal: "International Journal of Refractory Metals and Hard Materials",
+                year: 2025,
+                volume: "128, 107038",
+                available: false,
+                url: ""
+            },
+            {
+                title: "Mechanical properties of High Entropy Alloy nanoparticles obtained by nanoindentation: A BCC HfNbZrTaTi and FCC FeNiCrCoCu case",
+                authors: "FR Roco, FJ Valencia, J Rogan, M Ramirez, FA Cartellone, EM Bringa",
+                journal: "Materials Today Communications",
+                year: 2025,
+                volume: "43, 111628",
+                available: false,
+                url: ""
+            },
+            {
+                title: "Construction of granular aggregates with different porosity, shape, and size distributions",
+                authors: "EN Millán, MB Planes, EM Bringa, MG Parisi",
+                journal: "Granular Matter",
+                year: 2025,
+                volume: "27 (1), 3",
+                available: true,
+                url: "https://www.iar.unlp.edu.ar/biblio/htdocs/artic/contri/1862.pdf"
+            },
+            {
+                title: "Mechanical properties of hcp Fe at high pressures and temperatures from large-scale molecular dynamics simulations",
+                authors: "OR Deluigi, EM Bringa",
+                journal: "Journal of Applied Physics",
+                year: 2024,
+                volume: "136 (19)",
+                available: true,
+                url: "https://pubs.aip.org/aip/jap/article/136/19/195901/3320676"
+            },
+            {
+                title: "Plasticity tuning of thermal conductivity between nanoparticles",
+                authors: "G Mora-Barzaga, EN Miranda, EM Bringa",
+                journal: "Journal of Applied Physics",
+                year: 2024,
+                volume: "136 (17)",
+                available: true,
+                url: "https://pubs.aip.org/aip/jap/article/136/17/175103/3318772"
+            },
+            {
+                title: "Size-dependent Curie temperature of Ni nanoparticles from spin-lattice dynamics simulations",
+                authors: "G Dos Santos, HM Urbassek, EM Bringa",
+                journal: "Scientific Reports",
+                year: 2024,
+                volume: "14 (1), 22012",
+                available: true,
+                url: "https://www.nature.com/articles/s41598-024-73129-w.pdf"
+            },
+            {
+                title: "Chemical short-range order increases the phonon heat conductivity in a refractory high-entropy alloy",
+                authors: "G Mora-Barzaga, HM Urbassek, OR Deluigi, PM Pasinetti, EM Bringa",
+                journal: "Scientific Reports",
+                year: 2024,
+                volume: "14 (1), 20628",
+                available: true,
+                url: "https://www.nature.com/articles/s41598-024-70500-9.pdf"
+            },
+            {
+                title: "Atomistic Simulations of the Shock and Spall Behavior of the Refractory High-Entropy Alloy HfNbTaTiZr",
+                authors: "D Thürmer, OR Deluigi, HM Urbassek, EM Bringa, N Merkert",
+                journal: "High Entropy Alloys & Materials",
+                year: 2024,
+                volume: "2 (2), 321-331",
+                available: true,
+                url: "https://link.springer.com/article/10.1007/S44210-024-00042-2"
+            },
+            {
+                title: "How crack twisting in bouligand structures lead to damage delocalization and toughening",
+                authors: "A Garnica, E Aparicio, M Shishehbor, D Kisailus, EM Bringa, PD Zavattieri",
+                journal: "Extreme Mechanics Letters",
+                year: 2024,
+                volume: "71, 102190",
+                available: true,
+                url: "https://www.sciencedirect.com/science/article/am/pii/S2352431624000701"
+            },
+            {
+                title: "Dust–dust collisions in cometary comas: applications to comet 67P/Churyumov–Gerasimenko",
+                authors: "MB Planes, MG Parisi, EN Millán, EM Bringa, M Cañada-Assandri",
+                journal: "Monthly Notices of the Royal Astronomical Society",
+                year: 2024,
+                volume: "531 (3), 3168-3186",
+                available: true,
+                url: "https://academic.oup.com/mnras/article-pdf/531/3/3168/58166475/stae1078.pdf"
+            },
+            {
+                title: "Nanoindentation into a bcc high-entropy HfNbTaTiZr alloy—an atomistic study of the effect of short-range order",
+                authors: "IA Alhafez, OR Deluigi, D Tramontina, N Merkert, HM Urbassek, EM Bringa",
+                journal: "Scientific Reports",
+                year: 2024,
+                volume: "14 (1), 9112",
+                available: true,
+                url: "https://www.nature.com/articles/s41598-024-59761-6.pdf"
+            },
+            {
+                title: "Plasticity in diamond nanoparticles: dislocations and amorphization during loading and dislocation multiplication during unloading",
+                authors: "D Castillo-Castro, RI González, N Amigo, G García Vidable, DR Tramontina, FJ Valencia, EM Bringa",
+                journal: "Journal of Materials Science",
+                year: 2024,
+                volume: "59 (12), 4788-4809",
+                available: true,
+                url: "https://www.researchgate.net/profile/Daniel-Castillo-Castro/publication/376755445_Plasticity_in_diamond_nanoparticles_dislocations_and_amorphization_during_loading_and_dislocation_multiplication_during_unloading/links/6732bf37f255d57286677f79/Plasticity-in-diamond-nanoparticles-dislocations-and-amorphization-during-loading-and-dislocation-multiplication-during-unloading.pdf"
+            },
+            {
+                title: "Do dislocations always decrease thermal conductivity?",
+                authors: "G Mora-Barzaga, EN Miranda, EM Bringa",
+                journal: "International Journal of Thermal Sciences",
+                year: 2023,
+                volume: "193, 108474",
+                available: false,
+                url: ""
+            },
+            {
+                title: "Effects of airless bodies' regolith structures and of the solar wind's properties on the backscattered energetic neutral atoms flux",
+                authors: "S Verkercke, JY Chaufray, F Leblanc, EM Bringa, D Tramontina, L Morrissey, A Woodson",
+                journal: "The Planetary Science Journal",
+                year: 2023,
+                volume: "4 (10), 197",
+                available: true,
+                url: "https://iopscience.iop.org/article/10.3847/PSJ/acf6bd/pdf"
+            },
+            {
+                title: "Feasibility analysis towards the simulation of hysteresis with spin-lattice dynamics",
+                authors: "G Dos Santos, F Romá, J Tranchida, S Castedo, LF Cugliandolo, EM Bringa",
+                journal: "Physical Review B",
+                year: 2023,
+                volume: "108 (13), 134417",
+                available: true,
+                url: "https://arxiv.org/pdf/2205.10418"
+            },
+            {
+                title: "A spall and diffraction study of nanosecond pressure release across the iron ε-α phase boundary",
+                authors: "G Righi, R Briggs, OR Deluigi, CV Stan, S Singh, SM Clarke, EM Bringa, RF Smith, RE Rudd, HS Park",
+                journal: "Acta Materialia",
+                year: 2023,
+                volume: "257, 119148",
+                available: true,
+                url: "https://www.sciencedirect.com/science/article/am/pii/S1359645423004792"
+            },
+            {
+                title: "Spin-lattice-dynamics analysis of magnetic properties of iron under compression",
+                authors: "G Dos Santos, R Meyer, D Tramontina, EM Bringa, HM Urbassek",
+                journal: "Scientific Reports",
+                year: 2023,
+                volume: "13 (1), 14282",
+                available: true,
+                url: "https://www.nature.com/articles/s41598-023-41499-2"
+            },
+            {
+                title: "Probing radiation resistance in simulated metallic core–shell nanoparticles",
+                authors: "OR Deluigi, R Pinzón, J Rojas-Nunez, FJ Valencia, RC Pasianot, SE Baltazar, RI Gonzalez, EM Bringa",
+                journal: "Computational Materials Science",
+                year: 2023,
+                volume: "227, 112304",
+                available: true,
+                url: "https://www.researchgate.net/profile/Diego-Tramontina/publication/372813587_Probing_radiation_resistance_in_simulated_metallic_core-shell_nanoparticles/links/64d129cd40a524707ba4a985/Probing-radiation-resistance-in-simulated-metallic-core-shell-nanoparticles.pdf"
+            },
+            {
+                title: "Multisom: Multi-layer self organizing maps for local structure identification in crystalline structures",
+                authors: "F Aquistapace, N Amigo, JF Troncoso, O Deluigi, EM Bringa",
+                journal: "Computational Materials Science",
+                year: 2023,
+                volume: "227, 112263",
+                available: false,
+                url: ""
+            },
+            {
+                title: "Plastic behavior of a nanoporous high-entropy alloy under compression",
+                authors: "O Deluigi, N Amigo, FJ Valencia, F Aquistapace, DR Tramontina, RI Gonzalez, EM Bringa",
+                journal: "Computational Materials Science",
+                year: 2023,
+                volume: "226, 112241",
+                available: false,
+                url: ""
+            },
+            {
+                title: "Simulated nanoindentation into single-phase fcc Fe x Ni 1-x alloys predicts maximum hardness for equiatomic stoichiometry",
+                authors: "I Alabd Alhafez, OR Deluigi, D Tramontina, CJ Ruestes, EM Bringa, HM Urbassek",
+                journal: "Scientific Reports",
+                year: 2023,
+                volume: "13 (1), 9806",
+                available: true,
+                url: "https://www.nature.com/articles/s41598-023-36899-3"
+            },
+            {
+                title: "Model based on COVID-19 evidence to predict and improve pandemic control",
+                authors: "RI González, PS Moya, EM Bringa, G Bacigalupe, M Ramírez-Santana, M Kiwi",
+                journal: "Plos one",
+                year: 2023,
+                volume: "18 (6), e0286747",
+                available: true,
+                url: "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0286747&type=printable"
+            },
+            {
+                title: "On the origins of backscattered solar wind energetic neutral hydrogen from the Moon and Mercury",
+                authors: "F Leblanc, R Deborde, D Tramontina, E Bringa, JY Chaufray, S Aizawa, R Modolo, L Morrissey, A Woodson",
+                journal: "Planetary and Space Science",
+                year: 2023,
+                volume: "229, 105660",
+                available: true,
+                url: "https://www.sciencedirect.com/science/article/am/pii/S0032063323000296"
+            },
+            {
+                title: "Nanoporous amorphous carbon with exceptional ultra-high strength",
+                authors: "D Castillo-Castro, F Correa, E Aparicio, N Amigo, A Prada, J Figueroa, RI González, E Bringa, FJ Valencia",
+                journal: "Nanomaterials",
+                year: 2023,
+                volume: "13 (8), 1429",
+                available: true,
+                url: "https://www.mdpi.com/2079-4991/13/8/1429"
+            },
+            {
+                title: "A Monte Carlo code for the collisional evolution of porous aggregates (CPA)",
+                authors: "EN Millán, MB Planes, HM Urbassek, EM Bringa",
+                journal: "Astronomy & Astrophysics",
+                year: 2023,
+                volume: "672, A50",
+                available: true,
+                url: "https://www.aanda.org/articles/aa/full_html/2023/04/aa43069-22/aa43069-22.html"
+            },
+            {
+                title: "Atomistic simulations of ductile failure in a bcc high-entropy alloy",
+                authors: "F Aquistapace, N Vazquez, M Chiarpotti, O Deluigi, CJ Ruestes, EM Bringa",
+                journal: "High Entropy Alloys & Materials",
+                year: 2023,
+                volume: "1 (1), 84-95",
+                available: true,
+                url: "https://arxiv.org/pdf/2208.00234"
+            },
+            {
+                title: "Influence of grain size on mechanical properties of a refractory high entropy alloy under uniaxial tension",
+                authors: "O Deluigi, F Valencia, DR Tramontina, N Amigo, J Rojas-Nunez, EM Bringa",
+                journal: "Crystals",
+                year: 2023,
+                volume: "13 (2), 357",
+                available: true,
+                url: "https://www.mdpi.com/2073-4352/13/2/357"
+            },
+            {
+                title: "Molecular dynamics simulation of surface phenomena due to high electronic excitation ion irradiation in amorphous silica",
+                authors: "A Prada, F Sánchez-Pérez, M Bailly-Grandvaux, E Bringa, MJ Caturla, JM Perlado, J Kohanoff",
+                journal: "The European Physical Journal D",
+                year: 2023,
+                volume: "77 (2), 18",
+                available: true,
+                url: "https://link.springer.com/article/10.1140/epjd/s10053-022-00568-3"
+            },
+            {
+                title: "On the mechanical response in nanoalloys: the case of NiCo",
+                authors: "JA De La Rosa Abad, EM Bringa, SJ Mejía-Rosales, MM Mariscal",
+                journal: "Faraday Discussions",
+                year: 2023,
+                volume: "242, 23-34",
+                available: true,
+                url: "https://ri.conicet.gov.ar/bitstream/handle/11336/208839/CONICET_Digital_Nro.619f06f5-b147-4b1f-b892-9932362421b0_E.pdf?sequence=5"
+            },
+            {
+                title: "Atomistic simulations of tensile deformation of a nanoporous high-entropy alloy",
+                authors: "OR Deluigi, F Valencia, N Amigo, F Aquistapace, RI Gonzalez, EM Bringa",
+                journal: "Journal of Materials Science",
+                year: 2022,
+                volume: "57 (42), 19817-19831",
+                available: false,
+                url: ""
+            },
+            {
+                title: "Enhancing the thermal conductivity of amorphous carbon with nanowires and nanotubes",
+                authors: "G Mora-Barzaga, FJ Valencia, MI Carrasco, RI González, MG Parlanti, EN Miranda, EM Bringa",
+                journal: "Nanomaterials",
+                year: 2022,
+                volume: "12 (16), 2835",
+                available: true,
+                url: "https://www.mdpi.com/2079-4991/12/16/2835"
+            },
+            {
+                title: "Temperature-dependent magnetism in Fe foams via spin-lattice dynamics",
+                authors: "R Meyer, F Valencia, G Dos Santos, R Aparicio, EM Bringa, HM Urbassek",
+                journal: "Computational Materials Science",
+                year: 2022,
+                volume: "211, 111483",
+                available: true,
+                url: "https://arxiv.org/pdf/2204.10123"
+            },
+            {
+                title: "Nanoindentation of nanoporous tungsten: A molecular dynamics approach",
+                authors: "FJ Valencia, R Ortega, RI González, EM Bringa, M Kiwi, CJ Ruestes",
+                journal: "Computational Materials Science",
+                year: 2022,
+                volume: "209, 111336",
+                available: true,
+                url: "https://drive.google.com/file/d/1bIEKZ2g0XbECUiueZqA1AoS7IOFNt7ix/view"
+            },
+            {
+                title: "Simulations of plasticity in diamond nanoparticles showing ultrahigh strength",
+                authors: "GG Vidable, RI Gonzalez, FJ Valencia, N Amigo, D Tramontina, EM Bringa",
+                journal: "Diamond and Related Materials",
+                year: 2022,
+                volume: "126, 109109",
+                available: true,
+                url: "https://www.researchgate.net/profile/Diego-Tramontina/publication/360679149_Simulations_of_plasticity_in_diamond_nanoparticles_showing_ultrahigh_strength/links/628d4c3b345118162aa2fd38/Simulations-of-plasticity-in-diamond-nanoparticles-showing-ultrahigh-strength.pdf"
+            },
+            {
+                title: "Exceptionally high spallation strength for a high-entropy alloy demonstrated by experiments and simulations",
+                authors: "D Thürmer, S Zhao, OR Deluigi, C Stan, IA Alhafez, HM Urbassek, MA Meyers, EM Bringa, N Gunkelmann",
+                journal: "Journal of Alloys and Compounds",
+                year: 2022,
+                volume: "895, 162567",
+                available: true,
+                url: "https://www.sciencedirect.com/science/article/am/pii/S0925838821039773"
+            },
+            {
+                title: "Nanoindentation into a high-entropy alloy–An atomistic study",
+                authors: "IA Alhafez, CJ Ruestes, EM Bringa, HM Urbassek",
+                journal: "Journal of Alloys and Compounds",
+                year: 2019,
+                volume: "803, 618-624",
+                available: true,
+                url: "https://drive.google.com/file/d/1OxUaKpxdDS2bLDDbMkO0QGMJvxnR_hvH/view"
+            },
+            {
+                title: "Shock-induced plasticity in nanocrystalline iron: Large-scale molecular dynamics simulations",
+                authors: "HT Luu, RJ Ravelo, M Rudolph, EM Bringa, TC Germann, D Rafaja, N Gunkelmann",
+                journal: "Physical Review B",
+                year: 2020,
+                volume: "102 (2), 020102",
+                available: true,
+                url: "https://ri.conicet.gov.ar/bitstream/handle/11336/169389/CONICET_Digital_Nro.23c1841e-6aa3-45f4-bd01-df635eaa6f16_B.pdf?sequence=2"
+            },
+            {
+                title: "Molecular dynamics simulations of shock-induced plasticity in tantalum",
+                authors: "EM Bringa, et al.",
+                journal: "High Energy Density Physics",
+                year: 2014,
+                volume: "10, 9-15",
+                available: true,
+                url: "https://www.academia.edu/download/44000454/Molecular_dynamics_simulations_of_shock-20160322-29434-j8vh4u.pdf"
+            },
+            {
+                title: "Polycrystalline iron under compression: Plasticity and phase transitions",
+                authors: "N Gunkelmann, EM Bringa, K Kang, GJ Ackland, CJ Ruestes, HM Urbassek",
+                journal: "Physical Review B",
+                year: 2012,
+                volume: "86 (14), 144111",
+                available: true,
+                url: "https://www.academia.edu/download/48115644/Polycrystalline_iron_under_compression_P20160817-13580-shrmjl.pdf"
+            },
+            {
+                title: "Probing the character of ultra-fast dislocations",
+                authors: "CJ Ruestes, EM Bringa, RE Rudd, BA Remington, TP Remington, MA Meyers",
+                journal: "Scientific reports",
+                year: 2015,
+                volume: "5 (1), 16892",
+                available: true,
+                url: "https://www.nature.com/articles/srep16892"
+            },
+            {
+                title: "Plastic deformation in nanoindentation of tantalum: A new mechanism for prismatic loop formation",
+                authors: "TP Remington, CJ Ruestes, EM Bringa, BA Remington, CH Lu, B Kad, MA Meyers",
+                journal: "Acta Materialia",
+                year: 2014,
+                volume: "78, 378-393",
+                available: true,
+                url: "https://ri.conicet.gov.ar/bitstream/handle/11336/32239/CONICET_Digital_Nro.9d9f1861-105d-49b2-baea-880e362cb27e_A.pdf?sequence=2&isAllowed=y"
+            }
+        ];
+
+        let filteredPublications = [...publications];
+
+        function initializeFilters() {
+            const years = [...new Set(publications.map(p => p.year))].sort((a, b) => b - a);
+            const yearSelect = document.getElementById('yearFilter');
+            
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearSelect.appendChild(option);
+            });
+
+            document.getElementById('searchInput').addEventListener('input', filterPublications);
+            document.getElementById('yearFilter').addEventListener('change', filterPublications);
+            document.getElementById('availabilityFilter').addEventListener('change', filterPublications);
+        }
+
+        function filterPublications() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedYear = document.getElementById('yearFilter').value;
+            const availability = document.getElementById('availabilityFilter').value;
+
+            filteredPublications = publications.filter(pub => {
+                const matchesSearch = searchTerm === '' || 
+                    pub.title.toLowerCase().includes(searchTerm) ||
+                    pub.authors.toLowerCase().includes(searchTerm) ||
+                    pub.journal.toLowerCase().includes(searchTerm);
+
+                const matchesYear = selectedYear === '' || pub.year.toString() === selectedYear;
+
+                const matchesAvailability = availability === '' ||
+                    (availability === 'available' && pub.available) ||
+                    (availability === 'unavailable' && !pub.available);
+
+                return matchesSearch && matchesYear && matchesAvailability;
+            });
+
+            document.getElementById('filteredCount').textContent = filteredPublications.length;
+            renderPublications();
+        }
+
+        function renderPublications() {
+            const container = document.getElementById('publicationsList');
+            
+            if (filteredPublications.length === 0) {
+                container.innerHTML = `
+                    <div class="no-results">
+                        <h3>No se encontraron publicaciones</h3>
+                        <p>Intenta ajustar los filtros de búsqueda</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredPublications.map(pub => `
+                <div class="publication-card">
+                    <div class="publication-header">
+                        <h3 class="publication-title">${pub.title}</h3>
+                        <span class="availability-badge ${pub.available ? 'badge-available' : 'badge-unavailable'}">
+                            ${pub.available ? '✓ Disponible' : '⊗ No disponible'}
+                        </span>
+                    </div>
+                    <p class="publication-authors">${pub.authors}</p>
+                    <p class="publication-meta">
+                        <strong>${pub.journal}</strong> ${pub.volume} (${pub.year})
+                    </p>
+                    ${pub.available && pub.url ? `
+                        <a href="${pub.url}" target="_blank" class="publication-link">
+                            📄 Acceder al documento completo →
+                        </a>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeFilters();
+            renderPublications();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+#!/bin/bash
+
+# =============================================================================
+# GUÍA DE TROUBLESHOOTING PARA OLLAMA
+# =============================================================================
+
+echo "🔍 DIAGNÓSTICO COMPLETO DE OLLAMA"
+echo "=================================="
+
+# Función para mostrar mensajes con colores
+info() { echo -e "\033[36m[INFO]\033[0m $1"; }
+success() { echo -e "\033[32m[SUCCESS]\033[0m $1"; }
+error() { echo -e "\033[31m[ERROR]\033[0m $1"; }
+warning() { echo -e "\033[33m[WARNING]\033[0m $1"; }
+
+# 1. Verificar si Ollama está instalado
+echo "1️⃣ Verificando instalación de Ollama..."
+if command -v ollama &> /dev/null; then
+    success "Ollama está instalado"
+    ollama --version
+else
+    error "Ollama NO está instalado"
+    echo "
+📥 INSTALAR OLLAMA:
+Para Linux/macOS:
+    curl -fsSL https://ollama.ai/install.sh | sh
+
+Para Windows:
+    Descargar desde: https://ollama.ai/download/windows
+"
+    exit 1
+fi
+
+echo ""
+
+# 2. Verificar si el servicio está corriendo
+echo "2️⃣ Verificando si Ollama está corriendo..."
+if pgrep -f "ollama serve" > /dev/null; then
+    success "Ollama está corriendo"
+    
+    # Obtener PID del proceso
+    OLLAMA_PID=$(pgrep -f "ollama serve")
+    info "PID del proceso: $OLLAMA_PID"
+else
+    warning "Ollama NO está corriendo"
+    echo "
+🚀 INICIAR OLLAMA:
+    ollama serve
+"
+fi
+
+echo ""
+
+# 3. Verificar conectividad
+echo "3️⃣ Verificando conectividad..."
+if curl -s http://localhost:11434/api/tags >/dev/null 2>&1; then
+    success "Ollama API está respondiendo en puerto 11434"
+else
+    error "No se puede conectar a Ollama API"
+    echo "
+🔧 SOLUCIONES:
+1. Iniciar Ollama: ollama serve
+2. Verificar puerto: netstat -tlnp | grep 11434
+3. Verificar firewall
+"
+fi
+
+echo ""
+
+# 4. Listar modelos instalados
+echo "4️⃣ Verificando modelos instalados..."
+MODELS=$(ollama list 2>/dev/null)
+if [ $? -eq 0 ] && [ ! -z "$MODELS" ]; then
+    success "Modelos encontrados:"
+    echo "$MODELS"
+else
+    warning "No hay modelos instalados o no se puede acceder"
+    echo "
+📦 INSTALAR MODELOS RECOMENDADOS:
+    ollama pull codellama:7b     # Modelo ligero para código
+    ollama pull codellama:13b    # Modelo más potente
+    ollama pull llama2:7b        # Modelo general
+    ollama pull mistral:7b       # Alternativa rápida
+"
+fi
+
+echo ""
+
+# 5. Verificar recursos del sistema
+echo "5️⃣ Verificando recursos del sistema..."
+info "Memoria libre:"
+free -h | grep "Mem:" || echo "Sistema no Linux"
+
+info "Espacio en disco:"
+df -h / | tail -1
+
+info "CPU:"
+nproc 2>/dev/null || echo "Comando nproc no disponible"
+
+echo ""
+
+# 6. Test de conectividad completo
+echo "6️⃣ Test de conectividad completo..."
+curl -X POST http://localhost:11434/api/generate \
+     -H "Content-Type: application/json" \
+     -d '{
+       "model": "codellama:7b",
+       "prompt": "Hola, ¿funcionas?",
+       "stream": false
+     }' 2>/dev/null | jq . 2>/dev/null
+
+if [ $? -eq 0 ]; then
+    success "Test de conectividad EXITOSO"
+else
+    error "Test de conectividad FALLÓ"
+fi
+
+echo ""
+
+# 7. Información del sistema
+echo "7️⃣ Información del sistema..."
+info "Sistema operativo: $(uname -s)"
+info "Versión: $(uname -r)"
+info "Arquitectura: $(uname -m)"
+
+# 8. Puertos en uso
+echo ""
+echo "8️⃣ Verificando puertos..."
+info "Puertos relacionados con Ollama:"
+netstat -tlnp 2>/dev/null | grep ":11434" || echo "Puerto 11434 no está en uso"
+
+echo ""
+echo "✅ DIAGNÓSTICO COMPLETADO"
+echo "========================="
+
+# Función para iniciar Ollama automáticamente
+start_ollama_auto() {
+    echo "
+🚀 ¿Quieres que inicie Ollama automáticamente? (y/n)"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        info "Iniciando Ollama..."
+        nohup ollama serve > ollama.log 2>&1 &
+        sleep 3
+        
+        if pgrep -f "ollama serve" > /dev/null; then
+            success "Ollama iniciado exitosamente"
+            info "Log disponible en: ollama.log"
+        else
+            error "Error al iniciar Ollama"
+        fi
+    fi
+}
+
+# Función para instalar modelo básico
+install_basic_model() {
+    echo "
+📦 ¿Quieres instalar CodeLlama 7B (recomendado para empezar)? (y/n)"
+    read -r response
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        info "Descargando CodeLlama 7B (esto puede tomar varios minutos)..."
+        ollama pull codellama:7b
+        
+        if [ $? -eq 0 ]; then
+            success "Modelo instalado exitosamente"
+        else
+            error "Error al instalar el modelo"
+        fi
+    fi
+}
+
+# Ejecutar funciones automáticas si Ollama no está corriendo
+if ! pgrep -f "ollama serve" > /dev/null; then
+    start_ollama_auto
+fi
+
+# Si no hay modelos, ofrecer instalación
+if ! ollama list 2>/dev/null | grep -q "codellama\|llama2\|mistral"; then
+    install_basic_model
+fi
+

@@ -1,0 +1,256 @@
+<!-- Modal Principal para Árboles/Ramas/Hojas -->
+<div class="modal" id="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle">Nuevo Registro</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="modalForm">
+            <!-- CAMPO OCULTO CRÍTICO PARA EL USUARIO -->
+            <input type="hidden" name="usuarioId" id="modalUsuarioId">
+            
+            <!-- SECCIÓN DE FOTO -->
+            <div class="form-group">
+                <label>Foto (opcional):</label>
+                <div class="photo-upload-container">
+                    <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(this)">
+                    <div class="photo-preview" id="photoPreview" style="display: none;">
+                        <img id="previewImage" src="" alt="Vista previa" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                        <button type="button" class="btn btn-danger btn-sm" onclick="removePhoto()" style="margin-top: 10px;">Quitar foto</button>
+                    </div>
+                    <div class="current-photo" id="currentPhoto" style="display: none;">
+                        <img id="currentImage" src="" alt="Foto actual" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                        <button type="button" class="btn btn-warning btn-sm" onclick="changePhoto()" style="margin-top: 10px;">Cambiar foto</button>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="deleteCurrentPhoto()" style="margin-top: 10px;">Eliminar foto</button>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="addPhotoButton" onclick="document.getElementById('photoInput').click()">
+                        📷 Agregar Foto
+                    </button>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Campo A: *</label>
+                    <input type="text" name="a" required>
+                </div>
+                <div class="form-group">
+                    <label>Campo B:</label>
+                    <input type="text" name="b">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Campo C:</label>
+                    <input type="text" name="c">
+                </div>
+                <div class="form-group">
+                    <label>Campo D:</label>
+                    <input type="text" name="d">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Campo E:</label>
+                    <input type="text" name="e">
+                </div>
+                <div class="form-group">
+                    <label>Campo F:</label>
+                    <input type="text" name="f">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Valor AF:</label>
+                    <input type="number" step="0.01" name="af" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Valor BF:</label>
+                    <input type="number" step="0.01" name="bf" value="0">
+                </div>
+                <div class="form-group">
+                    <label>Valor CF:</label>
+                    <input type="number" step="0.01" name="cf" value="0">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Flags:</label>
+                <div class="checkbox-group">
+                    <label>
+                        <input type="checkbox" name="ba"> BA
+                    </label>
+                    <label>
+                        <input type="checkbox" name="bb"> BB
+                    </label>
+                    <label>
+                        <input type="checkbox" name="bc"> BC
+                    </label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Calendario:</label>
+                <input type="datetime-local" name="calendario">
+            </div>
+            <div class="form-group" id="parentSelect" style="display: none;">
+                <label id="parentLabel">Seleccionar padre:</label>
+                <select name="parentId" id="parentId">
+                    <option value="">Seleccione...</option>
+                </select>
+            </div>
+            <div class="actions">
+                <button type="submit" class="btn btn-success">Guardar</button>
+                <button type="button" class="btn btn-danger" onclick="closeModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal del Chat -->
+<div class="modal" id="chatModal">
+    <div class="modal-content chat-modal-content">
+        <div class="modal-header">
+            <h2>💬 Chat en Tiempo Real</h2>
+            <button class="close-btn" onclick="closeChatModal()">&times;</button>
+        </div>
+        
+        <div class="chat-container" style="margin: 0; border: none; box-shadow: none;">
+            <div class="chat-header" style="border-radius: 0;">
+                <h3>Chat General</h3>
+                <div class="chat-status">
+                    <div class="status-indicator" id="chatConnectionStatus"></div>
+                    <span id="chatStatusText">Desconectado</span>
+                    <div class="users-online" id="chatUsersOnline">👥 0 usuarios</div>
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chatMessagesModal">
+                <div class="message system">
+                    <div class="message-content">Bienvenido al chat. Conectando...</div>
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="chatTypingIndicator" style="display: none;">
+                Alguien está escribiendo...
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="chatMessageInput" placeholder="Escribe tu mensaje..." disabled>
+                <button id="chatEmojiButton" type="button" disabled>😊</button>
+                <button id="chatSendButton" type="button" disabled>Enviar</button>
+            </div>
+            
+            <div class="emoji-picker" id="chatEmojiPicker">
+                <span class="emoji" onclick="addChatEmoji('😊')">😊</span>
+                <span class="emoji" onclick="addChatEmoji('😂')">😂</span>
+                <span class="emoji" onclick="addChatEmoji('❤️')">❤️</span>
+                <span class="emoji" onclick="addChatEmoji('👍')">👍</span>
+                <span class="emoji" onclick="addChatEmoji('👎')">👎</span>
+                <span class="emoji" onclick="addChatEmoji('🎉')">🎉</span>
+                <span class="emoji" onclick="addChatEmoji('🚀')">🚀</span>
+                <span class="emoji" onclick="addChatEmoji('💡')">💡</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Claude Assistant -->
+<div class="modal" id="claudeModal">
+    <div class="modal-content claude-modal-content">
+        <div class="modal-header">
+            <h2>🤖 Claude Assistant</h2>
+            <div class="claude-status">
+                <span id="claudeStatus" class="status-disconnected">Verificando...</span>
+            </div>
+            <button class="close-btn" onclick="closeClaudeModal()">&times;</button>
+        </div>
+        
+        <div class="claude-container">
+            <!-- Área de conversación -->
+            <div class="claude-conversation" id="claudeConversation">
+                <div class="claude-welcome">
+                    <div class="welcome-icon">🤖</div>
+                    <h3>¡Hola! Soy Claude</h3>
+                    <p>Tu asistente IA integrado. Puedo ayudarte con:</p>
+                    <div class="suggestion-chips">
+                        <button class="chip" onclick="useSuggestion('help')">💡 Ayuda del Sistema</button>
+                        <button class="chip" onclick="useSuggestion('analysis')">📊 Análisis de Datos</button>
+                        <button class="chip" onclick="useSuggestion('general')">💬 Consulta General</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Área de entrada -->
+            <div class="claude-input-area">
+                <div class="input-type-selector">
+                    <label>
+                        <input type="radio" name="queryType" value="help" checked>
+                        <span class="selector-label">💡 Ayuda</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="queryType" value="analysis">
+                        <span class="selector-label">📊 Análisis</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="queryType" value="general">
+                        <span class="selector-label">💬 General</span>
+                    </label>
+                </div>
+                
+                <div class="claude-input">
+                    <textarea id="claudeMessageInput" placeholder="Hazle una pregunta a Claude..." disabled></textarea>
+                    <button id="claudeSendButton" type="button" disabled>
+                        <span class="send-text">Enviar</span>
+                        <span class="send-loading" style="display: none;">⏳</span>
+                    </button>
+                </div>
+                
+                <div class="token-info" id="tokenInfo" style="display: none;">
+                    <small>Tokens: <span id="tokenCount">0</span> | Costo estimado: $<span id="estimatedCost">0.00</span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para enviar solicitud de amistad -->
+<div class="modal" id="modalSolicitudAmistad">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Enviar Solicitud de Amistad</h2>
+            <button class="close-btn" onclick="closeSolicitudModal()">&times;</button>
+        </div>
+        <form id="solicitudAmistadForm">
+            <input type="hidden" id="solicitudAmigoId" name="amigoId">
+            <div class="form-group">
+                <label>Usuario:</label>
+                <input type="text" id="solicitudAmigoNombre" readonly>
+            </div>
+            <div class="form-group">
+                <label>Mensaje (opcional):</label>
+                <textarea name="mensaje" rows="3" placeholder="Escribe un mensaje personalizado..."></textarea>
+            </div>
+            <div class="actions">
+                <button type="submit" class="btn btn-success">📤 Enviar Solicitud</button>
+                <button type="button" class="btn btn-danger" onclick="closeSolicitudModal()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para seleccionar amigo -->
+<div class="modal" id="modalSelectorAmigo">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Seleccionar Amigo para Chatear</h2>
+            <button class="close-btn" onclick="closeSelectorAmigoModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="search-box" style="margin-bottom: 20px;">
+                <input type="text" placeholder="Buscar amigo..." id="searchAmigosChat">
+            </div>
+            <div id="amigosDisponiblesChat">
+                <div class="loading">Cargando amigos...</div>
+            </div>
+        </div>
+    </div>
+</div>
